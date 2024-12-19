@@ -7,10 +7,10 @@ Damit das Projekt unabängig von der Python-Installation auf deinem Rechner ist.
 Man will sich nicht jede Abhängigkeit eines einzelnen Projektes auf seiner globalen Installation holen, 
 da man A) sich diese dabei gerne mal zerschießt und B) Dadurch Konflikte zwischen verschiedenen Projekten entstehen können.
 
-Poetry hat die meiner Meinung nach sehr nützliche zusätzlich Fähigkeit, solche Abhängigkeiten mitzudokumentieren
+Poetry hat eine meiner Meinung nach sehr nützliche zusätzlich Fähigkeit, solche Abhängigkeiten mitzudokumentieren
 und eine vereinfachte Installation anzubieten.
 
-**Ohne Poetry**  Irgendwer entscheidet sich matplotlib zum plotten zu verwenden > Er installiert in seiner venv mit `pip install matplotlib` > Ich pull, Oh Mist!, das gibt mir einen Error, dependency resulution funktioniert nicht, ärgerlich, mal schauen ob jemand das Requirements.txt upgedatet hat. Wie? Das macht keiner? > Ich suche und installiere mir manuell die neue Dependency matplotlib und bete das es die richtige Version ist
+**Ohne Poetry**  Irgendwer entscheidet sich matplotlib zum plotten zu verwenden > Er installiert in seiner venv mit `pip install matplotlib` > Ich pull, Oh Mist!, das gibt mir einen Error, dependency resulution funktioniert nicht, ärgerlich, mal schauen ob jemand das Requirements.txt geupgedatet hat. Wie? Das macht keiner? > Ich suche und installiere mir manuell die neue Dependency matplotlib und bete, dass es die richtige Version ist
 
 **Mit Poetry** Irgendwer entscheidet sich matplotlib zum plotten zu verwenden > Er fügt mit dem Befehl `poetry add matplotlib` die Dependency in die Virtuelle Umgebung und ins toml hinzu > Ich pull, ich verwende `poetry install` > Poetry installiert automatisch alle benötigten Dependencies in die Poetry shell
 
@@ -27,7 +27,7 @@ Für die Nutzer von Venv ändert das überhaupt nichts, außer das im Git Dateie
 | **Bedienung**             | `poetry add django` fügt Abhängigkeiten hinzu, und `poetry remove django` entfernt sie.                                             | Manuell: `pip install django`, dann `pip freeze > requirements.txt`.                              |  
 | **Reproduzierbarkeit**    | Dank `poetry.lock` identische Umgebungen für alle Teammitglieder.                                                                             | Abhängigkeiten können variieren, da `requirements.txt` nur die Hauptpakete listet. Und manuell gepflegt werden muss.               |  
 | **Installation**          | Poetry muss separat installiert werden.                                                                                                      | venv ist Teil der Standardbibliothek und immer verfügbar.                                         |  
-| **Projektstruktur**       | Poetry integriert alles in der Datei `pyproject.toml`, inklusive Skripten und Metadaten.                                                     | Mit venv braucht man zusätzlich `setup.py` oder `requirements.txt`, was oft unübersichtlich ist.  |  
+
  
 
 ### **Zusammenfassung der Vorteile von Poetry**  
