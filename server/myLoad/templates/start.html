@@ -1,28 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start a New Session</title>
-    <link rel="stylesheet" href="../static/styles.css">
-</head>
-<body class="dark-mode">
-    <div class="container">
-        <div class="settings-button">
-    <a href="settings/">
-        <button>
-            <img src="../static/settings-icon.png" alt="Settings" />
-        </button>
-    </a>
+{% extends 'base.html' %}
+
+{% block title %}Start a New Session{% endblock %}
+
+{% block content %}
+    <h1>Start a new Session</h1>
+    <div class="button-group">
+        <button class="action-button">▶ Meeting</button>
+        <button class="action-button">▶ Alleinarbeit</button>
     </div>
-        <h1>Start a new Session</h1>
-        <div class="button-group">
-            <button class="action-button">▶ Meeting</button>
-            <button class="action-button">▶ Alleinarbeit</button>
-        </div>
-    </div>
-
-
-
-</body>
-</html>
+{% endblock %}
