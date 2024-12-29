@@ -12,11 +12,9 @@
                 if (this.checked) {
                     localStorage.setItem("darkMode", "enabled");
                     document.body.classList.add("dark-mode");
-                    console.log("Dark mode enabled"); // Konsola mesaj yaz
                 } else {
                     localStorage.setItem("darkMode", "disabled");
                     document.body.classList.remove("dark-mode");
-                    console.log("Dark mode disabled"); // Konsola mesaj yaz
                 }
             });
         });
