@@ -22,19 +22,19 @@ body {
     height: 40px;
     width: 100px;
     font-size: 0.9rem;
-    color: #393938; /* Varsayılan Bootstrap metin rengi */
-    border: 1px solid #E9E7E2; /* Kenarlık ekler */
-    border-radius: 0.375rem; /* Köşeleri yuvarlar */
-    background-color: transparent; /* Şeffaf arkaplan */
-    transition: all 0.2s ease-in-out; /* Geçiş efekti ekler */
-    opacity: 0.8; /* %50 şeffaf */
+    color: #393938;
+    border: 1px solid #E9E7E2;
+    border-radius: 0.375rem;
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
+    opacity: 0.8;
 }
 
 .btn-navbar:hover {
     height: 80px;
     width: 200px;
-    display: flex; /* Flexbox etkinleştirilir */
-    align-items: center; /* Dikeyde ortalar */
-    justify-content: center; /* Yatayda ortalar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
