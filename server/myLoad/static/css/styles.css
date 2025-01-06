@@ -38,6 +38,10 @@ body {
     justify-content: center;
 }
 
+.nav-tabs {
+    border-bottom: 2px solid #E9E7E2; /* Alt çizginin kalınlığını ve rengini ayarlar */
+}
+
 .nav-tabs .nav-link {
     color: #393938;
     opacity: 0.7;
