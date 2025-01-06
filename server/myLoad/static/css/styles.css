@@ -38,3 +38,75 @@ body {
     justify-content: center;
 }
 
+.nav-tabs .nav-link {
+    color: #393938;
+    opacity: 0.7;
+    border: none;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #000000;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    color: #000000;
+    font-weight: bold;
+    border-bottom: 4px solid black;
+}
+
+.card {
+    border: 2px solid #E9E7E2;
+}
+
+
+input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #525f7f;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #525f7f;
+    border-color: #525f7f;
+}
+
+input[type="checkbox"]:checked::before {
+    content: '';
+    color: white;
+    font-size: 16px;
+    position: absolute;
+    left: 3px;
+    top: -1px;
+}
+
+
+input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #525f7f;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+}
+
+input[type="radio"]:checked {
+    background-color: white;
+    border-color: #525f7f;
+}
+
+input[type="radio"]:checked::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background-color: #525f7f;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
