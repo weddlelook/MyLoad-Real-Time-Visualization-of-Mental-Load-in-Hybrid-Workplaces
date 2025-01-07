@@ -6,7 +6,7 @@ authors = ["MyLoad-Team"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.14"
 django = "^5.1.4"
 pandas = "^2.2.3"
 numpy = "^2.2.1"
@@ -16,6 +16,7 @@ websockets = "^14.1"
 meegkit = "^0.1.7"
 h5py = "^3.12.1"
 keyboard = "^0.13.5"
+bleak = "^0.22.3"
 
 
 [build-system]
