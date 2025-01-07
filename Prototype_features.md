@@ -1,4 +1,4 @@
-# Echtzeitvisualisierung
+# Echtzeitvisualisierung Test
 
 Die verschiedenen aufkommenden Visualisierungsmethoden lassen sich grundsätzlich in kontinuierlich und diskret unterteilen. Die kontinuierlichen Methoden, wie Diagramm, Balken, Barometer und Batterie, zeigen immer einen möglichst genauen Wert an, während die diskreten Methoden, wie Ampel oder Emoji-Avatar, nur einen Wertebereich angeben.
 
