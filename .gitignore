@@ -253,3 +253,6 @@ fabric.properties
 
 #DS_Store
 .DS_Store
+
+#IDE InteliJ
+.idea/*
