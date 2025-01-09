@@ -7,7 +7,7 @@ Die verschiedenen aufkommenden Visualisierungsmethoden lassen sich grundsätzlic
 | Ampel, Emoji-Avatar (nur wenige Werte) | P1, P4 (Ampel), P8 (Emoji)      | 2       | 1            |                                       |
 | Balken, Barometer, Batterie (kontinuierlich) | P2 (Balken), P5 (Barometer), P7 (Batterie) | 1       | 2            | P2 will zusätzlich indizierte Bereiche |
 | Nur Farben / Umrandung         | P1, P6                          | 1       | 1            |                                       |
-| Ganzes Diagramm                | P9, P10                         |         |              |                                       |
+| Ganzes Diagramm                | P9, P10                         |         | 2            |                                       |
 
 **Interessante Anregungen**
 - Während eines "normalen" Levels wird gar nichts angezeigt (P1).
@@ -16,13 +16,13 @@ Die verschiedenen aufkommenden Visualisierungsmethoden lassen sich grundsätzlic
 ## Signale
 
 |                      | Akustisch | Popup / Benachrichtigung | Unspezifisch |
-|----------------------|-----------|---------------------------|--------------|
-| Dafür                | 3         | 6                         | 8            |
-| Dagegen             | 1         | 1                         | 0            |
-| Dafür Meeting        | 1         | 2                         | 3            |
-| Dagegen Meeting      | 1         | 1                         | 0            |
-| Dafür Einzelarbeit   | 1         | 4                         | 3            |
-| Dagegen Einzelarbeit | 0         | 0                         | 0            |
+|----------------------|-----------|--------------------------|--------------|
+| Dafür                | 3         | 6                        | 8            |
+| Dagegen             | 1         | 1                        | 0            |
+| Dafür Meeting        | 3         | 2                        | 3            |
+| Dagegen Meeting      | 1         | 1                        | 0            |
+| Dafür Einzelarbeit   | 1         | 6                        | 3            |
+| Dagegen Einzelarbeit | 0         | 0                        | 0            |
 
 Während keiner der Teilnehmenden strikt gegen Signale im Allgemeinen war, wurde von vielen der Wunsch geäußert, dass diese möglichst subtil gehalten werden sollen (P1, P2, P3, P6), um nicht weiter ablenkend oder stressend zu wirken. 
 
@@ -43,7 +43,7 @@ Die vier Teilnehmenden, die sich zu Tipps geäußert haben, befürworten alle Ti
 |                      | Meeting | Einzelarbeit | Gesamt |
 |----------------------|---------|--------------|--------|
 | Hilfreich            | 4       | 2            | 6      |
-| Hilfreich, wenn Notizen, Zeitstempel verfügbar sind | 0       | 1            | 1      |
+| Hilfreich, wenn Notizen, Zeitstempel verfügbar sind | 0       | 3            | 3      |
 | Hilfreich, mit individuellen Tipps und Report | 1       | 1            | 2      |
 | Nicht hilfreich      | 0       | 0            | 0      |
 | Offen dafür          | 1       | 0            | 1      |
