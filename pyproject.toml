@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "playground"
+version = "0.1.0"
+description = ""
+authors = ["udvbk <udvbk@student.kit.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+numpy = "^2.2.2"
+brainflow = "^5.16.0"
+meegkit = "^0.1.7"
+h5py = "^3.12.1"
+python = ">=3.13,<3.14"
+bleak = "^0.22.3"
+keyboard = "^0.13.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
