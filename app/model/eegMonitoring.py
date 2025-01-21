@@ -7,7 +7,6 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 from meegkit.asr import ASR
 from brainflow.exit_codes import BrainFlowError
-from pyriemann.utils.covariance import _check_est
 
 class EEGMonitoring:
     NUM_CHANNELS = 8
