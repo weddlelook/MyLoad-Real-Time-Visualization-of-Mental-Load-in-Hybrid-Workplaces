@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["udvbk <udvbk@student.kit.edu>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 numpy = "^2.2.2"
@@ -13,6 +14,10 @@ h5py = "^3.12.1"
 python = ">=3.13,<3.14"
 bleak = "^0.22.3"
 keyboard = "^0.13.5"
+pyriemann = "0.2.7"
+pyqt6 = "^6.8.0"
+pyqtgraph = "^0.13.7"
+qasync = "^0.27.1"
 
 
 [build-system]

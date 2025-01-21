@@ -360,13 +360,8 @@ class MonitoringApp:
         if not os.path.exists(HDF5_FILENAME):
             with h5py.File(HDF5_FILENAME, 'w') as h5_file:
                 eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8')])
-                hr_dtype = np.dtype([('timestamp', 'f8'), ('rr_interval', 'f8'), ('heart_rate', 'f8'), ('raw', 'f8')])
-                keypress_dtype = np.dtype([('timestamp', 'f8'), ('key', 'S10')])
                 h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
-                h5_file.create_dataset('HR_data', shape=(0,), maxshape=(None,), dtype=hr_dtype)
-                h5_file.create_dataset('Keypress_data', shape=(0,), maxshape=(None,), dtype=keypress_dtype)
-            self.update_status("HDF5 file created successfully")
-            self.root.after(0, self.data_status_icon.config, {"text": "✓", "fg": "green"})
+            print("HDF5 file created successfully")
         else:
             self.update_status("HDF5 file already exists")
             self.root.after(0, self.data_status_icon.config, {"text": "✓", "fg": "green"})
