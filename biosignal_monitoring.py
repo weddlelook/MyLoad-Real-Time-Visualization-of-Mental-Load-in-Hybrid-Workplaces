@@ -1,8 +1,8 @@
+import queue
 import asyncio
 from asyncio import Queue
 import time
 import numpy as np
-import websockets
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 from brainflow.exit_codes import BrainFlowError
@@ -149,6 +149,8 @@ class EEGMonitoring:
                         data_buffer = np.hstack((data_buffer[:, new_data.shape[1]:], transformed_data))
 
                         theta_power, alpha_power, beta_power = self.calculate_powers(data_buffer, self.sampling_rate)
+
+                        print(f"Theta Power: {theta_power:.2f}, Alpha Power: {alpha_power:.2f}, Beta Power: {beta_power:.2f}")
                         timestamp = time.time()
 
                         # Speichere die berechneten Werte und den Zeitstempel direkt in die HDF5-Datei
@@ -189,102 +191,7 @@ class EEGMonitoring:
 
         self.status_callback(f"EEG Data saved to {filename}")
 
-
-class HeartRateMonitoring:
-    def __init__(self, hr_device_name, status_callback):
-        self.hr_client = None
-        self.hr_device_name = hr_device_name
-        self.hr_device_address = None
-        self.status_callback = status_callback
-
-    async def connect_hr_device(self):
-        self.status_callback("Scanning for Bluetooth devices...")
-        devices = await BleakScanner.discover()
-
-        hr_device = next((device for device in devices if device.name and self.hr_device_name in device.name), None)
-        self.hr_device_address = hr_device.address
-
-        if self.hr_device_address:
-            self.hr_client = BleakClient(self.hr_device_address)
-            try:
-                await self.hr_client.connect()
-                self.status_callback("Successfully connected to the HR device.")
-            except Exception as e:
-                self.status_callback(f"Failed to connect: {e}")
-        else:
-            self.status_callback("No HR device found.")
-
-    async def release_hr_device(self):
-        if self.hr_client:
-            await self.hr_client.disconnect()
-            self.status_callback("Disconnected from the HR device.")
-
-    async def handle_heart_rate_data(self, sender, data):
-        flags = data[0]
-        hr_format_16bit = (flags & 0x01) != 0
-        rr_intervals_present = (flags & 0x10) != 0
-
-        index = 1
-
-        if hr_format_16bit:
-            heart_rate = int.from_bytes(data[index:index + 2], byteorder='little')
-            index += 2
-        else:
-            heart_rate = data[index]
-            index += 1
-
-        if rr_intervals_present:
-            while index < len(data):
-                rr_interval = round(int.from_bytes(data[index:index + 2], byteorder='little') / 1.024)
-                timestamp = time.time()
-                self.save_hr_data_as_hdf5(HDF5_FILENAME, timestamp, rr_interval, heart_rate, data)
-                index += 2
-
-    def save_hr_data_as_hdf5(self, filename, timestamp, rr_interval, heart_rate, data):
-        with h5py.File(filename, 'a') as h5_file:
-            hr_dataset = h5_file['HR_data']
-            new_index = hr_dataset.shape[0]
-
-            hr_dataset.resize((new_index + 1,))
-            hr_dataset[new_index] = (timestamp, rr_interval, heart_rate, data)
-
-        self.status_callback(f"HR Data saved to {filename}")
-
-    async def monitor_heart_rate(self):
-        if self.hr_client:
-            try:
-                await self.hr_client.start_notify("00002a37-0000-1000-8000-00805f9b34fb", self.handle_heart_rate_data)
-            except Exception as e:
-                self.status_callback(f"Error starting HR notifications: {e}")
-
-
-class WebsocketClient:
-    def __init__(self, ip_addr, participant_id, status_callback):
-        self.ip_addr = ip_addr
-        self.participant_id = participant_id
-        self.websocket_client = None
-        self.message_queue = Queue()
-        self.status_callback = status_callback
-
-    async def connect(self):
-        ws_ip = f"ws://{self.ip_addr}/ws/{self.participant_id}"
-        self.websocket_client = await websockets.connect(ws_ip, ping_interval=20)
-        self.status_callback("Connected client to server.")
-
-    async def close_websocket_client(self):
-        if self.websocket_client:
-            await self.websocket_client.close()
-            self.status_callback("Client closed.")
-        else:
-            self.status_callback("No active connection to close.")
-
-    async def listen(self):
-        if self.websocket_client:
-            async for message in self.websocket_client:
-                self.status_callback(f"Received message: {message}")
-                await self.message_queue.put(message)  # Nachricht in die Warteschlange einfügen
-
-async def process_messages(client: WebsocketClient, eeg_mon: EEGMonitoring, hr_mon: HeartRateMonitoring, status_callback):
+async def process_messages(eeg_mon: EEGMonitoring, status_callback):
     while True:
         message = await client.message_queue.get()  # Nachricht aus der Warteschlange holen
         if message is None:
@@ -340,14 +247,9 @@ class MonitoringApp:
         self.status_label.grid(column=0, row=8, columnspan=2, padx=10, pady=10)
 
         # Buttons for connection
-        self.connect_hr_button = ttk.Button(root, text="Connect HR", command=self.connect_hr)
-        self.connect_hr_button.grid(column=0, row=3, columnspan=2, padx=10, pady=10)
 
         self.connect_eeg_button = ttk.Button(root, text="Connect EEG", command=self.connect_eeg)
         self.connect_eeg_button.grid(column=0, row=4, columnspan=2, padx=10, pady=10)
-
-        self.connect_ws_button = ttk.Button(root, text="Connect WebSocket", command=self.connect_websocket)
-        self.connect_ws_button.grid(column=0, row=5, columnspan=2, padx=10, pady=10)
 
         self.create_h5_button = ttk.Button(root, text="Create HDF5 File", command=self.create_h5_file)
         self.create_h5_button.grid(column=0, row=6, columnspan=2, padx=10, pady=10)
@@ -365,6 +267,18 @@ class MonitoringApp:
         self.data_status_icon = tk.Label(root, text="")  # Initially empty
         self.data_status_icon.grid(column=1, row=6, padx=10, pady=10)
 
+        # Add Buttons for Actions
+        self.start_baseline_button = ttk.Button(root, text="Start Baseline Recording", command=lambda: asyncio.run(self.start_baseline()))
+
+        self.start_baseline_button.grid(column=0, row=7, columnspan=2, padx=10, pady=5)
+
+        self.start_recording_button = ttk.Button(root, text="Start Recording", command=self.start_recording)
+        self.start_recording_button.grid(column=0, row=8, columnspan=2, padx=10, pady=5)
+
+        self.stop_recording_button = ttk.Button(root, text="Stop Recording", command=self.stop_recording)
+        self.stop_recording_button.grid(column=0, row=9, columnspan=2, padx=10, pady=5)
+
+
         # Monitoring attributes
         self.eeg_monitor = None
         self.hr_monitor = None
@@ -372,6 +286,33 @@ class MonitoringApp:
 
         # Initialize asyncio loop
         self.loop = asyncio.get_event_loop()
+
+    def start_baseline(self):
+        asyncio.run(self._start_baseline())
+
+    async def _start_baseline(self):
+        await eeg_mon.record_asr_baseline()
+        status_callback("Finished ASR recording and training.")
+
+
+    async def start_recording(self):
+        """Start the recording process."""
+        if self.eeg_monitor:
+            await asyncio.gather(
+                self.eeg_monitor.monitor_cognitive_load(None),  # Replace None with your client if necessary
+                self.keyboard_listener()
+            )
+        else:
+            self.update_status("HR or EEG Monitor is not connected.")
+
+    def stop_recording(self):
+        """Stop the recording process."""
+        if self.eeg_monitor:
+            self.eeg_monitor.session_active = False
+            self.eeg_monitor.release_board()
+        if self.hr_monitor:
+            self.loop.create_task(self.hr_monitor.release_hr_device())
+        self.update_status("Stopped HR and EEG Monitoring.")
 
     async def keyboard_listener(self):
         """
@@ -398,24 +339,6 @@ class MonitoringApp:
             keyboard.unhook_all()
             self.update_status("Keyboard listener stopped.")
 
-    def connect_hr(self):
-        hr_device_name = self.hr_device_name_entry.get()
-        if not hr_device_name:
-            self.update_status("Device Name is required to connect HR Device")
-            return
-        self.hr_monitor = HeartRateMonitoring(hr_device_name, self.update_status)
-
-        async def connect_hr():
-            try:
-                await self.hr_monitor.connect_hr_device()
-                # Update the icon label to show a checkmark
-                self.root.after(0, self.hr_status_icon.config, {"text": "✓", "fg": "green"})
-            except Exception as e:
-                self.update_status(f"HR Device connection failed: {e}")
-
-        # Start asyncio task without blocking GUI
-        self.loop.create_task(connect_hr())
-
     def connect_eeg(self):
         self.eeg_monitor = EEGMonitoring(self.update_status)
         try:
@@ -425,41 +348,6 @@ class MonitoringApp:
         except Exception as e:
             self.update_status(f"EEG Board connection failed: {e}")
 
-    def connect_websocket(self):
-        ip_address = self.ip_address_entry.get()
-        if not ip_address:
-            self.update_status("IP Address is required to connect WebSocket")
-            return
-
-        participant_id = self.participant_id_entry.get()
-        if not participant_id:
-            self.update_status("Participant ID is required to connect WebSocket")
-            return
-
-        if not self.eeg_monitor:
-            self.update_status("Please successfully connect the EEG Board first.")
-            return
-
-        if not self.hr_monitor:
-            self.update_status("Please successfully connect the HR Device first.")
-            return
-
-        self.websocket_client = WebsocketClient(ip_address, participant_id, self.update_status)
-
-        async def connect_ws():
-            try:
-                await self.websocket_client.connect()
-                self.update_status("WebSocket connected successfully")
-                self.root.after(0, self.ws_status_icon.config, {"text": "✓", "fg": "green"})
-                # Start listening and processing messages as tasks
-                self.loop.create_task(self.websocket_client.listen())
-                self.loop.create_task(process_messages(self.websocket_client, self.eeg_monitor, self.hr_monitor, self.update_status))
-                self.update_status("WebSocket listening successfully")
-            except Exception as e:
-                self.update_status(f"WebSocket connection failed: {e}")
-
-        # Start asyncio task without blocking GUI
-        self.loop.create_task(connect_ws())
 
     def create_h5_file(self):
         participant_id = self.participant_id_entry.get()
@@ -472,13 +360,8 @@ class MonitoringApp:
         if not os.path.exists(HDF5_FILENAME):
             with h5py.File(HDF5_FILENAME, 'w') as h5_file:
                 eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8')])
-                hr_dtype = np.dtype([('timestamp', 'f8'), ('rr_interval', 'f8'), ('heart_rate', 'f8'), ('raw', 'f8')])
-                keypress_dtype = np.dtype([('timestamp', 'f8'), ('key', 'S10')])
                 h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
-                h5_file.create_dataset('HR_data', shape=(0,), maxshape=(None,), dtype=hr_dtype)
-                h5_file.create_dataset('Keypress_data', shape=(0,), maxshape=(None,), dtype=keypress_dtype)
-            self.update_status("HDF5 file created successfully")
-            self.root.after(0, self.data_status_icon.config, {"text": "✓", "fg": "green"})
+            print("HDF5 file created successfully")
         else:
             self.update_status("HDF5 file already exists")
             self.root.after(0, self.data_status_icon.config, {"text": "✓", "fg": "green"})
@@ -528,6 +411,8 @@ class MonitoringApp:
         self.loop.call_soon_threadsafe(self.loop.stop)
         self.loop.run_forever()
         self.root.after(100, self._run_asyncio_loop)
+
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
