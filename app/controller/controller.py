@@ -4,7 +4,6 @@ import numpy as np
 import sys
 
 # Worker thread imports
-from PyQt6.QtCore import QThread
 from app.model.eegMonitoring import EEGMonitoring
 
 # GUI imports
@@ -12,7 +11,7 @@ from PyQt6.QtWidgets import QApplication
 from app.view.rootWindow import RootWindow
 from app.view.plotWidget import EEGPlotWidget
 
-class Controller(QThread):
+class Controller():
 
     def __init__(self):
         super().__init__()
