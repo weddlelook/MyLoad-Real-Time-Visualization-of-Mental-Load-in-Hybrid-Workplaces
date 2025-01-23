@@ -3,6 +3,9 @@ import h5py
 import numpy as np
 import sys
 
+#util
+# from app.controller.util import *
+
 # Worker thread imports
 from app.model.eegMonitoring import EEGMonitoring
 
@@ -74,3 +77,4 @@ if __name__ == "__main__":
     controller.landing_page()
     app.exec()
     app.deleteLater()
+
