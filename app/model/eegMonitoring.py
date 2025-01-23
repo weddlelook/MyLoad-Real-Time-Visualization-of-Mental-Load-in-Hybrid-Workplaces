@@ -103,7 +103,6 @@ class EEGMonitoring(QThread):
         self.status_callback.emit("Starting EEG recording for video meetings!")
 
         self.session_active = True
-        self.monitor_timer.start()
 
         try:
             self.status_callback.emit("Starting live recording!")
@@ -144,11 +143,15 @@ class EEGMonitoring(QThread):
 
                 # Data to be emitted
                 timestamp = time.time()
+                cl = 0
+                if alpha_power != 0:
+                    cl = theta_power / alpha_power
                 data = {
                     'timestamp': timestamp,
                     'theta_power': theta_power,
                     'alpha_power': alpha_power,
-                    'beta_power': beta_power
+                    'beta_power': beta_power,
+                    'cognitive_load': cl
                 }
                 self.powers.emit(data)
 
@@ -202,7 +205,6 @@ class EEGMonitoring(QThread):
             eeg_dataset.resize((new_index + 1,))
             eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power)
 
-        self.status_callback.emit(f"EEG Data saved to {self.filename}")
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:
