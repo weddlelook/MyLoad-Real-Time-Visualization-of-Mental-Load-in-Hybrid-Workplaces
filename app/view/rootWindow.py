@@ -1,4 +1,6 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget
+from app.view.startWidget import StartWidget
+from app.view.plotWidget import EEGPlotWidget
 
 class RootWindow(QMainWindow):
     def __init__(self):
@@ -12,9 +14,21 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-    def add_child(self, child:QWidget):
-        # clearLayout(self.layout)
-        layout = QVBoxLayout()
-        layout.addWidget(child)
-        self.setLayout(layout)
+        # Create the main window layout, which will be a stacked layout
+        self.layout = QStackedLayout()
+        self.setLayout(self.layout)
 
+        # Dict for all registered pages
+        self.pages = {}
+
+        # Registering all pages 
+        # NOTE: We could decide to not register all pages here, but instead register them 
+        #       as we go along in the application lifecycle, but for now, we will register them all here
+        self.register_page(StartWidget(), "start")
+        self.register_page(EEGPlotWidget(), "plot")
+
+
+    def register_page(self, child: QWidget, page_name: str):
+        """Registers a page with the main window."""
+        self.layout.addWidget(child)
+        self.pages[page_name] = child

@@ -10,6 +10,7 @@ from app.model.eegMonitoring import EEGMonitoring
 from PyQt6.QtWidgets import QApplication
 from app.view.rootWindow import RootWindow
 from app.view.plotWidget import EEGPlotWidget
+from app.view.startWidget import StartWidget
 
 class Controller():
 
@@ -30,15 +31,28 @@ class Controller():
         Settings for example."""
         pass
 
+    def landing_page(self):
+        """Sets up the landing page of the application."""
+
+        # Get the start widget and its index
+        start_widget = self.gui.main_window.pages['start']
+        start_widget_index = self.gui.main_window.layout.indexOf(start_widget)
+
+        # Set the current index of the main window layout to the start widget
+        self.gui.main_window.layout.setCurrentIndex(start_widget_index)
+
+        # Connect the start button to the monitoring phase
+        start_widget.monitor_start_button.clicked.connect(self.monitoring)
+
     def monitoring(self):
         """Sets up the monitoring phase of the application."""
  
-        # Creating and adding the EEGPlotWidget to the main window
-        # TODO: Think about wether this plot _widget should persist or not
-        #      If it should persist, then it should be created in the __init__ method
-        #      If it shouldn't, cleanup
-        plot_widget = EEGPlotWidget()
-        self.gui.main_window.add_child(plot_widget)
+        # Get the plot widget and its index
+        plot_widget = self.gui.main_window.pages['plot']
+        plot_widget_index = self.gui.main_window.layout.indexOf(plot_widget)
+
+        # Set the current index of the main window layout to the plot widget
+        self.gui.main_window.layout.setCurrentIndex(plot_widget_index)
 
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eeg_monitor.start()
@@ -57,6 +71,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     controller = Controller()
     controller.setup_gui()
-    controller.monitoring()
+    controller.landing_page()
     app.exec()
     app.deleteLater()
