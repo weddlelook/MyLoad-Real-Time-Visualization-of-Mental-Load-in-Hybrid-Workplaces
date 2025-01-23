@@ -23,11 +23,11 @@ class EEGPlotWidget(QMainWindow):
         self.beta_data = []
         self.timestamps = []
 
-    def update_plot(self, timestamp, theta_power, alpha_power, beta_power):
-        self.timestamps.append(timestamp)
-        self.theta_data.append(theta_power)
-        self.alpha_data.append(alpha_power)
-        self.beta_data.append(beta_power)
+    def update_plot(self, powers):
+        self.timestamps.append(powers['timestamp'])
+        self.theta_data.append(powers['theta_power'])
+        self.alpha_data.append(powers['alpha_power'])
+        self.beta_data.append(powers['beta_power'])
 
         self.theta_curve.setData(self.timestamps, self.theta_data)
         self.alpha_curve.setData(self.timestamps, self.alpha_data)
