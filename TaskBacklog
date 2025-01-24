@@ -1,0 +1,27 @@
+Schreibt doch einfach alle TODO's die euch so einfallen hierhin.
+Ich fang mal an.
+
+-- 1
+Es benötigt eine Methode zum auslesen der h5-Files.
+Implementierung entweder als statische Methode oder Klasse, das sei demjenigen der es 
+implementiert überlassen
+
+-- 2
+Sämtliche Widgets (siehe Klassendiagramm)
+
+-- 3
+Der Keyboard-Listener zum markieren der Zeitstempel. 
+
+-- 4
+Die h5-Files müssen so angepasst werden, dass der MaxWert und CL auch gespeichert werden.
+
+-- 5
+h5-file Namen und Ordner. Die Namen müssen in irgendeiner Form variiert werden, so dass 
+nicht immer in die gleiche gespeichert wird
+Auch wäre es schön, wenn sie in einen gesonderten Ordner kämen
+
+-- 6
+Configs, Einstellungen müssen irgendwo abgelegt und aufrufbar gemacht werden
+
+-- 7 
+Sämtliche Testlogik
