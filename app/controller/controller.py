@@ -20,6 +20,11 @@ from app.view.startWidget import StartWidget
 
 class Controller():
 
+    """
+    Each Page in the Lifecycle of the Application is represented by a method in the Controller class.
+    Connect your Buttons and similar here, in the respective phases
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -30,23 +35,10 @@ class Controller():
         self.eeg_monitor.moveToThread(self.monitorThread)
         # NOTE: Connect to a button later
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
-
-    def setup_gui(self):
-        """Setup the GUI and start the application."""
         self.gui = RootWindow()
         self.gui.show()
 
-    def register_slots(self):
-        """
-        Connect all the buttons, other signals that are *not specific to 
-        a ceratain phase in the lifecycle* here to their respective slots. This could include
-        Settings for example.
-        """
-        pass
-
     def landing_page(self):
-        """Sets up the landing page of the application."""
-
         # Get the start widget and its index
         start_widget = self.gui.main_window.pages['start']
         start_widget_index = self.gui.main_window.layout.indexOf(start_widget)
@@ -59,10 +51,13 @@ class Controller():
         start_widget.monitor_start_button.clicked.connect(self.monitoring)
         start_widget.monitor_start_button.clicked.connect(self.eeg_monitor.record_asr_baseline)
 
+    def baseline_page(self):
+        pass
 
-    def monitoring(self):
-        """Sets up the monitoring phase of the application."""
- 
+    def skip_page(self):
+        pass
+
+    def monitoring_page(self): 
         # Get the plot widget and its index
         plot_widget = self.gui.main_window.pages['plot']
         plot_widget_index = self.gui.main_window.layout.indexOf(plot_widget)
@@ -73,6 +68,9 @@ class Controller():
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.monitorThread.start()
         self.eeg_monitor.powers.connect(plot_widget.update_plot)
+
+    def retrospective_page(self):
+        pass
 
 def create_h5_file(folder_path):
     # Ordner erstellen, falls er nicht existiert
@@ -99,12 +97,4 @@ def create_h5_file(folder_path):
             print("HDF5 file created successfully")
     return HDF5_FILENAME */
     """
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    controller = Controller()
-    controller.setup_gui()
-    controller.landing_page()
-    app.exec()
-    app.deleteLater()
 
