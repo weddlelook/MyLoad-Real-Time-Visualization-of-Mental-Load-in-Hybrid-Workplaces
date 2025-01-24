@@ -26,6 +26,8 @@ Configs, Einstellungen müssen irgendwo abgelegt und aufrufbar gemacht werden
 -- 7 
 Sämtliche Testlogik
 
+Es gibt auch im Code kleinere Aufgaben im Code, diese haben die TODO Annotation
+
 Kleiner Kommentar:
 Beim gemeinsamen Arbeiten, gerade wenn man sich nicht häufig sieht (z.B.: nur jeden Montag), ist es wichtig, ordentlich zu kommunizieren. 
 - Bitte kündigt also an, wann und ob ihr euch _größeren_ Aufgaben annehmt, damit nichts doppelt gemacht wird. (muss nicht bei jeder Kleinigkeit sein)
@@ -37,3 +39,7 @@ Gerade weil das hier für die meisten das erste Entwicklungs-Gruppenprojekt ist,
 
 Ich dokumentiere mal hier unten, aber handhabt das wie ihr wollt, whatsapp, mündlich von mir aus sogar Teams
 Clara: Struktur des EEG-Threads anpassen, wie auf Whatsapp angekündigt. Fertig voraussichtlich Samstag-Mittag
+
+Fragen für Chiara:
+>> Nutzbarkeit der Messung während der Baseline als Referenzwert
+>> Maintainer-Priveleges für mind. eine Person oder main Branch unprotecten?

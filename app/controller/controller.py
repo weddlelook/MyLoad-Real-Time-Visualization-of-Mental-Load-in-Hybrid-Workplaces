@@ -10,6 +10,7 @@ from datetime import datetime
 
 # Worker thread imports
 from app.model.eegMonitoring import EEGMonitoring
+from PyQt6.QtCore import QThread
 
 # GUI imports
 from PyQt6.QtWidgets import QApplication
@@ -22,10 +23,13 @@ class Controller():
     def __init__(self):
         super().__init__()
 
-
         folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
         # Create an instance of EEGMonitor (which is a worker thread)
         self.eeg_monitor = EEGMonitoring(create_h5_file(folder_path))
+        self.monitorThread = QThread()
+        self.eeg_monitor.moveToThread(self.monitorThread)
+        # NOTE: Connect to a button later
+        self.monitorThread.started.connect(self.eeg_monitor.set_up)
 
     def setup_gui(self):
         """Setup the GUI and start the application."""
@@ -33,9 +37,11 @@ class Controller():
         self.gui.show()
 
     def register_slots(self):
-        """Connect all the buttons, other signals that are *not specific to 
+        """
+        Connect all the buttons, other signals that are *not specific to 
         a ceratain phase in the lifecycle* here to their respective slots. This could include
-        Settings for example."""
+        Settings for example.
+        """
         pass
 
     def landing_page(self):
@@ -49,7 +55,10 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(start_widget_index)
 
         # Connect the start button to the monitoring phase
+        self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
         start_widget.monitor_start_button.clicked.connect(self.monitoring)
+        start_widget.monitor_start_button.clicked.connect(self.eeg_monitor.record_asr_baseline)
+
 
     def monitoring(self):
         """Sets up the monitoring phase of the application."""
@@ -62,7 +71,7 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(plot_widget_index)
 
         # Connect the EEGMonitoring thread to the EEGPlotWidget
-        self.eeg_monitor.start()
+        self.monitorThread.start()
         self.eeg_monitor.powers.connect(plot_widget.update_plot)
 
 def create_h5_file(folder_path):

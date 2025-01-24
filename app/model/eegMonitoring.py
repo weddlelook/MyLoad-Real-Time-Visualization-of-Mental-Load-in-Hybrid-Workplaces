@@ -7,15 +7,15 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 from meegkit.asr import ASR
 from brainflow.exit_codes import BrainFlowError
-from PyQt6.QtCore import  pyqtSignal, QTimer, QThread, pyqtSlot
+from PyQt6.QtCore import  pyqtSignal, QTimer, QThread, pyqtSlot, QObject
 
-class EEGMonitoring(QThread):
+class EEGMonitoring(QObject):
     """
     NOTE: (Regarding pyqtSignals) pyqtSignals are per se just quiet updates, and do not cause any action. They are a way to communicate between threads
     in a thread-safe way. Actual action can be triggered by the connecting a slot.
     """
-    powers = pyqtSignal(dict) # contains timestamp, theta, alpha, beta powers that were last calculated
-    status_callback = pyqtSignal(str) # Signals current status of th EEG monitor
+    powers = pyqtSignal(dict) # contains timestamp, theta, alpha, beta powers, cognitive load that were last calculated
+    status_callback = pyqtSignal(str) # Signals current status of the EEG monitor
     baseline_complete_signal = pyqtSignal() # Signal that the baseline recording is complete
 
     NUM_CHANNELS = 8
@@ -24,84 +24,60 @@ class EEGMonitoring(QThread):
         super().__init__()
         self.board_shim = None
         self.sampling_rate = None
-        self.asr = None # Configured ASR filter will be stored here
-
-        # Flag to indicate if the session is active, this is not just for us to see
-        # if this is false, the monitoring will actually stop
+        self.asr = None
         self.session_active = False
-        """
-        TODO: The mechanics of two different recording sessions in one run of the application need to be discussed.
-        Should we release the board after the first session and reconnect for the second? Or should we keep the board connected?
-        Should the whole object be reinitialized for the second session? Or should we just change the file name and use the session_active flag?
-        """
         self.filename = hdf5_file
-
-        # Setting up timer for monitoring function
-        self.monitor_timer = QTimer()
-        self.monitor_timer.setInterval(1000)  # Update every second
-        self.monitor_timer.timeout.connect(self.monitor_cognitive_load)
-
-        # Buffer for EEG data
-        self.data_buffer = None
-        self.update_count = 0
+        self.monitor_timer = None
+        self.baseline_timer = None
 
         # NOTE: This will be taken out later, but for now lets log all status updates
         self.status_callback.connect(print)
 
-    def run(self):
-        self.connect_board()
-        self.record_asr_baseline()
+    def set_up(self):
+        """
+        This function sets the timers for both the baseline and the monitoring phase.
+        It is mandatory to call this before any of the other functions are called.
+        It needs to be called on the thread the EEGMonitoring-Object is supposed to work on.
+        Meaning Instantiate > Move to thread > call set_up. This is because of the timers,
+        they always belong to the thread they were instatniated on and can only be started and stopped
+        in that thread.
+        """
+        print("setup")
+        self._connect_board()
 
-        # When baseline recording is finished, monitor should start
-        self.baseline_complete_signal.connect(self.start_monitoring)
+        # Setting up timer for monitoring function
+        self.monitor_timer = QTimer()
+        self.monitor_timer.setInterval(1000)  # Update every second
+        self.monitor_timer.timeout.connect(self._monitor_cognitive_load)
 
-        # Start a timer to stop the recording after 60 seconds
-        timer = QTimer()
-        timer.singleShot(60000, self._finish_baseline_recording)
-
-# ----------------- EEG Monitoring -----------------
-
-    def connect_board(self):
-        BoardShim.enable_dev_board_logger()
-        parser = argparse.ArgumentParser()
-
-        # Adding arguments to a parser. This makes it possible to pass arguments to the script when starting it.
-        # TODO: Since this is not the main entry point, there is little point in doing this here. If somebody wants to clean up that would be lovely
-        parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
-        parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards', required=False, default=BoardIds.SYNTHETIC_BOARD)
-        args = parser.parse_args(['--serial-port', 'COM3', '--board-id', '-1'])
-
-        # Connect to the board
-        params = BrainFlowInputParams()
-        params.serial_port = args.serial_port
-        self.board_shim = BoardShim(args.board_id, params)
-        self.board_shim.prepare_session()
-
-        # Set the sampling rate after the board is connected
-        self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
-
-        self.status_callback.emit("Connected board")
-
-    def release_board(self):
-        if self.board_shim is not None:
-            if self.board_shim.is_prepared():
-                self.board_shim.release_session()
-                self.status_callback.emit("Board session released.")
+        # Setting up timer for baseline recording
+        self.baseline_timer = QTimer()
 
     def record_asr_baseline(self):
+        """
+        This method starts the Board-Stream and timer for the Baseline recording.
+        The private method finish_baseline_recording will be called at the end of the timer to 
+        process the data internally, once it is done a finish signal will be emitted.
+        You can place a slot on that to adjust the GUI/Other appropriatly. 
+        (signal.connect(slot) <- in case confusion exist about what terminology)
+        """
         self.status_callback.emit("Starting ASR Baseline recording for 60 seconds!")
         try:
-            # Start streaming session
-            self.board_shim.start_stream()  # Startet die EEG-Aufnahme
+            self.board_shim.start_stream()
             self.status_callback.emit("Recording baseline...")
+            self.baseline_timer.singleShot(60000, self._finish_baseline_recording)
 
         except BrainFlowError as e:
             self.status_callback(f"BrainFlowError occurred: {e}")
 
     def start_monitoring(self):
-        print("Starting EEG monitoring")
+        """
+        This method starts the Interval-Timer that ticks every second and connects to the 
+        slot function moniter_cognitive_load. This will cause the powers-Signal to be 
+        emitted with fresh data every second until the process is paused or shut down.   
+        It also will write the data to h5-File specified on __init__
+        """
         self.status_callback.emit("Starting EEG recording for video meetings!")
-
         self.session_active = True
 
         try:
@@ -119,12 +95,56 @@ class EEGMonitoring(QThread):
         except Exception as e:
             self.status_callback.emit(f"Error during start: {e}")
 
-    def monitor_cognitive_load(self):
+    def pause_monitoring(self):
+        """
+        Temporarily stops the monitoring process, no powers will be emitted or files be written
+        Resume with resume_monitoring
+        """
+        try:
+            self.session_active = False
+            self.monitor_timer.stop()
+            self.status_callback.emit("Monitoring stopped")
+            self.board_shim.stop_stream()
+        except BrainFlowError as e:
+            self.status_callback(f"Error stopping monitoring: {e}")
 
+    def resume_monitoring(self):
+        """
+        Resumes monitoring
+        """
+        try:
+            self.session_active = True
+            self.monitor_timer.start()
+            self.status_callback.emit("Monitoring resumed")
+            self.board_shim.start_stream()
+        except BrainFlowError as e:
+            self.status_callback(f"Error resuming monitoring: {e}")
+
+    #----------------- Private methods --------------------
+
+    def _finish_baseline_recording(self):
+        print ("Baseline recording finished")
+        try:
+            # Stop streaming session and get data
+            baseline_data = self.board_shim.get_board_data()
+            self.board_shim.stop_stream()
+
+            # Preprocess and train ASR, buffer size is 10
+            baseline_data = baseline_data[1:9]
+            baseline_data_pp = self._preprocess_data(baseline_data, self.sampling_rate)
+            self._train_asr_filter(baseline_data_pp, self.sampling_rate)
+
+            # Emit signal that baseline recording is complete
+            self.baseline_complete_signal.emit()
+
+        except BrainFlowError as e:
+            self.status_callback(f"BrainFlowError occurred: {e}")
+
+    def _monitor_cognitive_load(self):
         # Fail-safe, probably not needed
         if not self.session_active:
             self.monitor_timer.stop()
-            return
+        return
 
         try:
             new_data = self.board_shim.get_board_data()
@@ -156,42 +176,14 @@ class EEGMonitoring(QThread):
                 self.powers.emit(data)
 
                 # Speichere die berechneten Werte und den Zeitstempel direkt in die HDF5-Datei
-                self.save_eeg_data_as_hdf5(timestamp, theta_power, alpha_power, beta_power)
+                self._save_eeg_data_as_hdf5(timestamp, theta_power, alpha_power, beta_power)
 
             self.update_count += 1
 
         except Exception as e:
             self.status_callback.emit(f"Error during monitoring: {e}")
 
-    def pause_monitoring(self):
-        try:
-            self.session_active = False
-            self.monitor_timer.stop()
-            self.status_callback.emit("Monitoring stopped")
-        except BrainFlowError as e:
-            self.status_callback(f"Error stopping monitoring: {e}")
-
-    def _finish_baseline_recording(self):
-        print ("Baseline recording finished")
-        try:
-            # Stop streaming session and get data
-            baseline_data = self.board_shim.get_board_data()
-            self.board_shim.stop_stream()
-
-            # Preprocess and train ASR, buffer size is 10
-            baseline_data = baseline_data[1:9]
-            baseline_data_pp = self._preprocess_data(baseline_data, self.sampling_rate)
-            self._train_asr_filter(baseline_data_pp, self.sampling_rate)
-
-            # Emit signal that baseline recording is complete
-            self.baseline_complete_signal.emit()
-
-        except BrainFlowError as e:
-            self.status_callback(f"BrainFlowError occurred: {e}")
-
-# ----------------- Utilitity -----------------
-
-    def save_eeg_data_as_hdf5(self, timestamp, theta_power, alpha_power, beta_power):
+    def _save_eeg_data_as_hdf5(self, timestamp, theta_power, alpha_power, beta_power):
         """
         Speichert die EEG-Daten als HDF5-Datei.
         TODO: Depending on where we implement the calculation of CL out of the powers, we might want to move this function to the controller or implement the calculation of CL here
@@ -204,7 +196,6 @@ class EEGMonitoring(QThread):
 
             eeg_dataset.resize((new_index + 1,))
             eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power)
-
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:
@@ -255,3 +246,24 @@ class EEGMonitoring(QThread):
             beta_powers_per_channel.append(band_power_beta)
 
         return np.mean(np.array(theta_powers_per_channel)), np.mean(np.array(alpha_powers_per_channel)), np.mean(np.array(beta_powers_per_channel))
+
+    def _connect_board(self):
+        BoardShim.enable_dev_board_logger()
+        parser = argparse.ArgumentParser()
+
+        # Adding arguments to a parser. This makes it possible to pass arguments to the script when starting it.
+        # TODO: Since this is not the main entry point, there is little point in doing this here. If somebody wants to clean up that would be lovely
+        parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
+        parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards', required=False, default=BoardIds.SYNTHETIC_BOARD)
+        args = parser.parse_args(['--serial-port', 'COM3', '--board-id', '-1'])
+
+        # Connect to the board
+        params = BrainFlowInputParams()
+        params.serial_port = args.serial_port
+        self.board_shim = BoardShim(args.board_id, params)
+        self.board_shim.prepare_session()
+
+        # Set the sampling rate after the board is connected
+        self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
+
+        self.status_callback.emit("Connected board")
