@@ -9,14 +9,13 @@ from datetime import datetime
 # from app.controller.util import *
 
 # Worker thread imports
-from app.model.eegMonitoring import EEGMonitoring
+from model.eegMonitoring import EEGMonitoring
 from PyQt6.QtCore import QThread
 
 # GUI imports
-from PyQt6.QtWidgets import QApplication
-from app.view.rootWindow import RootWindow
-from app.view.plotWidget import EEGPlotWidget
-from app.view.startWidget import StartWidget
+from view.rootWindow import RootWindow
+from view.plotWidget import EEGPlotWidget
+from view.startWidget import StartWidget
 
 class Controller():
 
@@ -48,7 +47,7 @@ class Controller():
 
         # Connect the start button to the monitoring phase
         self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
-        start_widget.monitor_start_button.clicked.connect(self.monitoring)
+        start_widget.monitor_start_button.clicked.connect(self.monitoring_page)
         start_widget.monitor_start_button.clicked.connect(self.eeg_monitor.record_asr_baseline)
 
     def baseline_page(self):
