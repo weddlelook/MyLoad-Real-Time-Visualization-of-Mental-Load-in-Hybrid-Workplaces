@@ -2,6 +2,8 @@ import sys
 import asyncio
 from PyQt6.QtWidgets import QApplication
 from qasync import QEventLoop
+
+from app.H5DataVisualizer import plot_h5_data
 from view.rootWindow import RootWindow
 from controller.controller import Controller
 
@@ -14,6 +16,7 @@ def main():
     controller = Controller(gui)
     print("Controller initialized")
     gui.show()
+
 
     with loop:  # Run the event loop
         loop.run_forever()

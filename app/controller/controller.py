@@ -2,6 +2,8 @@ import os
 import h5py
 import numpy as np
 import sys
+from datetime import datetime
+
 
 #util
 # from app.controller.util import *
@@ -20,8 +22,10 @@ class Controller():
     def __init__(self):
         super().__init__()
 
+
+        folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
         # Create an instance of EEGMonitor (which is a worker thread)
-        self.eeg_monitor = EEGMonitoring(create_h5_file("test"))
+        self.eeg_monitor = EEGMonitoring(create_h5_file(folder_path))
 
     def setup_gui(self):
         """Setup the GUI and start the application."""
@@ -61,14 +65,31 @@ class Controller():
         self.eeg_monitor.start()
         self.eeg_monitor.powers.connect(plot_widget.update_plot)
 
-def create_h5_file(filename):
+def create_h5_file(folder_path):
+    # Ordner erstellen, falls er nicht existiert
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    HDF5_FILENAME = os.path.join(folder_path, f"session_{timestamp}.h5")
+
+    # Datei erstellen, falls sie nicht existiert
+    if not os.path.exists(HDF5_FILENAME):
+        with h5py.File(HDF5_FILENAME, 'w') as h5_file:
+            eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8')])
+            h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
+            print(f"HDF5 file created successfully: {HDF5_FILENAME}")
+    return HDF5_FILENAME
+
+    """
     HDF5_FILENAME = f"{filename}.h5"
     if not os.path.exists(HDF5_FILENAME):
         with h5py.File(HDF5_FILENAME, 'w') as h5_file:
             eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8')])
             h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
             print("HDF5 file created successfully")
-    return HDF5_FILENAME
+    return HDF5_FILENAME */
+    """
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
