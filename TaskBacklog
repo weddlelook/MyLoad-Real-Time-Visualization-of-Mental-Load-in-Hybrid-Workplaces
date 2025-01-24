@@ -25,3 +25,12 @@ Configs, Einstellungen müssen irgendwo abgelegt und aufrufbar gemacht werden
 
 -- 7 
 Sämtliche Testlogik
+
+Kleiner Kommentar:
+Beim gemeinsamen Arbeiten, gerade wenn man sich nicht häufig sieht (z.B.: nur jeden Montag), ist es wichtig, ordentlich zu kommunizieren. 
+- Bitte kündigt also an, wann und ob ihr euch _größeren_ Aufgaben annehmt, damit nichts doppelt gemacht wird. (muss nicht bei jeder Kleinigkeit sein)
+- Kommentiert, wie der von euch geschriebene Code verwendet werden kann (muss nicht so romanartig sein wie bei mir, aber jede nicht private Methode sollte schon einen kleinen Text haben)
+- Committed regelmäßig (Mergekonflikte sind kein Spaß und je länger man wartet desto schlimmer werden sie). Ich kann außerdem bei  Änderungen nur auf Code Rücksicht nehmen, den ich auch sehe
+- Pulled regelmäßig, das Projekt ist jung und Schnittstellen zwischen Model, View und Controller werden unweigerlich etwas schwanken. Es empfiehlt sich immer auf einem möglichst neuen Stand zu sein
+(Klar kann ich nachvollziehen, dass man lieber alleine Code schreibt. Aber so eine reale Applikation ist nun mal ein zusammenhängendes Ding und damit das am Ende nicht auseindanderfällt, müssen gemeinsame Entscheidungen und Absprachen getroffen werden.
+Gerade weil das hier für die meisten das erste Entwicklungs-Gruppenprojekt ist, sollten wir ordentlich arbeiten. :) )
