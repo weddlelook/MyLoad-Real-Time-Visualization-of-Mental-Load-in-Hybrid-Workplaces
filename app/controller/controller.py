@@ -4,10 +4,6 @@ import numpy as np
 import sys
 from datetime import datetime
 
-
-#util
-# from app.controller.util import *
-
 # Worker thread imports
 from model.eegMonitoring import EEGMonitoring
 from PyQt6.QtCore import QThread
@@ -32,7 +28,6 @@ class Controller():
         self.eeg_monitor = EEGMonitoring(create_h5_file(folder_path))
         self.monitorThread = QThread()
         self.eeg_monitor.moveToThread(self.monitorThread)
-        # NOTE: Connect to a button later
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
         self.gui = RootWindow()
         self.gui.show()
@@ -46,12 +41,21 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(start_widget_index)
 
         # Connect the start button to the monitoring phase
-        self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
-        start_widget.monitor_start_button.clicked.connect(self.monitoring_page)
-        start_widget.monitor_start_button.clicked.connect(self.eeg_monitor.record_asr_baseline)
+        start_widget.monitor_start_button.clicked.connect(self.baseline_page)
+        start_widget.monitor_start_button.clicked.connect(self.monitorThread.start)
+        self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
     def baseline_page(self):
-        pass
+        # Get the start widget and its index
+        baseline_widget = self.gui.main_window.pages['baseline']
+        baseline_widget_index = self.gui.main_window.layout.indexOf(baseline_widget)
+
+        # Set the current index of the main window layout to the start widget
+        self.gui.main_window.layout.setCurrentIndex(baseline_widget_index)
+
+        self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
+        self.eeg_monitor.baseline_complete_signal.connect(self.monitoring_page)
+
 
     def skip_page(self):
         pass
@@ -65,7 +69,6 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(plot_widget_index)
 
         # Connect the EEGMonitoring thread to the EEGPlotWidget
-        self.monitorThread.start()
         self.eeg_monitor.powers.connect(plot_widget.update_plot)
 
     def retrospective_page(self):

@@ -46,7 +46,6 @@ class EEGMonitoring(QObject):
         they always belong to the thread they were instatniated on and can only be started and stopped
         in that thread.
         """
-        print("setup")
         self._connect_board()
 
         # Setting up timer for monitoring function
