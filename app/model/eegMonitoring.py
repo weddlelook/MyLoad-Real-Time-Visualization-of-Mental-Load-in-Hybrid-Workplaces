@@ -167,27 +167,27 @@ class EEGMonitoring(QObject):
 
                 # Data to be emitted
                 timestamp = time.time()
-                cl = 0
+                cognitive_load = 0
                 if alpha_power != 0:
-                    cl = theta_power / alpha_power
+                    cognitive_load = theta_power / alpha_power
                 data = {
                     'timestamp': timestamp,
                     'theta_power': theta_power,
                     'alpha_power': alpha_power,
                     'beta_power': beta_power,
-                    'cognitive_load': cl
+                    'cognitive_load': cognitive_load
                 }
                 self.powers.emit(data)
 
                 # Speichere die berechneten Werte und den Zeitstempel direkt in die HDF5-Datei
-                self._save_eeg_data_as_hdf5(timestamp, theta_power, alpha_power, beta_power)
+                self._save_eeg_data_as_hdf5(timestamp, theta_power, alpha_power, beta_power, cognitive_load)
 
             self.update_count += 1
 
         except Exception as e:
             self.status_callback.emit(f"Error during monitoring: {e}")
 
-    def _save_eeg_data_as_hdf5(self, timestamp, theta_power, alpha_power, beta_power):
+    def _save_eeg_data_as_hdf5(self, timestamp, theta_power, alpha_power, beta_power, cognitive_load):
         """
         Speichert die EEG-Daten als HDF5-Datei.
         TODO: Depending on where we implement the calculation of CL out of the powers, we might want to move this function to the controller or implement the calculation of CL here
@@ -199,7 +199,7 @@ class EEGMonitoring(QObject):
             new_index = eeg_dataset.shape[0]
 
             eeg_dataset.resize((new_index + 1,))
-            eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power)
+            eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power, cognitive_load)
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:
