@@ -5,13 +5,13 @@ import sys
 from datetime import datetime
 
 # Worker thread imports
-from model.eegMonitoring import EEGMonitoring
+from app.model.eegMonitoring import EEGMonitoring
 from PyQt6.QtCore import QThread
 
 # GUI imports
-from view.rootWindow import RootWindow
-from view.plotWidget import EEGPlotWidget
-from view.startWidget import StartWidget
+from app.view.rootWindow import RootWindow
+from app.view.plotWidget import EEGPlotWidget
+from app.view.startWidget import StartWidget
 
 class Controller():
 
