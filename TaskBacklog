@@ -1,0 +1,45 @@
+Schreibt doch einfach alle TODO's die euch so einfallen hierhin.
+Ich fang mal an.
+
+-- 1
+Es benötigt eine Methode zum auslesen der h5-Files.
+Implementierung entweder als statische Methode oder Klasse, das sei demjenigen der es 
+implementiert überlassen
+
+-- 2
+Sämtliche Widgets (siehe Klassendiagramm)
+
+-- 3
+Der Keyboard-Listener zum markieren der Zeitstempel. 
+
+-- 4
+Die h5-Files müssen so angepasst werden, dass der MaxWert und CL auch gespeichert werden.
+
+-- 5
+h5-file Namen und Ordner. Die Namen müssen in irgendeiner Form variiert werden, so dass 
+nicht immer in die gleiche gespeichert wird
+Auch wäre es schön, wenn sie in einen gesonderten Ordner kämen
+
+-- 6
+Configs, Einstellungen müssen irgendwo abgelegt und aufrufbar gemacht werden
+
+-- 7 
+Sämtliche Testlogik
+
+Es gibt auch im Code kleinere Aufgaben im Code, diese haben die TODO Annotation
+
+Kleiner Kommentar:
+Beim gemeinsamen Arbeiten, gerade wenn man sich nicht häufig sieht (z.B.: nur jeden Montag), ist es wichtig, ordentlich zu kommunizieren. 
+- Bitte kündigt also an, wann und ob ihr euch _größeren_ Aufgaben annehmt, damit nichts doppelt gemacht wird. (muss nicht bei jeder Kleinigkeit sein)
+- Kommentiert, wie der von euch geschriebene Code verwendet werden kann (muss nicht so romanartig sein wie bei mir, aber jede nicht private Methode sollte schon einen kleinen Text haben)
+- Committed regelmäßig (Mergekonflikte sind kein Spaß und je länger man wartet desto schlimmer werden sie). Ich kann außerdem bei  Änderungen nur auf Code Rücksicht nehmen, den ich auch sehe
+- Pulled regelmäßig, das Projekt ist jung und Schnittstellen zwischen Model, View und Controller werden unweigerlich etwas schwanken. Es empfiehlt sich immer auf einem möglichst neuen Stand zu sein
+(Klar kann ich nachvollziehen, dass man lieber alleine Code schreibt. Aber so eine reale Applikation ist nun mal ein zusammenhängendes Ding und damit das am Ende nicht auseindanderfällt, müssen gemeinsame Entscheidungen und Absprachen getroffen werden.
+Gerade weil das hier für die meisten das erste Entwicklungs-Gruppenprojekt ist, sollten wir ordentlich arbeiten. :) )
+
+Ich dokumentiere mal hier unten, aber handhabt das wie ihr wollt, whatsapp, mündlich von mir aus sogar Teams
+Clara: Struktur des EEG-Threads anpassen, wie auf Whatsapp angekündigt. Fertig voraussichtlich Samstag-Mittag
+
+Fragen für Chiara:
+>> Nutzbarkeit der Messung während der Baseline als Referenzwert
+>> Maintainer-Priveleges für mind. eine Person oder main Branch unprotecten?
