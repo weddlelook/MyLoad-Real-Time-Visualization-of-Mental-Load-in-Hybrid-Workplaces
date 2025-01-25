@@ -30,6 +30,10 @@ class EEGMonitoring(QObject):
         self.monitor_timer = None
         self.baseline_timer = None
 
+        # Buffer for EEG data
+        self.data_buffer = None
+        self.update_count = 0
+
         # NOTE: This will be taken out later, but for now lets log all status updates
         self.status_callback.connect(print)
 
@@ -141,10 +145,11 @@ class EEGMonitoring(QObject):
             self.status_callback(f"BrainFlowError occurred: {e}")
 
     def _monitor_cognitive_load(self):
+
         # Fail-safe, probably not needed
         if not self.session_active:
             self.monitor_timer.stop()
-        return
+            return
 
         try:
             new_data = self.board_shim.get_board_data()
