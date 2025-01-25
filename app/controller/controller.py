@@ -75,6 +75,8 @@ class Controller():
         pass
 
 def create_h5_file(folder_path):
+    # TODO: Nutzer ermöglichen, eigenen Session- Namen zu bestimmen.
+
     # Ordner erstellen, falls er nicht existiert
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -85,18 +87,10 @@ def create_h5_file(folder_path):
     # Datei erstellen, falls sie nicht existiert
     if not os.path.exists(HDF5_FILENAME):
         with h5py.File(HDF5_FILENAME, 'w') as h5_file:
-            eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8')])
+            eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8'),
+                                  ('cognitive_load', 'f8')])
             h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
             print(f"HDF5 file created successfully: {HDF5_FILENAME}")
     return HDF5_FILENAME
 
-    """
-    HDF5_FILENAME = f"{filename}.h5"
-    if not os.path.exists(HDF5_FILENAME):
-        with h5py.File(HDF5_FILENAME, 'w') as h5_file:
-            eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8')])
-            h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
-            print("HDF5 file created successfully")
-    return HDF5_FILENAME */
-    """
 
