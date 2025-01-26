@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushBut
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
-from pyqtgraph.examples.MatrixDisplayExample import main_window
 
 
 class MaxtestPage(QWidget):
@@ -25,20 +24,12 @@ class MaxtestPage(QWidget):
 
         #Button für richtiges Zeichen des N-Backtests
         self.correct_button = QPushButton('Correct',self)
-        width = self.width()
-        print(width)
-        width = int (width * 0.5)
-        self.correct_button.setFixedWidth(width)
-        #self.correct_button.setFixedWidth(160)  # Breite überschreiben
-        self.correct_button.setFixedHeight(50) # Höhe überschreiben
         layout.addWidget(self.correct_button, 2, 0, alignment = Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
 
 
 
         #Button für falsches Zeichen des N-Backtests
         self.skip_button = QPushButton('Skip',self)
-        self.skip_button.setFixedWidth(160)  # Breite überschreiben
-        self.skip_button.setFixedHeight(50) # Höhe überschreiben
         layout.addWidget(self.skip_button, 2, 2, alignment = Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
 
 
@@ -53,7 +44,15 @@ class MaxtestPage(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Maxtest Widget')
 
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # Calculate 10% width and 15% height of the parent widget
+        button_width = int(self.width() * 0.1)
+        button_height = int(self.height() * 0.15)
 
+        # Set button sizes dynamically
+        self.correct_button.setFixedSize(button_width, button_height)
+        self.skip_button.setFixedSize(button_width, button_height)
 
     def updateChar(self):
         self.charForTest.setText("G")
