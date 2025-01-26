@@ -93,10 +93,24 @@ class Controller():
 
         self.testLogic.charSubmiter.connect(maxtest_widget.updateChar)
 
+        self.testLogic.test_timer.timeout.connect(self.results_page)
+
         #Test for the button
         #maxtest_widget.correct_button.clicked.connect(maxtest_widget.updateChar)
 
 
+    def results_page(self):
+        # Get the start widget and its index
+        results_widget = self.gui.main_window.pages['results']
+        results_widget_index = self.gui.main_window.layout.indexOf(results_widget)
+
+        result = self.testLogic.calculateResults()
+
+        # Set the current index of the main window layout to the start widget
+        self.gui.main_window.layout.setCurrentIndex(results_widget_index)
+
+        # Connect the two buttons to skip the next symbol
+        #results_widget.next_button.clicked.connect() # muss noch verbunden werden
 
 
 def create_h5_file(folder_path):

@@ -18,7 +18,8 @@ class testLogic(QObject):
 
     def startTest(self):
         self.test_timer = QTimer()
-        self.test_timer.start(100000)
+        self.test_timer.start(10000)
+        #self.test_timer.setSingleShot(True)
         #self.n = n
 
 
@@ -41,3 +42,23 @@ class testLogic(QObject):
     def skipButtonClicked(self):
         self.booleanList.append(False)
         self.generateChar()
+
+    def calculateResults(self):
+        result = [0, 0]
+        i = 0
+        while i < len(self.charList):
+            if i <= self.n:
+                if self.booleanList[i] == False:
+                    result[1] += 1
+                else:
+                    result[0] += 1
+            else:
+                if (self.charList[i] == self.charList[i - self.n] and self.booleanList[i] == True):
+                    result[0] += 1
+                else:
+                    result[1] += 1
+            i += 1
+
+        return result
+
+
