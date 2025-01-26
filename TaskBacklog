@@ -11,7 +11,7 @@ Sämtliche Widgets (siehe Klassendiagramm)
 
 -- 3
 Der Keyboard-Listener zum markieren der Zeitstempel. 
-
+#Brauchen wir diesen überhaupt, Button als alternative?
 -- 4
 Die h5-Files müssen so angepasst werden, dass der MaxWert und CL auch gespeichert werden.
 
@@ -38,7 +38,7 @@ Beim gemeinsamen Arbeiten, gerade wenn man sich nicht häufig sieht (z.B.: nur j
 Gerade weil das hier für die meisten das erste Entwicklungs-Gruppenprojekt ist, sollten wir ordentlich arbeiten. :) )
 
 Ich dokumentiere mal hier unten, aber handhabt das wie ihr wollt, whatsapp, mündlich von mir aus sogar Teams
-Clara: Struktur des EEG-Threads anpassen, wie auf Whatsapp angekündigt. Fertig voraussichtlich Samstag-Mittag
+Clara: Struktur des EEG-Threads anpassen, wie auf Whatsapp angekündigt. Fertig voraussichtlich Samstag-Mittag DONE
 
 Fragen für Chiara:
 >> Nutzbarkeit der Messung während der Baseline als Referenzwert
