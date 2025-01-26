@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushBut
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
+from pyqtgraph.examples.MatrixDisplayExample import main_window
+
 
 class MaxtestPage(QWidget):
     def __init__(self):
@@ -23,7 +25,11 @@ class MaxtestPage(QWidget):
 
         #Button für richtiges Zeichen des N-Backtests
         self.correct_button = QPushButton('Correct',self)
-        self.correct_button.setFixedWidth(160)  # Breite überschreiben
+        width = self.width()
+        print(width)
+        width = int (width * 0.5)
+        self.correct_button.setFixedWidth(width)
+        #self.correct_button.setFixedWidth(160)  # Breite überschreiben
         self.correct_button.setFixedHeight(50) # Höhe überschreiben
         layout.addWidget(self.correct_button, 2, 0, alignment = Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
 
@@ -38,17 +44,26 @@ class MaxtestPage(QWidget):
 
 
         #N-Backtest einfügen
-
-        ##Test ausrichtung für N-Backtest
-        self.test = QLabel()
-        self.test.setText("N")
+        self.charForTest = QLabel()
         font_test = QFont("Arial", 80)
-        self.test.setFont(font_test)
-        layout.addWidget(self.test, 1, 1, alignment=Qt.AlignmentFlag.AlignHCenter)
-
-
+        self.charForTest.setFont(font_test)
+        self.charForTest.setText("n")
+        layout.addWidget(self.charForTest, 1, 1, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self.setLayout(layout)
         self.setWindowTitle('Maxtest Widget')
+
+
+
+    def updateChar(self):
+        self.charForTest.setText("G")
+        print("geht")
+        #self.charForTest.setText(char)
+
+
+
+
+
+
 
 

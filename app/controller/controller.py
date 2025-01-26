@@ -41,7 +41,7 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(start_widget_index)
 
         # Connect the start button to the monitoring phase
-        start_widget.monitor_start_button.clicked.connect(self.baseline_page)
+        start_widget.monitor_start_button.clicked.connect(self.maxtest_page)
         start_widget.monitor_start_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
@@ -84,7 +84,7 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
 
         # Connect the two buttons to skip the next symbol
-
+        maxtest_widget.correct_button.clicked.connect(maxtest_widget.updateChar)
 
 
 def create_h5_file(folder_path):
