@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSizePolicy
 from PyQt6.QtCore import Qt
-
 import sys
 
 class StartWidget(QWidget):
