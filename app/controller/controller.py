@@ -74,6 +74,19 @@ class Controller():
     def retrospective_page(self):
         pass
 
+
+    def maxtest_page(self):
+        # Get the start widget and its index
+        maxtest_widget = self.gui.main_window.pages['maxtest']
+        maxtest_widget_index = self.gui.main_window.layout.indexOf(maxtest_widget)
+
+        # Set the current index of the main window layout to the start widget
+        self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
+
+        # Connect the two buttons to skip the next symbol
+
+
+
 def create_h5_file(folder_path):
     # TODO: Nutzer ermöglichen, eigenen Session- Namen zu bestimmen.
 

@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget
 from app.view.startWidget import StartWidget
 from app.view.plotWidget import EEGPlotWidget
 from app.view.baselinePage import BaselineWidget
+from app.view.maxtestPage import MaxtestPage
 
 class RootWindow(QMainWindow):
     def __init__(self):
@@ -28,6 +29,7 @@ class MainWidget(QWidget):
         self.register_page(StartWidget(), "start")
         self.register_page(EEGPlotWidget(), "plot")
         self.register_page(BaselineWidget(), "baseline")
+        self.register_page(MaxtestPage(), "maxtest")
 
     def register_page(self, child: QWidget, page_name: str):
         """Registers a page with the main window."""
