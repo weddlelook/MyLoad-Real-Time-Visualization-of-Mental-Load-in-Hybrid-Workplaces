@@ -54,11 +54,8 @@ class MaxtestPage(QWidget):
         self.correct_button.setFixedSize(button_width, button_height)
         self.skip_button.setFixedSize(button_width, button_height)
 
-    def updateChar(self):
-        self.charForTest.setText("G")
-        print("geht")
-        #self.charForTest.setText(char)
-
+    def updateChar(self, testChar):
+        self.charForTest.setText(testChar)
 
 
 

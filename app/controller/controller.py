@@ -6,6 +6,7 @@ from datetime import datetime
 
 # Worker thread imports
 from app.model.eegMonitoring import EEGMonitoring
+from app.model.testLogic import testLogic
 from PyQt6.QtCore import QThread
 
 # GUI imports
@@ -31,6 +32,8 @@ class Controller():
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
         self.gui = RootWindow()
         self.gui.show()
+        self.testLogic = testLogic()
+
 
     def landing_page(self):
         # Get the start widget and its index
@@ -42,6 +45,7 @@ class Controller():
 
         # Connect the start button to the monitoring phase
         start_widget.monitor_start_button.clicked.connect(self.maxtest_page)
+        #start_widget.monitor_start_button.clicked.connect(self.testLogic.startTest(2))
         start_widget.monitor_start_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
@@ -84,7 +88,15 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
 
         # Connect the two buttons to skip the next symbol
-        maxtest_widget.correct_button.clicked.connect(maxtest_widget.updateChar)
+        maxtest_widget.correct_button.clicked.connect(testLogic.correctButtonClicked())
+        maxtest_widget.skip_button.clicked.connect(testLogic.skipButtonClicked())
+
+        self.testLogic.charSubmiter.connect(maxtest_widget.updateChar)
+
+        #Test for the button
+        #maxtest_widget.correct_button.clicked.connect(maxtest_widget.updateChar)
+
+
 
 
 def create_h5_file(folder_path):
