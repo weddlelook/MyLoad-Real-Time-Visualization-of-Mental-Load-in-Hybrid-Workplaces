@@ -45,7 +45,7 @@ class Controller():
 
         # Connect the start button to the monitoring phase
         start_widget.monitor_start_button.clicked.connect(self.maxtest_page)
-        #start_widget.monitor_start_button.clicked.connect(self.testLogic.startTest(2))
+        start_widget.monitor_start_button.clicked.connect(self.testLogic.startTest)
         start_widget.monitor_start_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
@@ -88,8 +88,8 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
 
         # Connect the two buttons to skip the next symbol
-        maxtest_widget.correct_button.clicked.connect(testLogic.correctButtonClicked())
-        maxtest_widget.skip_button.clicked.connect(testLogic.skipButtonClicked())
+        maxtest_widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
+        maxtest_widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
 
         self.testLogic.charSubmiter.connect(maxtest_widget.updateChar)
 
