@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget
-from view.startWidget import StartWidget
-from view.plotWidget import EEGPlotWidget
-from view.baselinePage import BaselineWidget
+from app.view.startWidget import StartWidget
+from app.view.plotWidget import EEGPlotWidget
+from app.view.baselinePage import BaselineWidget
 
 class RootWindow(QMainWindow):
     def __init__(self):

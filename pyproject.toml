@@ -13,12 +13,11 @@ meegkit = "^0.1.7"
 h5py = "^3.12.1"
 python = ">=3.12,<3.14"
 keyboard = "^0.13.5"
-pyriemann = "0.2.7"
 pyqt6 = "^6.8.0"
 pyqtgraph = "^0.13.7"
-qasync = "^0.27.1"
-flask = "^3.1.0"
 pyqt6-webengine = "^6.8.0"
+matplotlib = "^3.10.0"
+pyriemann = "^0.7"
 
 
 [build-system]
