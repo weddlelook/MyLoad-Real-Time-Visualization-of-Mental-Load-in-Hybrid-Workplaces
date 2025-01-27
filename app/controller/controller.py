@@ -32,7 +32,6 @@ class Controller():
         self.settings_model = settings.SettingsModel()
         self.gui = RootWindow(self.settings_model.settings)
         self.actual_widget_index = None
-        self.gui.show()
 
     def _update_index(self, index):
         self.actual_widget_index = index
@@ -101,12 +100,13 @@ class Controller():
         widget = self.gui.main_window.pages['settings']
         widget.set_settings(self.settings_model.settings)
         widget_index = self.gui.main_window.layout.indexOf(widget)
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
-        widget.new_settings.connect(self.settings_model.set)
-        widget.settings_changed.connect(self.go_back_to_previous_page)
-        widget.settings_changed.connect(self.gui.apply_stylesheet)
-        widget.back_button.clicked.connect(self.go_back_to_previous_page)
 
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+
+        widget.new_settings.connect(self.settings_model.set)
+        widget.settings_changed.connect(self.gui.apply_stylesheet)
+        widget.settings_changed.connect(self.go_back_to_previous_page)
+        widget.back_button.clicked.connect(self.go_back_to_previous_page)
 
     def go_back_to_previous_page(self):
         self.gui.main_window.layout.setCurrentIndex(self.actual_widget_index)
