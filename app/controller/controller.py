@@ -45,7 +45,7 @@ class Controller():
 
         # Connect the start button to the monitoring phase
         start_widget.monitor_start_button.clicked.connect(self.maxtest_page)
-        start_widget.monitor_start_button.clicked.connect(self.testLogic.startTest)
+        #start_widget.monitor_start_button.clicked.connect(self.testLogic.startTest)
         start_widget.monitor_start_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
@@ -80,12 +80,16 @@ class Controller():
 
 
     def maxtest_page(self):
+
+
         # Get the start widget and its index
         maxtest_widget = self.gui.main_window.pages['maxtest']
         maxtest_widget_index = self.gui.main_window.layout.indexOf(maxtest_widget)
 
         # Set the current index of the main window layout to the start widget
         self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
+
+
 
         # Connect the two buttons to skip the next symbol
         maxtest_widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
@@ -95,8 +99,9 @@ class Controller():
 
         self.testLogic.test_timer.timeout.connect(self.results_page)
 
-        #Test for the button
-        #maxtest_widget.correct_button.clicked.connect(maxtest_widget.updateChar)
+        self.testLogic.startTest()
+
+
 
 
     def results_page(self):

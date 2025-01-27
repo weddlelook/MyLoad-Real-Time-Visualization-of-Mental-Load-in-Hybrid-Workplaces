@@ -26,36 +26,49 @@ class testLogic(QObject):
         self.test_timer.setSingleShot(True)
 
 
+
+    # Funktion zum Start des Maxtest und des Timers für diesen
+    # Wird im Controller aufgerufen sobald der Baseline Test fertig istw
     def startTest(self):
         self.test_timer.start(10000)
         self.generateChar()
         #self.n = n
 
+
+    # Funktio
     def generateChar(self):
         if self.test_timer.isActive():
             testChar = random.choice(string.ascii_uppercase)
             if len(self.charList) >= self.n :
                 nBackChar = self.charList[len(self.charList) - self.n]
-                print(nBackChar)
                 testChar = random.choices([testChar, nBackChar], [10, 90])[0]
-                print(testChar)
             self.charList.append(testChar)
             self.charSubmiter.emit(testChar)
 
+
+    #Funktion wird aufgerufen wenn der Correct Button auf der Maxtest seite aufgerufen und hängt dann an die booleanList
+    # ein True um den gedrückten Button zu speichern
+    #Außerdem ruft es generateChar auf um einen neuen Code zu erstellen
     def correctButtonClicked(self):
         self.booleanList.append(True)
         self.generateChar()
 
-
+    # Funktion wird aufgerufen wenn der Skip Button auf der Maxtest seite aufgerufen und hängt dann an die booleanList
+    # ein False um den gedrückten Button zu speichern
+    # Außerdem ruft es generateChar auf um einen neuen Code zu erstellen
     def skipButtonClicked(self):
         self.booleanList.append(False)
         self.generateChar()
 
+
+    # Diese Funktion berechnet aus der Liste der Buchstaben und der Liste der booleans also welcher Knopf gedrückt wurde
+    # wie oft die Person das richtige geklickt hat
+    # Wird im COntroller der ResultsPage aufgerufen
     def calculateResults(self):
         result = [0, 0]
         i = 0
         while i < len(self.charList) - 1:
-            if i <= self.n:
+            if i < self.n:
                 if self.booleanList[i] == False:
                     result[0] += 1
                 else:
