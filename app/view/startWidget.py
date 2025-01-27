@@ -12,8 +12,10 @@ class StartWidget(QWidget):
         layout = QVBoxLayout()
 
         self.monitor_start_button = QPushButton('startMonitoring', self)
+        layout.addWidget(self.monitor_start_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        layout.addWidget(self.monitor_start_button, alignment= Qt.AlignmentFlag.AlignCenter)
+        self.settings_button = QPushButton('Settings', self)
+        layout.addWidget(self.settings_button, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.setLayout(layout)
         self.setWindowTitle('Start Widget')

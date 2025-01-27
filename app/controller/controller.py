@@ -6,12 +6,12 @@ from datetime import datetime
 
 # Worker thread imports
 from app.model.eegMonitoring import EEGMonitoring
+from app.model import settings
 from PyQt6.QtCore import QThread
 
 # GUI imports
 from app.view.rootWindow import RootWindow
-from app.view.plotWidget import EEGPlotWidget
-from app.view.startWidget import StartWidget
+
 
 class Controller():
 
@@ -30,28 +30,37 @@ class Controller():
         self.eeg_monitor.moveToThread(self.monitorThread)
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
         self.gui = RootWindow()
+        self.actual_widget_index = None
+        self.settings_model = settings.SettingsModel()
         self.gui.show()
+
+    def _update_index(self, index):
+        self.actual_widget_index = index
 
     def landing_page(self):
         # Get the start widget and its index
-        start_widget = self.gui.main_window.pages['start']
-        start_widget_index = self.gui.main_window.layout.indexOf(start_widget)
+        widget = self.gui.main_window.pages['start']
+        widget_index = self.gui.main_window.layout.indexOf(widget)
 
         # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(start_widget_index)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._update_index(widget_index)
 
         # Connect the start button to the monitoring phase
-        start_widget.monitor_start_button.clicked.connect(self.baseline_page)
-        start_widget.monitor_start_button.clicked.connect(self.monitorThread.start)
+        widget.monitor_start_button.clicked.connect(self.baseline_page)
+        widget.monitor_start_button.clicked.connect(self.monitorThread.start)
+
+        widget.settings_button.clicked.connect(self.open_settings)
+
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
     def baseline_page(self):
         # Get the start widget and its index
-        baseline_widget = self.gui.main_window.pages['baseline']
-        baseline_widget_index = self.gui.main_window.layout.indexOf(baseline_widget)
+        widget = self.gui.main_window.pages['baseline']
+        widget_index = self.gui.main_window.layout.indexOf(widget)
 
         # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(baseline_widget_index)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
 
         self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
         self.eeg_monitor.baseline_complete_signal.connect(self.monitoring_page)
@@ -62,14 +71,16 @@ class Controller():
 
     def monitoring_page(self): 
         # Get the plot widget and its index
-        plot_widget = self.gui.main_window.pages['plot']
-        plot_widget_index = self.gui.main_window.layout.indexOf(plot_widget)
+        widget = self.gui.main_window.pages['plot']
+        widget_index = self.gui.main_window.layout.indexOf(widget)
 
         # Set the current index of the main window layout to the plot widget
-        self.gui.main_window.layout.setCurrentIndex(plot_widget_index)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._update_index(widget_index)
+
 
         # Connect the EEGMonitoring thread to the EEGPlotWidget
-        self.eeg_monitor.powers.connect(plot_widget.update_plot)
+        self.eeg_monitor.powers.connect(widget.update_plot)
 
     def retrospective_page(self):
         pass
@@ -77,14 +88,27 @@ class Controller():
 
     def maxtest_page(self):
         # Get the start widget and its index
-        maxtest_widget = self.gui.main_window.pages['maxtest']
-        maxtest_widget_index = self.gui.main_window.layout.indexOf(maxtest_widget)
+        widget = self.gui.main_window.pages['maxtest']
+        widget_index = self.gui.main_window.layout.indexOf(widget)
 
         # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._update_index(widget_index)
 
         # Connect the two buttons to skip the next symbol
 
+    def open_settings(self):
+        widget = self.gui.main_window.pages['settings']
+        widget.set_settings(self.settings_model.settings)
+        widget_index = self.gui.main_window.layout.indexOf(widget)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        widget.settings_changed.connect(self.settings_model.set)
+        widget.go_back.connect(self.go_back_to_previous_page)
+        widget.back_button.clicked.connect(self.go_back_to_previous_page)
+
+
+    def go_back_to_previous_page(self):
+        self.gui.main_window.layout.setCurrentIndex(self.actual_widget_index)
 
 
 def create_h5_file(folder_path):
