@@ -9,7 +9,6 @@ class SettingsWidget(QWidget):
     go_back = pyqtSignal()
     def __init__(self):
         super().__init__()
-        self.settings = SettingsModel.DEFAULT_SETTINGS
         self.initUI()
 
     def initUI(self):
@@ -22,10 +21,7 @@ class SettingsWidget(QWidget):
         self.traffic_light_option = QRadioButton("Traffic Light")
         self.bar_option = QRadioButton("Bar")
 
-        if self.settings.get("trafficLight") == 1:
-            self.traffic_light_option.setChecked(True)
-        elif self.settings.get("bar") == 1:
-            self.bar_option.setChecked(True)
+
         form_layout.addRow('', self.traffic_light_option)
         form_layout.addRow('', self.bar_option)
 
@@ -43,13 +39,13 @@ class SettingsWidget(QWidget):
         self.setWindowTitle("Settings")
 
     def save_settings(self):
-        dirc = {}
+        dic = {}
         if self.traffic_light_option.isChecked():
-            dirc["trafficLight"] = 1
-            dirc["bar"] = 0
+            dic["trafficLight"] = 1
+            dic["bar"] = 0
         elif self.bar_option.isChecked():
-            dirc["bar"] = 1
-            dirc["trafficLight"] = 0
+            dic["bar"] = 1
+            dic["trafficLight"] = 0
         self.settings_changed.emit(dirc)
         self.go_back.emit()
 
