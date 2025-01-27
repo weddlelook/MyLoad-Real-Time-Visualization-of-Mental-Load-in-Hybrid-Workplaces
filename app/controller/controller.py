@@ -23,12 +23,8 @@ class Controller():
     def __init__(self):
         super().__init__()
 
-        # EEG Listener
-        folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
-        self.eeg_monitor = EEGMonitoring(create_h5_file(folder_path))
+        self.monitorWorker = None  # Instantiate only on session start
         self.monitorThread = QThread()
-        self.eeg_monitor.moveToThread(self.monitorThread)
-        self.monitorThread.started.connect(self.eeg_monitor.set_up)
 
         # GUI
         self.gui = RootWindow()
@@ -40,21 +36,29 @@ class Controller():
         self.gui.main_window.settings.settings_changed.connect(self.settings_model.set)
 
     def landing_page(self):
-        widget = self.gui.main_window.set_page('start')
+        # Get the start widget and its index
+        start_widget = self.gui.main_window.set_page('start')
 
         # Connect the start button to the monitoring phase
-        widget.monitor_start_button.clicked.connect(self.baseline_page)
-        widget.monitor_start_button.clicked.connect(self.monitorThread.start)
+        start_widget.session_name_entered.connect(lambda: self.baseline_page(start_widget.session_name))
 
-        widget.settings_button.clicked.connect(self.gui.main_window.open_settings)
+        start_widget.settings_button.clicked.connect(self.gui.main_window.open_settings)
 
-        self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
-    def baseline_page(self):
+    def baseline_page(self, fileName):
+        folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
+        self.eegWorker = EEGMonitoring(create_h5_file(folder_path, fileName))
+        self.eegWorker.moveToThread(self.monitorThread)
+        self.monitorThread.started.connect(self.eegWorker.set_up)
+        self.monitorThread.started.connect(self.eegWorker.record_asr_baseline)
+
+        self.monitorThread.start()
+
         self.gui.main_window.set_page('baseline')
 
-        self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
-        self.eeg_monitor.baseline_complete_signal.connect(self.monitoring_page)
+        self.eegWorker.baseline_complete_signal.connect(self.eegWorker.start_monitoring)
+
+        self.eegWorker.baseline_complete_signal.connect(self.monitoring_page)
 
 
     def skip_page(self):
@@ -64,7 +68,7 @@ class Controller():
         widget = self.gui.main_window.set_page('plot')
 
         # Connect the EEGMonitoring thread to the EEGPlotWidget
-        self.eeg_monitor.powers.connect(widget.update_plot)
+        self.eegWorker.powers.connect(widget.update_plot)
 
     def retrospective_page(self):
         pass
@@ -75,15 +79,17 @@ class Controller():
 
 
 
-def create_h5_file(folder_path):
-    # TODO: Nutzer ermöglichen, eigenen Session- Namen zu bestimmen.
-
+def create_h5_file(folder_path, users_session_name):
     # Ordner erstellen, falls er nicht existiert
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    HDF5_FILENAME = os.path.join(folder_path, f"session_{timestamp}.h5")
+    # Variable welche den Sessions noch eine Nummer gibt, damit diese nummeriert bleiben
+    count_of_sessions = len([f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]) + 1
+
+
+    timestamp = datetime.now().strftime("%H-%M-%S_%d-%m-%Y")
+    HDF5_FILENAME = os.path.join(folder_path, f"{count_of_sessions}__{users_session_name}__{timestamp}.h5")
 
     # Datei erstellen, falls sie nicht existiert
     if not os.path.exists(HDF5_FILENAME):
@@ -93,5 +99,6 @@ def create_h5_file(folder_path):
             h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
             print(f"HDF5 file created successfully: {HDF5_FILENAME}")
     return HDF5_FILENAME
+
 
 
