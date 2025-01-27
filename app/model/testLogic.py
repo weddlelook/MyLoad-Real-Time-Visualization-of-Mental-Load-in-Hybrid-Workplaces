@@ -35,7 +35,9 @@ class testLogic(QObject):
         #self.n = n
 
 
-    # Funktio
+    # Funktion generiert einen zufälligen Buchstaben und verändert dann die Wahrscheinlichkeit falls es einen Buchstaben
+    # n Stellen davor gibt
+    # Die Wahrscheinlichkeit wird durch random choiche verändert mit den weight
     def generateChar(self):
         if self.test_timer.isActive():
             testChar = random.choice(string.ascii_uppercase)
