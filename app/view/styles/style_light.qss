@@ -1,5 +1,5 @@
 QWidget {
-    background-color: #FFFFFF; /* White background for all widgets */
+    background-color: #F4F4F4; /* White background for all widgets */
     font-family: Arial;
     font-size: 14px;
     color: #333;
