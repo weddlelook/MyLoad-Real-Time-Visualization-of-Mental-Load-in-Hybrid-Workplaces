@@ -13,7 +13,7 @@ class testLogic(QObject):
         super().__init__()
         self.charList = []
         self.booleanList = []
-        self.n = 2
+        self.n = 2  # N ist N backtest Zahl wenn später durch funktion übergeben hier einfach dann gleich 0 eingeben
 
         """
         Dat Problem war, dass du den schon connected hast bevor du 
@@ -29,6 +29,7 @@ class testLogic(QObject):
 
     # Funktion zum Start des Maxtest und des Timers für diesen
     # Wird im Controller aufgerufen sobald der Baseline Test fertig istw
+    # Hier könnte dann auch noch eine Zahl übergeben werden n falls verschiedene n Backtest gemacht werden sollen
     def startTest(self):
         self.test_timer.start(10000)
         self.generateChar()
