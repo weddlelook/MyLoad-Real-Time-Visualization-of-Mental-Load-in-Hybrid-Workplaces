@@ -46,7 +46,7 @@ class SettingsWidget(QWidget):
         elif self.bar_option.isChecked():
             dic["bar"] = 1
             dic["trafficLight"] = 0
-        self.settings_changed.emit(dirc)
+        self.settings_changed.emit(dic)
         self.go_back.emit()
 
 
