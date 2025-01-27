@@ -29,9 +29,9 @@ class Controller():
         self.monitorThread = QThread()
         self.eeg_monitor.moveToThread(self.monitorThread)
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
-        self.gui = RootWindow()
-        self.actual_widget_index = None
         self.settings_model = settings.SettingsModel()
+        self.gui = RootWindow(self.settings_model.settings)
+        self.actual_widget_index = None
         self.gui.show()
 
     def _update_index(self, index):
@@ -102,8 +102,9 @@ class Controller():
         widget.set_settings(self.settings_model.settings)
         widget_index = self.gui.main_window.layout.indexOf(widget)
         self.gui.main_window.layout.setCurrentIndex(widget_index)
-        widget.settings_changed.connect(self.settings_model.set)
-        widget.go_back.connect(self.go_back_to_previous_page)
+        widget.new_settings.connect(self.settings_model.set)
+        widget.settings_changed.connect(self.go_back_to_previous_page)
+        widget.settings_changed.connect(self.gui.apply_stylesheet)
         widget.back_button.clicked.connect(self.go_back_to_previous_page)
 
 

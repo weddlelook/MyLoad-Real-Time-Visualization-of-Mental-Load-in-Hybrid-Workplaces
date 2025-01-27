@@ -6,16 +6,20 @@ from app.view.maxtestPage import MaxtestPage
 from app.view.settingsPage import SettingsWidget
 
 class RootWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, settings):
         super().__init__()
         self.setWindowTitle("")
+        self.settings = settings
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
-        self.apply_stylesheet("app/view/styles/style_dark.qss") # default theme
+        self.apply_stylesheet()
         self.show()
 
-    def apply_stylesheet(self, file_path: str):
-        # Loads and applies a QSS stylesheet dynamically."""
+    def apply_stylesheet(self):
+        if self.settings["lightMode"] == 1:
+            file_path = "app/view/styles/style_light.qss"
+        elif self.settings["darkMode"] == 1:
+            file_path = "app/view/styles/style_dark.qss"
         try:
             with open(file_path, "r") as f:
                 self.setStyleSheet(f.read())
