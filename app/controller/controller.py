@@ -44,8 +44,7 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(start_widget_index)
 
         # Connect the start button to the monitoring phase
-        start_widget.monitor_start_button.clicked.connect(self.maxtest_page)
-        #start_widget.monitor_start_button.clicked.connect(self.testLogic.startTest)
+        start_widget.monitor_start_button.clicked.connect(self.baseline_page)
         start_widget.monitor_start_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
@@ -58,7 +57,7 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(baseline_widget_index)
 
         self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
-        self.eeg_monitor.baseline_complete_signal.connect(self.monitoring_page)
+        self.eeg_monitor.baseline_complete_signal.connect(self.maxtest_page)
 
 
     def skip_page(self):
@@ -116,7 +115,7 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(results_widget_index)
 
         # Connect the two buttons to skip the next symbol
-        #results_widget.next_button.clicked.connect() # muss noch verbunden werden
+        results_widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
 
 
 def create_h5_file(folder_path):
