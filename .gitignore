@@ -177,3 +177,6 @@ cython_debug/
 
 
 app/h5_session_files/
+
+.idea
+app/Settings Files/
