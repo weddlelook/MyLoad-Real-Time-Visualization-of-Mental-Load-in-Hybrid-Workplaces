@@ -23,17 +23,21 @@ class Controller():
     def __init__(self):
         super().__init__()
 
+        # EEG Listener
         folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
-        # Create an instance of EEGMonitor (which is a worker thread)
         self.eeg_monitor = EEGMonitoring(create_h5_file(folder_path))
         self.monitorThread = QThread()
         self.eeg_monitor.moveToThread(self.monitorThread)
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
+
+        # GUI
         self.gui = RootWindow()
-        self.actual_widget_index = None
-        self.settings_model = settings.SettingsModel()
         self.gui.show()
+
+        # Settings
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
+        self.settings_model = settings.SettingsModel()
+        self.gui.main_window.settings.settings_changed.connect(self.settings_model.set)
 
     def landing_page(self):
         widget = self.gui.main_window.set_page('start')
@@ -67,15 +71,7 @@ class Controller():
 
 
     def maxtest_page(self):
-        # Get the start widget and its index
-        widget = self.gui.main_window.pages['maxtest']
-        widget_index = self.gui.main_window.layout.indexOf(widget)
-
-        # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
-        self._update_index(widget_index)
-
-        # Connect the two buttons to skip the next symbol
+        self.gui.main_window.set_page('maxtest')
 
 
 
