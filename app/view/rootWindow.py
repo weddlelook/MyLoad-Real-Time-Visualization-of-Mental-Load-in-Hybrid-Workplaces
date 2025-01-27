@@ -11,7 +11,17 @@ class RootWindow(QMainWindow):
         self.setWindowTitle("")
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
+        self.apply_stylesheet("app/view/styles/style_light.qss") # default theme
         self.show()
+
+    def apply_stylesheet(self, file_path: str):
+        # Loads and applies a QSS stylesheet dynamically."""
+        try:
+            with open(file_path, "r") as f:
+                self.setStyleSheet(f.read())
+        except FileNotFoundError:
+            print(f"Error: Stylesheet '{file_path}' not found.")
+
 
 class MainWidget(QWidget):
     def __init__(self):
