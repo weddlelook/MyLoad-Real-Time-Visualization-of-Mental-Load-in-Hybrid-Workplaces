@@ -28,6 +28,7 @@ class testLogic(QObject):
 
     def startTest(self):
         self.test_timer.start(10000)
+        self.generateChar()
         #self.n = n
 
     def generateChar(self):
@@ -53,14 +54,16 @@ class testLogic(QObject):
     def calculateResults(self):
         result = [0, 0]
         i = 0
-        while i < len(self.charList):
+        while i < len(self.charList) - 1:
             if i <= self.n:
                 if self.booleanList[i] == False:
-                    result[1] += 1
-                else:
                     result[0] += 1
+                else:
+                    result[1] += 1
             else:
-                if (self.charList[i] == self.charList[i - self.n] and self.booleanList[i] == True):
+                if self.charList[i] == self.charList[i - self.n] and self.booleanList[i] == True:
+                    result[0] += 1
+                elif self.charList[i] != self.charList[i - self.n] and self.booleanList[i] == False:
                     result[0] += 1
                 else:
                     result[1] += 1

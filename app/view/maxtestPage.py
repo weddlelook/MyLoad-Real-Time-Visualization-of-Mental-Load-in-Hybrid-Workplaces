@@ -38,7 +38,7 @@ class MaxtestPage(QWidget):
         self.charForTest = QLabel()
         font_test = QFont("Arial", 80)
         self.charForTest.setFont(font_test)
-        self.charForTest.setText("n")
+        self.charForTest.setText("test")
         layout.addWidget(self.charForTest, 1, 1, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         self.setLayout(layout)

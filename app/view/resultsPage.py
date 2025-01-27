@@ -13,7 +13,7 @@ class ResultsPage(QWidget):
         layout = QGridLayout()
 
         self.label = QLabel()
-        self.label.setText("Ihre Ergebnisse:")
+        self.label.setText("Ihr Ergebnisse:")
 
         # Text größer machen
         font = QFont("Arial", 15)  # Schriftart und Schriftgröße
@@ -28,13 +28,16 @@ class ResultsPage(QWidget):
         self.resultDisplay = QLabel()
         font_test = QFont("Arial", 30)
         self.resultDisplay.setFont(font_test)
-        self.resultDisplay.setText("")
+        self.resultDisplay.setText("test")
         layout.addWidget(self.resultDisplay, 1, 1, alignment = Qt.AlignmentFlag.AlignHCenter)
 
+        self.setLayout(layout)
+        self.setWindowTitle('Results Widget')
 
 
+    # Diese Funktion updatet das Display des Ergebnisses
     def updateResult(self, results):
-        self.resultDisplay.setText("Sie haben " + results[0] + " von " + results[1] + results[0] + " richtig gemacht.")
+        self.resultDisplay.setText("Sie haben " + str(results[0]) + " von " + str(results[1] + results[0]) + " richtig gemacht.")
 
 
     def resizeEvent(self, event):

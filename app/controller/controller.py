@@ -105,6 +105,7 @@ class Controller():
         results_widget_index = self.gui.main_window.layout.indexOf(results_widget)
 
         result = self.testLogic.calculateResults()
+        results_widget.updateResult(result)
 
         # Set the current index of the main window layout to the start widget
         self.gui.main_window.layout.setCurrentIndex(results_widget_index)
