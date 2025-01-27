@@ -25,6 +25,9 @@ class StartWidget(QWidget):
         self.monitor_start_button = QPushButton('startMonitoring', self)
         layout.addWidget(self.monitor_start_button, alignment= Qt.AlignmentFlag.AlignCenter)
 
+        self.retrospective_button = QPushButton("Retrospektive anzeigen")
+        layout.addWidget(self.retrospective_button, alignment= Qt.AlignmentFlag.AlignCenter)
+
 
 
         self.settings_button = QPushButton('Settings', self)

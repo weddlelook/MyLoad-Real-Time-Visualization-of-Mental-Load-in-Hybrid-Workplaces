@@ -44,6 +44,8 @@ class Controller():
 
         start_widget.settings_button.clicked.connect(self.gui.main_window.open_settings)
 
+        start_widget.retrospective_button.clicked.connect(self.retrospective_page)
+
 
     def baseline_page(self, fileName):
         folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
@@ -71,7 +73,9 @@ class Controller():
         self.eegWorker.powers.connect(widget.update_plot)
 
     def retrospective_page(self):
-        pass
+        retrospective = self.gui.main_window.set_page('retrospective')
+        retrospective.back_button.clicked.connect(self.landing_page)
+
 
 
     def maxtest_page(self):

@@ -4,6 +4,7 @@ from app.view.plotWidget import EEGPlotWidget
 from app.view.baselinePage import BaselineWidget
 from app.view.maxtestPage import MaxtestPage
 from app.view.settingsPage import SettingsWidget
+from app.view.retrospectivePage import RetrospektivePage
 
 class RootWindow(QMainWindow):
     def __init__(self):
@@ -52,6 +53,8 @@ class MainWidget(QWidget):
         self._register_page(EEGPlotWidget(), "plot")
         self._register_page(BaselineWidget(), "baseline")
         self._register_page(MaxtestPage(), "maxtest")
+        self._register_page(RetrospektivePage("h5_session_files"), "retrospective")
+
 
         self.settings.hide()
 
