@@ -15,13 +15,20 @@ class testLogic(QObject):
         self.booleanList = []
         self.n = 2
 
+        """
+        Dat Problem war, dass du den schon connected hast bevor du 
+        den überhaupt instanziiert hast,
+        Die Aufrufe mit test_timer.timeout.connect sind also quasi auf nem noch
+        nicht vorhandenen Objekt passiert das du startTest erst nach denen aufgerufen hast
+        Warum das da noch nicht gemeckert hat ist fraglich.
+        """
+        self.test_timer = QTimer()
+        self.test_timer.setSingleShot(True)
+
 
     def startTest(self):
-        self.test_timer = QTimer()
         self.test_timer.start(10000)
-        #self.test_timer.setSingleShot(True)
         #self.n = n
-
 
     def generateChar(self):
         if self.test_timer.isActive():
