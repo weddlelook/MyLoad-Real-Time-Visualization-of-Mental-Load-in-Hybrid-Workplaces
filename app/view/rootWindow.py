@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar
 from PyQt6.QtGui import QFontDatabase, QFont
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QIcon
 from app.view.startWidget import StartWidget
 from app.view.plotWidget import EEGPlotWidget
 from app.view.baselinePage import BaselineWidget
@@ -36,7 +36,7 @@ class RootWindow(QMainWindow):
         toolbar = self.addToolBar('Main Toolbar')
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
-        self.settings_action = QAction('Settings', self)
+        self.settings_action = QAction(QIcon("app/view/styles/img/settings-icon.png"), 'Settings', self)
         toolbar.addAction(self.settings_action)
 
     def show_toolbar(self, show):
