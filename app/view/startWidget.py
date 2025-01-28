@@ -36,7 +36,7 @@ class StartWidget(QWidget):
         text_label.setWordWrap(True)
         layout.addWidget(text_label)
 
-        self.start_session_button = QPushButton('Start a Session')
+        self.start_session_button = QPushButton('▶ Start a Session')
         layout.addWidget(self.start_session_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
