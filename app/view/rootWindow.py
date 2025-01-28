@@ -56,6 +56,7 @@ class MainWidget(QWidget):
         self._register_page(BaselineWidget(), "baseline")
         self._register_page(MaxtestPage(), "maxtest")
         self._register_page(RetrospektivePage("h5_session_files"), "retrospective")
+        self._register_page(ResultsPage(), "result")
 
 
         self.settings.hide()

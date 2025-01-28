@@ -8,6 +8,7 @@ from datetime import datetime
 from app.model.eegMonitoring import EEGMonitoring
 from app.model import settings
 from PyQt6.QtCore import QThread
+from app.model.testLogic import testLogic
 
 # GUI imports
 from app.view.rootWindow import RootWindow
@@ -63,12 +64,11 @@ class Controller():
         self.monitorThread.started.connect(self.eegWorker.record_asr_baseline)
 
         self.monitorThread.start()
-
         self.gui.main_window.set_page('baseline')
 
         self.eegWorker.baseline_complete_signal.connect(self.eegWorker.start_monitoring)
 
-        self.eegWorker.baseline_complete_signal.connect(self.monitoring_page)
+        self.eegWorker.baseline_complete_signal.connect(self.maxtest_page)
 
 
     def skip_page(self):
@@ -87,16 +87,7 @@ class Controller():
 
 
     def maxtest_page(self):
-
-
-        # Get the start widget and its index
-        maxtest_widget = self.gui.main_window.pages['maxtest']
-        maxtest_widget_index = self.gui.main_window.layout.indexOf(maxtest_widget)
-
-        # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
-
-
+        maxtest_widget = self.gui.main_window.set_page('maxtest')
 
         # Connect the two buttons to skip the next symbol
         maxtest_widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
@@ -112,15 +103,10 @@ class Controller():
 
 
     def results_page(self):
-        # Get the start widget and its index
-        results_widget = self.gui.main_window.pages['results']
-        results_widget_index = self.gui.main_window.layout.indexOf(results_widget)
+        results_widget = self.gui.main_window.set_page('result')
 
         result = self.testLogic.calculateResults()
         results_widget.updateResult(result)
-
-        # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(results_widget_index)
 
         # Connect the two buttons to skip the next symbol
         results_widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
