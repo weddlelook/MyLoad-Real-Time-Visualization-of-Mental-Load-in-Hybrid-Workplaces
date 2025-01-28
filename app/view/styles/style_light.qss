@@ -37,7 +37,12 @@ QLabel#text {
     color: black;
     margin-bottom: 20px;
 }
-
+QLabel#text-settings {
+    font-size: 16px;
+    color: black;
+    margin-bottom: 20px;
+    background-color: #E9E7E2;
+}
 QLineEdit {
     border: 1px solid #000;
     border-radius: 5px;
@@ -118,4 +123,34 @@ QAction {
 QToolBar::addAction {
     margin-left: 10px;  /* Space between actions */
     margin-right: 10px;
+}
+/* Buttons (Checkboxes) on Settings */
+QRadioButton {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;  /* Text color */
+    padding: 5px;
+    border-radius: 3px;
+    background-color: #E9E7E2;
+}
+
+QRadioButton::indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #3498db; /* Border color */
+    border-radius: 10px;
+    background-color: #FFF; /* Background color when unchecked */
+}
+
+QRadioButton::indicator:checked {
+    background-color: #3498db; /* Background color when checked */
+    border-color: #2980b9;
+}
+
+QRadioButton::indicator:hover {
+    border-color: #2980b9;
+}
+
+QRadioButton::indicator:checked:hover {
+    background-color: #2980b9;
 }

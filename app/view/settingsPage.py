@@ -21,7 +21,7 @@ class SettingsWidget(QWidget):
         display_layout = QVBoxLayout()
         # Create widgets for settings
         display_label = QLabel("Change the display type")
-        display_label.setObjectName("text")
+        display_label.setObjectName("text-settings")
         self.traffic_light_option = QRadioButton("Traffic Light")
         self.bar_option = QRadioButton("Bar")
         display_layout.addWidget(display_label)
@@ -37,7 +37,7 @@ class SettingsWidget(QWidget):
         mode_container = QGroupBox("Mode Settings")
         mode_layout = QVBoxLayout()
         mode_label = QLabel("Change the mode")
-        mode_label.setObjectName("text")
+        mode_label.setObjectName("text-settings")
         self.light_mode_option = QRadioButton("Light Mode")
         self.dark_mode_option = QRadioButton("Dark Mode")
         mode_layout.addWidget(mode_label)
