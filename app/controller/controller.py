@@ -109,7 +109,7 @@ class Controller():
         widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
         widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
 
-        self.testLogic.charSubmiter.connect(maxtest_widget.updateChar)
+        self.testLogic.charSubmiter.connect(widget.updateChar)
         self.testLogic.test_timer.timeout.connect(self.results_page)
         self.testLogic.startTest()
 
