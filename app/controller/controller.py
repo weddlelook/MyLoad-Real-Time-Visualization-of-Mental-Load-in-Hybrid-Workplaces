@@ -68,7 +68,7 @@ class Controller():
 
         self.eegWorker.baseline_complete_signal.connect(self.eegWorker.start_monitoring)
 
-        self.eegWorker.baseline_complete_signal.connect(self.maxtest_page)
+        self.eegWorker.baseline_complete_signal.connect(self.start_maxtest_page)
 
 
     def skip_page(self):
@@ -83,6 +83,19 @@ class Controller():
     def retrospective_page(self):
         retrospective = self.gui.main_window.set_page('retrospective')
         retrospective.back_button.clicked.connect(self.landing_page)
+
+
+    def start_maxtest_page(self):
+        startMaxtest_widget = self.gui.main_window.set_page('startmaxtest')
+
+
+        # Connect the start Button for the maxtest
+        startMaxtest_widget.startMaxtestButton.clicked.connect(self.maxtest_page)
+
+        #Connect the skip button for the test
+        startMaxtest_widget.skipMaxtestButton.clicked.connect(self.skip_page)
+
+
 
 
 

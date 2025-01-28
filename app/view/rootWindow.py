@@ -7,6 +7,7 @@ from app.view.baselinePage import BaselineWidget
 from app.view.maxtestPage import MaxtestPage
 from app.view.settingsPage import SettingsWidget
 from app.view.retrospectivePage import RetrospektivePage
+from app.view.startMaxtestPage import StartMaxTestPage
 
 class RootWindow(QMainWindow):
     def __init__(self):
@@ -57,6 +58,7 @@ class MainWidget(QWidget):
         self._register_page(MaxtestPage(), "maxtest")
         self._register_page(RetrospektivePage("h5_session_files"), "retrospective")
         self._register_page(ResultsPage(), "result")
+        self._register_page(StartMaxTestPage(), "startmaxtest")
 
 
         self.settings.hide()
