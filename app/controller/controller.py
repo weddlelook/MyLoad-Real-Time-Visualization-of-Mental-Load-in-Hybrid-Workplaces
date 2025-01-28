@@ -38,22 +38,66 @@ class Controller():
         self.settings_model = settings.SettingsModel()
         self.gui.main_window.settings.settings_changed.connect(self.settings_model.set)
 
+    def _change_page(self, widget_index, show_toolbar):
+        '''
+        use this function to change pages
+        :param widget_index: the index of the  next page
+        :param show_toolbar: True if you want toolbar on the page false else
+        '''
+        if show_toolbar:
+            self.gui.show_toolbar(True)
+        elif not show_toolbar:
+            self.gui.show_toolbar(False)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+
+    def _toggle_settings(self):
+        settings_widget = self.gui.main_window.pages["settings"]
+        settings_index = self.gui.main_window.layout.indexOf(settings_widget)
+        current_page_index = self.gui.main_window.layout.currentIndex()
+        if current_page_index == settings_index:
+            self.go_back_to_previous_page()
+        else:
+            self.open_settings()
+
+    def open_settings(self):
+        widget = self.gui.main_window.pages['settings']
+        widget.set_settings(self.settings_model.settings)
+        widget_index = self.gui.main_window.layout.indexOf(widget)
+
+        self._change_page(widget_index, True)
+
+        widget.new_settings.connect(self.settings_model.set)
+        widget.settings_changed.connect(self.gui.apply_stylesheet)
+        widget.settings_changed.connect(self.go_back_to_previous_page)
+        widget.back_button.clicked.connect(self.go_back_to_previous_page)
+
+    def go_back_to_previous_page(self):
+        self._change_page(self.actual_widget_index, True)
+
     def landing_page(self):
         # Get the start widget and its index
-        start_widget = self.gui.main_window.set_page('start')
+        widget = self.gui.main_window.pages['start']
+        widget_index = self.gui.main_window.layout.indexOf(widget)
+        self.gui.show_toolbar(True)
 
-        # Vorherige Verbindungen entfernen
-        try:
-            start_widget.session_name_entered.disconnect()
-        except TypeError:
-            pass  # Keine Verbindung vorhanden
+        # Set the current index of the main window layout to the start widget
+        self._change_page(widget_index, True)
+        self._update_index(widget_index)
 
         # Connect the start button to the monitoring phase
-        start_widget.session_name_entered.connect(lambda: self.baseline_page(start_widget.session_name))
+        widget.start_session_button.clicked.connect(self.start_baseline)
 
-        start_widget.settings_button.clicked.connect(self.gui.main_window.open_settings)
+    def start_baseline(self):
+        widget = self.gui.main_window.pages["baselineStartPage"]
+        widget_index = self.gui.main_window.layout.indexOf(widget)
+        self.gui.show_toolbar(True)
 
-        start_widget.retrospective_button.clicked.connect(self.retrospective_page)
+        self._change_page(widget_index, True)
+        self._update_index(widget_index)
+
+        widget.monitor_baseline_button.clicked.connect(self.baseline_page)
+        widget.monitor_baseline_button.clicked.connect(self.monitorThread.start)
+        self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
 
     def baseline_page(self, fileName):
@@ -132,6 +176,5 @@ def create_h5_file(folder_path, users_session_name):
             h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
             print(f"HDF5 file created successfully: {HDF5_FILENAME}")
     return HDF5_FILENAME
-
 
 

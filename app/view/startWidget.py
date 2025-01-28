@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSizePolicy, QLineEdit, QLabel
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSizePolicy, QLabel
+from PyQt6.QtCore import Qt
 import sys
 
 class StartWidget(QWidget):
@@ -22,16 +22,22 @@ class StartWidget(QWidget):
         self.session_input.setPlaceholderText('Session Name...')
         layout.addWidget(self.session_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.monitor_start_button = QPushButton('startMonitoring', self)
-        layout.addWidget(self.monitor_start_button, alignment= Qt.AlignmentFlag.AlignCenter)
+        title_label = QLabel("Welcome to MyLoad")
+        title_label.setObjectName("title")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title_label)
 
-        self.retrospective_button = QPushButton("Retrospektive anzeigen")
-        layout.addWidget(self.retrospective_button, alignment= Qt.AlignmentFlag.AlignCenter)
+        text_label = QLabel(
+            "MyLoad provide users the opportunity to monitor their cognitive load during online lectures,"
+            " helping them optimize focus, productivity, and overall performance."
+        )
+        text_label.setObjectName("text")
+        text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        text_label.setWordWrap(True)
+        layout.addWidget(text_label)
 
-
-
-        self.settings_button = QPushButton('Settings', self)
-        layout.addWidget(self.settings_button, alignment=Qt.AlignmentFlag.AlignRight)
+        self.start_session_button = QPushButton('Start a Session')
+        layout.addWidget(self.start_session_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.setWindowTitle('Start Widget')
