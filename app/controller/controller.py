@@ -94,8 +94,8 @@ class Controller():
         self.eegWorker.powers.connect(widget.update_plot)
 
     def retrospective_page(self):
-        retrospective = self.gui.main_window.set_page('retrospective')
-        retrospective.back_button.clicked.connect(self.landing_page)
+        widget = self.gui.main_window.set_page('retrospective')
+        widget.back_button.clicked.connect(self.landing_page)
 
     def maxtest_page(self):
         self.gui.show_toolbar(True)
