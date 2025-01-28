@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushButton, QMessageBox, QStyle
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, QDir
 from PyQt6.QtGui import QFont, QIcon, QPixmap
-import Ressources as ressources
 from click import style
 from setuptools.warnings import InformationOnly
+import os
 
 
 class StartMaxTestPage(QWidget):
@@ -39,27 +39,28 @@ class StartMaxTestPage(QWidget):
 
         #Button zum starten des Maxtests
         self.startMaxtestButton = QPushButton("Start")
-        layout.addWidget(self.startMaxtestButton, 2, 2, alignment=Qt.AlignmentFlag.AlignCenter)  # Button ausrichten und einfügen
+        layout.addWidget(self.startMaxtestButton, 3, 2, alignment=Qt.AlignmentFlag.AlignCenter)  # Button ausrichten und einfügen
 
 
 
         # Button zum skippen des Maxtests
         self.skipMaxtestButton = QPushButton("Skip")
-        layout.addWidget(self.skipMaxtestButton, 2, 0, alignment=Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
+        layout.addWidget(self.skipMaxtestButton, 3, 0, alignment=Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
 
 
 
         # Popup als Info zum skippen / Kann man sich überlegen das direkt auf den skip button zu machen
-        self.infoButton = QPushButton("")
+        # Hier Icon einfügen
         self.info_icon = QLabel()
-        self.pixmap = QPixmap()
-        self.info_icon.setPixmap(self.pixmap)
-        layout.addWidget(self.info_icon, 3, 0, alignment=Qt.AlignmentFlag.AlignCenter)
+        bild_pfad = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../Ressources/Information.png"))
+        self.pixmap = QPixmap(bild_pfad) # geht net kp warum
+        self.scaled_pixmap = self.pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
+        self.info_icon.setPixmap(self.scaled_pixmap)
+        layout.addWidget(self.info_icon, 2, 0, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.info_icon.setToolTip("Diese Funktion macht nur Sinn falls Sie schon eine gespeicherte Sesssion haben bei denen Ihre umstände ca gleich sind, wie z.B schlaf, Uhrzeit, keine großen Änderungen in Ihrem Leben etc.")
 
 
 
-        self.infoButton.setToolTip("Diese Funktion macht nur Sinn falls Sie schon eine gespeicherte Sesssion haben bei denen Ihre umstände ca gleich sind, wie z.B schlaf, Uhrzeit, keine großen Änderungen in Ihrem Leben etc.")
-        layout.addWidget(self.infoButton, 2, 1, alignment=Qt.AlignmentFlag.AlignCenter)
 
 
 
@@ -77,4 +78,3 @@ class StartMaxTestPage(QWidget):
         # Set button sizes dynamically
         self.startMaxtestButton.setFixedSize(button_width, button_height)
         self.skipMaxtestButton.setFixedSize(button_width, button_height)
-        self.infoButton.setFixedSize(button_width, button_height)
