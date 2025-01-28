@@ -1,10 +1,12 @@
 from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtGui import QFontDatabase, QFont
 from app.view.startWidget import StartWidget
 from app.view.plotWidget import EEGPlotWidget
 from app.view.baselinePage import BaselineWidget
 from app.view.maxtestPage import MaxtestPage
 from app.view.settingsPage import SettingsWidget
 from app.view.startBaselinePage import StartBaselinePage
+import os
 
 class RootWindow(QMainWindow):
     def __init__(self, settings):
@@ -13,8 +15,28 @@ class RootWindow(QMainWindow):
         self.settings = settings
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
+        self.font_family = self.load_custom_font()
         self.apply_stylesheet()
         self.show()
+
+    def load_custom_font(self):
+        font_path = os.path.abspath("app/view/styles/fonts/Lexend-Regular.ttf")
+
+        font_id = QFontDatabase.addApplicationFont(font_path)
+        if font_id == -1:
+            return "Arial"
+
+        font_families = QFontDatabase.applicationFontFamilies(font_id)
+        if not font_families:
+            return "Arial"
+
+        font_family = font_families[0]
+
+        app_font = QFont(font_family)
+        app_font.setPointSize(16)
+        self.setFont(app_font)
+
+        return font_family
 
     def apply_stylesheet(self):
         if self.settings["lightMode"] == 1:
@@ -23,6 +45,7 @@ class RootWindow(QMainWindow):
             file_path = "app/view/styles/style_dark.qss"
         try:
             with open(file_path, "r") as f:
+                qss_content = f.read().replace("CUSTOM_FONT", self.font_family)
                 self.setStyleSheet(f.read())
         except FileNotFoundError:
             print(f"Error: Stylesheet '{file_path}' not found.")
