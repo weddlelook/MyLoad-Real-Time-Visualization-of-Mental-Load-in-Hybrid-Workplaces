@@ -23,12 +23,8 @@ class RootWindow(QMainWindow):
         font_path = os.path.abspath("app/view/styles/fonts/Lexend-Regular.ttf")
 
         font_id = QFontDatabase.addApplicationFont(font_path)
-        if font_id == -1:
-            return "Arial"
 
         font_families = QFontDatabase.applicationFontFamilies(font_id)
-        if not font_families:
-            return "Arial"
 
         font_family = font_families[0]
 
