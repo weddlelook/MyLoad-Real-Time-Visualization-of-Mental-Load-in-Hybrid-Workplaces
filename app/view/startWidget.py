@@ -42,7 +42,7 @@ class StartWidget(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Start Widget')
 
-        #self.monitor_start_button.clicked.connect(self._emit_session_name)
+        self.start_session_button.clicked.connect(self._emit_session_name)
 
     def _emit_session_name(self):
         self.session_name = self.session_input.text().strip()

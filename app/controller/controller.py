@@ -27,15 +27,14 @@ class Controller():
         self.monitorWorker = None  # Instantiate only on session start
         self.monitorThread = QThread()
 
+        #Settings Model
         self.settings_model = settings.SettingsModel()
         # GUI
         self.gui = RootWindow(self.settings_model.settings)
         self.testLogic = testLogic()
-
-
         # Settings
+        self.gui.settings_action.triggered.connect(self._toggle_settings)
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
-        self.gui.main_window.settings.settings_changed.connect(self.settings_model.set)
 
     def _change_page(self, widget_index, show_toolbar):
         '''
@@ -50,10 +49,8 @@ class Controller():
         self.gui.main_window.layout.setCurrentIndex(widget_index)
 
     def _toggle_settings(self):
-        settings_widget = self.gui.main_window.pages["settings"]
-        settings_index = self.gui.main_window.layout.indexOf(settings_widget)
-        current_page_index = self.gui.main_window.layout.currentIndex()
-        if current_page_index == settings_index:
+        settings_widget = self.gui.main_window.settings
+        if settings_widget.isVisible():
             self.go_back_to_previous_page()
         else:
             self.open_settings()
@@ -62,6 +59,7 @@ class Controller():
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.open_settings()
 
+        widget.set_settings(self.settings_model.settings)
         widget.new_settings.connect(self.settings_model.set)
         widget.settings_changed.connect(self.gui.apply_stylesheet)
         widget.settings_changed.connect(self.go_back_to_previous_page)
@@ -96,6 +94,7 @@ class Controller():
         self.monitorThread.started.connect(self.eegWorker.record_asr_baseline)
 
         self.monitorThread.start()
+        self.gui.show_toolbar(False)
         self.gui.main_window.set_page('baseline')
 
         self.eegWorker.baseline_complete_signal.connect(self.eegWorker.start_monitoring)
@@ -106,7 +105,8 @@ class Controller():
     def skip_page(self):
         pass
 
-    def monitoring_page(self): 
+    def monitoring_page(self):
+        self.gui.show_toolbar(False)
         widget = self.gui.main_window.set_page('plot')
 
         # Connect the EEGMonitoring thread to the EEGPlotWidget
@@ -131,10 +131,8 @@ class Controller():
 
         self.testLogic.startTest()
 
-
-
-
     def results_page(self):
+        self.gui.show_toolbar(True)
         results_widget = self.gui.main_window.set_page('result')
 
         result = self.testLogic.calculateResults()
