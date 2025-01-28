@@ -29,9 +29,6 @@ class StartBaselinePage(QWidget):
         self.monitor_baseline_button = QPushButton('Start Measuring Baseline', self)
         layout.addWidget(self.monitor_baseline_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.settings_button = QPushButton('Settings', self)
-        layout.addWidget(self.settings_button, alignment=Qt.AlignmentFlag.AlignRight)
-
         self.setLayout(layout)
         self.setWindowTitle('Start Baseline')
 

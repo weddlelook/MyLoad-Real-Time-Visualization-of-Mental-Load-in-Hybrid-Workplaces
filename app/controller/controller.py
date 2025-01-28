@@ -31,11 +31,47 @@ class Controller():
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
         self.settings_model = settings.SettingsModel()
         self.gui = RootWindow(self.settings_model.settings)
-        self.gui.settings_action.triggered.connect(self.open_settings)
+        self.gui.settings_action.triggered.connect(self._toggle_settings)
         self.actual_widget_index = None
 
     def _update_index(self, index):
         self.actual_widget_index = index
+
+    def _change_page(self, widget_index, show_toolbar):
+        '''
+        use this function to change pages
+        :param widget_index: the index of the  next page
+        :param show_toolbar: True if you want toolbar on the page false else
+        '''
+        if show_toolbar:
+            self.gui.show_toolbar(True)
+        elif not show_toolbar:
+            self.gui.show_toolbar(False)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+
+    def _toggle_settings(self):
+        settings_widget = self.gui.main_window.pages["settings"]
+        settings_index = self.gui.main_window.layout.indexOf(settings_widget)
+        current_page_index = self.gui.main_window.layout.currentIndex()
+        if current_page_index == settings_index:
+            self.go_back_to_previous_page()
+        else:
+            self.open_settings()
+
+    def open_settings(self):
+        widget = self.gui.main_window.pages['settings']
+        widget.set_settings(self.settings_model.settings)
+        widget_index = self.gui.main_window.layout.indexOf(widget)
+
+        self._change_page(widget_index, True)
+
+        widget.new_settings.connect(self.settings_model.set)
+        widget.settings_changed.connect(self.gui.apply_stylesheet)
+        widget.settings_changed.connect(self.go_back_to_previous_page)
+        widget.back_button.clicked.connect(self.go_back_to_previous_page)
+
+    def go_back_to_previous_page(self):
+        self._change_page(self.actual_widget_index, True)
 
     def landing_page(self):
         # Get the start widget and its index
@@ -49,7 +85,6 @@ class Controller():
 
         # Connect the start button to the monitoring phase
         widget.start_session_button.clicked.connect(self.start_baseline)
-        widget.settings_button.clicked.connect(self.open_settings)
 
     def start_baseline(self):
         widget = self.gui.main_window.pages["baselineStartPage"]
@@ -105,35 +140,6 @@ class Controller():
         self._update_index(widget_index)
 
         # Connect the two buttons to skip the next symbol
-
-    def open_settings(self):
-        widget = self.gui.main_window.pages['settings']
-        widget.set_settings(self.settings_model.settings)
-        widget_index = self.gui.main_window.layout.indexOf(widget)
-
-        self._change_page(widget_index, False)
-
-        widget.new_settings.connect(self.settings_model.set)
-        widget.settings_changed.connect(self.gui.apply_stylesheet)
-        widget.settings_changed.connect(self.go_back_to_previous_page)
-        widget.back_button.clicked.connect(self.go_back_to_previous_page)
-
-    def go_back_to_previous_page(self):
-        self._change_page(self.actual_widget_index, True)
-
-
-    def _change_page(self, widget_index, show_toolbar):
-        '''
-        use this function to change pages
-        :param widget_index: the index of the  next page
-        :param show_toolbar: True if you want toolbar on the page false else
-        '''
-        if show_toolbar:
-            self.gui.show_toolbar(True)
-        elif not show_toolbar:
-            self.gui.show_toolbar(False)
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
-
 
 def create_h5_file(folder_path):
     # TODO: Nutzer ermöglichen, eigenen Session- Namen zu bestimmen.

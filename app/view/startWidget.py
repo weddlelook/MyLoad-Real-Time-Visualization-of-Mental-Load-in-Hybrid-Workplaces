@@ -28,9 +28,6 @@ class StartWidget(QWidget):
         self.start_session_button = QPushButton('Start a Session')
         layout.addWidget(self.start_session_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.settings_button = QPushButton('Settings', self)
-        layout.addWidget(self.settings_button, alignment=Qt.AlignmentFlag.AlignRight)
-
         self.setLayout(layout)
         self.setWindowTitle('Start Widget')
 

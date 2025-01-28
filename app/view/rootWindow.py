@@ -34,6 +34,8 @@ class RootWindow(QMainWindow):
 
     def create_toolbar(self):
         toolbar = self.addToolBar('Main Toolbar')
+        toolbar.setMovable(False)
+        toolbar.setFloatable(False)
         self.settings_action = QAction('Settings', self)
         toolbar.addAction(self.settings_action)
 
