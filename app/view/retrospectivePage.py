@@ -13,7 +13,7 @@ FYI: Falls Ihr h5 sessions plottet achtet darauf dass diese auch tatsächlich CL
 """
 
 
-class RetrospektivePage(QWidget):
+class RetrospectivePage(QWidget):
     def __init__(self, session_folder):
         super().__init__()
         self.session_folder = session_folder

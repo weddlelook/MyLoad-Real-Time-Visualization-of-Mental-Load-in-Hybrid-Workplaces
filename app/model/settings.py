@@ -8,11 +8,13 @@ class SettingsModel:
     FILE_NAME = 'user_settings.json'
     DEFAULT_SETTINGS = {
         'trafficLight': 1,
-        'bar': 0
+        'bar': 0,
+        'lightMode': 1,
+        'darkMode': 0,
     }
-
     def __init__(self):
         self.settings = self.load_settings()
+
 
     def load_settings(self):
         """Load settings from the file, or return default settings if file doesn't exist."""
