@@ -9,6 +9,7 @@ from app.view.settingsPage import SettingsWidget
 from app.view.startBaselinePage import StartBaselinePage
 from app.view.retrospectivePage import RetrospectivePage
 from app.view.resultsPage import ResultsPage
+from app.view.startMaxtestPage import StartMaxTestPage
 
 class MainWidget(QWidget):
 
@@ -52,6 +53,7 @@ class MainWidget(QWidget):
         self._register_page(MaxtestPage(), "maxtest")
         self._register_page(RetrospectivePage("h5_session_files"), "retrospective")
         self._register_page(ResultsPage(), "result")
+        self._register_page(StartMaxTestPage(), "startmaxtest")
 
 
         self.settings.hide()
