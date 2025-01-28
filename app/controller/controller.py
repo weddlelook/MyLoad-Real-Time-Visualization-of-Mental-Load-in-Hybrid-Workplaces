@@ -36,18 +36,6 @@ class Controller():
         self.gui.settings_action.triggered.connect(self._toggle_settings)
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
 
-    def _change_page(self, widget_index, show_toolbar):
-        '''
-        use this function to change pages
-        :param widget_index: the index of the  next page
-        :param show_toolbar: True if you want toolbar on the page false else
-        '''
-        if show_toolbar:
-            self.gui.show_toolbar(True)
-        elif not show_toolbar:
-            self.gui.show_toolbar(False)
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
-
     def _toggle_settings(self):
         settings_widget = self.gui.main_window.settings
         if settings_widget.isVisible():
@@ -73,10 +61,6 @@ class Controller():
         # Get the start widget and its index
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.set_page("start")
-
-
-
-        # Connect the start button to the monitoring phase
         widget.start_session_button.clicked.connect(self.start_baseline)
 
     def start_baseline(self):
@@ -108,38 +92,34 @@ class Controller():
     def monitoring_page(self):
         self.gui.show_toolbar(False)
         widget = self.gui.main_window.set_page('plot')
-
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(widget.update_plot)
 
     def retrospective_page(self):
-        retrospective = self.gui.main_window.set_page('retrospective')
-        retrospective.back_button.clicked.connect(self.landing_page)
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page('retrospective')
+        widget.back_button.clicked.connect(self.landing_page)
 
 
 
     def maxtest_page(self):
-        maxtest_widget = self.gui.main_window.set_page('maxtest')
-
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page('maxtest')
         # Connect the two buttons to skip the next symbol
-        maxtest_widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
-        maxtest_widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
+        widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
+        widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
 
         self.testLogic.charSubmiter.connect(maxtest_widget.updateChar)
-
         self.testLogic.test_timer.timeout.connect(self.results_page)
-
         self.testLogic.startTest()
 
     def results_page(self):
         self.gui.show_toolbar(True)
-        results_widget = self.gui.main_window.set_page('result')
-
+        widget = self.gui.main_window.set_page('result')
         result = self.testLogic.calculateResults()
-        results_widget.updateResult(result)
-
+        widget.updateResult(result)
         # Connect the two buttons to skip the next symbol
-        results_widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
+        widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
 
 
 def create_h5_file(folder_path, users_session_name):
