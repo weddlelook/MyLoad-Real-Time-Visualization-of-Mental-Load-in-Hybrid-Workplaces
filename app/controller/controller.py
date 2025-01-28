@@ -29,6 +29,8 @@ class Controller():
         # GUI
         self.gui = RootWindow()
         self.gui.show()
+        self.testLogic = testLogic()
+
 
         # Settings
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
@@ -85,8 +87,43 @@ class Controller():
 
 
     def maxtest_page(self):
-        self.gui.main_window.set_page('maxtest')
 
+
+        # Get the start widget and its index
+        maxtest_widget = self.gui.main_window.pages['maxtest']
+        maxtest_widget_index = self.gui.main_window.layout.indexOf(maxtest_widget)
+
+        # Set the current index of the main window layout to the start widget
+        self.gui.main_window.layout.setCurrentIndex(maxtest_widget_index)
+
+
+
+        # Connect the two buttons to skip the next symbol
+        maxtest_widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
+        maxtest_widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
+
+        self.testLogic.charSubmiter.connect(maxtest_widget.updateChar)
+
+        self.testLogic.test_timer.timeout.connect(self.results_page)
+
+        self.testLogic.startTest()
+
+
+
+
+    def results_page(self):
+        # Get the start widget and its index
+        results_widget = self.gui.main_window.pages['results']
+        results_widget_index = self.gui.main_window.layout.indexOf(results_widget)
+
+        result = self.testLogic.calculateResults()
+        results_widget.updateResult(result)
+
+        # Set the current index of the main window layout to the start widget
+        self.gui.main_window.layout.setCurrentIndex(results_widget_index)
+
+        # Connect the two buttons to skip the next symbol
+        results_widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
 
 
 def create_h5_file(folder_path, users_session_name):
