@@ -8,6 +8,7 @@ from datetime import datetime
 from app.model.eegMonitoring import EEGMonitoring
 from app.model import settings
 from PyQt6.QtCore import QThread
+from app.model.testLogic import testLogic
 
 # GUI imports
 from app.view.rootWindow import RootWindow
@@ -23,19 +24,19 @@ class Controller():
     def __init__(self):
         super().__init__()
 
-        folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
-        # Create an instance of EEGMonitor (which is a worker thread)
-        self.eeg_monitor = EEGMonitoring(create_h5_file(folder_path))
+        self.monitorWorker = None  # Instantiate only on session start
         self.monitorThread = QThread()
-        self.eeg_monitor.moveToThread(self.monitorThread)
-        self.monitorThread.started.connect(self.eeg_monitor.set_up)
-        self.settings_model = settings.SettingsModel()
-        self.gui = RootWindow(self.settings_model.settings)
-        self.gui.settings_action.triggered.connect(self._toggle_settings)
-        self.actual_widget_index = None
 
-    def _update_index(self, index):
-        self.actual_widget_index = index
+        # GUI
+        self.gui = RootWindow()
+        self.gui.show()
+        self.testLogic = testLogic()
+
+
+        # Settings
+        self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
+        self.settings_model = settings.SettingsModel()
+        self.gui.main_window.settings.settings_changed.connect(self.settings_model.set)
 
     def _change_page(self, widget_index, show_toolbar):
         '''
@@ -98,58 +99,74 @@ class Controller():
         widget.monitor_baseline_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
-    def baseline_page(self):
-        # Get the start widget and its index
-        widget = self.gui.main_window.pages['baseline']
-        widget_index = self.gui.main_window.layout.indexOf(widget)
 
-        # Set the current index of the main window layout to the start widget
-        self._change_page(widget_index, False)
+    def baseline_page(self, fileName):
+        folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
+        self.eegWorker = EEGMonitoring(create_h5_file(folder_path, fileName))
+        self.eegWorker.moveToThread(self.monitorThread)
+        self.monitorThread.started.connect(self.eegWorker.set_up)
+        self.monitorThread.started.connect(self.eegWorker.record_asr_baseline)
 
-        self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
-        self.eeg_monitor.baseline_complete_signal.connect(self.monitoring_page)
+        self.monitorThread.start()
+        self.gui.main_window.set_page('baseline')
+
+        self.eegWorker.baseline_complete_signal.connect(self.eegWorker.start_monitoring)
+
+        self.eegWorker.baseline_complete_signal.connect(self.maxtest_page)
 
 
     def skip_page(self):
         pass
 
     def monitoring_page(self): 
-        # Get the plot widget and its index
-        widget = self.gui.main_window.pages['plot']
-        widget_index = self.gui.main_window.layout.indexOf(widget)
-
-        # Set the current index of the main window layout to the plot widget
-        self._change_page(widget_index, True)
-        self._update_index(widget_index)
-
+        widget = self.gui.main_window.set_page('plot')
 
         # Connect the EEGMonitoring thread to the EEGPlotWidget
-        self.eeg_monitor.powers.connect(widget.update_plot)
+        self.eegWorker.powers.connect(widget.update_plot)
 
     def retrospective_page(self):
-        pass
+        retrospective = self.gui.main_window.set_page('retrospective')
+        retrospective.back_button.clicked.connect(self.landing_page)
+
 
 
     def maxtest_page(self):
-        # Get the start widget and its index
-        widget = self.gui.main_window.pages['maxtest']
-        widget_index = self.gui.main_window.layout.indexOf(widget)
-
-        # Set the current index of the main window layout to the start widget
-        self._change_page(widget_index, True)
-        self._update_index(widget_index)
+        maxtest_widget = self.gui.main_window.set_page('maxtest')
 
         # Connect the two buttons to skip the next symbol
+        maxtest_widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
+        maxtest_widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
 
-def create_h5_file(folder_path):
-    # TODO: Nutzer ermöglichen, eigenen Session- Namen zu bestimmen.
+        self.testLogic.charSubmiter.connect(maxtest_widget.updateChar)
 
+        self.testLogic.test_timer.timeout.connect(self.results_page)
+
+        self.testLogic.startTest()
+
+
+
+
+    def results_page(self):
+        results_widget = self.gui.main_window.set_page('result')
+
+        result = self.testLogic.calculateResults()
+        results_widget.updateResult(result)
+
+        # Connect the two buttons to skip the next symbol
+        results_widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
+
+
+def create_h5_file(folder_path, users_session_name):
     # Ordner erstellen, falls er nicht existiert
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    HDF5_FILENAME = os.path.join(folder_path, f"session_{timestamp}.h5")
+    # Variable welche den Sessions noch eine Nummer gibt, damit diese nummeriert bleiben
+    count_of_sessions = len([f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]) + 1
+
+
+    timestamp = datetime.now().strftime("%H-%M-%S_%d-%m-%Y")
+    HDF5_FILENAME = os.path.join(folder_path, f"{count_of_sessions}__{users_session_name}__{timestamp}.h5")
 
     # Datei erstellen, falls sie nicht existiert
     if not os.path.exists(HDF5_FILENAME):
@@ -159,3 +176,5 @@ def create_h5_file(folder_path):
             h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
             print(f"HDF5 file created successfully: {HDF5_FILENAME}")
     return HDF5_FILENAME
+
+

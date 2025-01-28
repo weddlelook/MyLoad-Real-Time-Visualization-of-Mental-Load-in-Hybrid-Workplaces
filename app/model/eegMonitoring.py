@@ -68,7 +68,7 @@ class EEGMonitoring(QObject):
         try:
             self.board_shim.start_stream()
             self.status_callback.emit("Recording baseline...")
-            self.baseline_timer.singleShot(60000, self._finish_baseline_recording)
+            self.baseline_timer.singleShot(10000, self._finish_baseline_recording)
 
         except BrainFlowError as e:
             self.status_callback(f"BrainFlowError occurred: {e}")
