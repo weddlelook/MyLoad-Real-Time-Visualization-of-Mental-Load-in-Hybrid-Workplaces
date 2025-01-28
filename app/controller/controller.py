@@ -46,11 +46,18 @@ class Controller():
         self._update_index(widget_index)
 
         # Connect the start button to the monitoring phase
-        widget.monitor_start_button.clicked.connect(self.baseline_page)
-        widget.monitor_start_button.clicked.connect(self.monitorThread.start)
-
+        widget.start_session_button.clicked.connect(self.start_baseline)
         widget.settings_button.clicked.connect(self.open_settings)
 
+    def start_baseline(self):
+        widget = self.gui.main_window.pages["baselineStartPage"]
+        widget_index = self.gui.main_window.layout.indexOf(widget)
+
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._update_index(widget_index)
+
+        widget.monitor_baseline_button.clicked.connect(self.baseline_page)
+        widget.monitor_baseline_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
     def baseline_page(self):

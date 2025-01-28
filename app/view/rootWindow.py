@@ -4,6 +4,7 @@ from app.view.plotWidget import EEGPlotWidget
 from app.view.baselinePage import BaselineWidget
 from app.view.maxtestPage import MaxtestPage
 from app.view.settingsPage import SettingsWidget
+from app.view.startBaselinePage import StartBaselinePage
 
 class RootWindow(QMainWindow):
     def __init__(self, settings):
@@ -46,6 +47,7 @@ class MainWidget(QWidget):
         self.register_page(BaselineWidget(), "baseline")
         self.register_page(MaxtestPage(), "maxtest")
         self.register_page(SettingsWidget(), "settings")
+        self.register_page(StartBaselinePage(), "baselineStartPage")
 
 
     def register_page(self, child: QWidget, page_name: str):

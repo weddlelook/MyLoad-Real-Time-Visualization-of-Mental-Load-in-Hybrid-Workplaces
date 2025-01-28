@@ -12,7 +12,6 @@ class SettingsModel:
         'lightMode': 1,
         'darkMode': 0,
     }
-    print(DEFAULT_SETTINGS)
     def __init__(self):
         self.settings = self.load_settings()
 
