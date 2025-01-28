@@ -17,24 +17,9 @@ class RootWindow(QMainWindow):
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
         self.create_toolbar()
-        self.font_family = self.load_custom_font()
         self.apply_stylesheet()
         self.show()
 
-    def load_custom_font(self):
-        font_path = os.path.abspath("app/view/styles/fonts/Lexend-Regular.ttf")
-
-        font_id = QFontDatabase.addApplicationFont(font_path)
-
-        font_families = QFontDatabase.applicationFontFamilies(font_id)
-
-        font_family = font_families[0]
-
-        app_font = QFont(font_family)
-        app_font.setPointSize(16)
-        self.setFont(app_font)
-
-        return font_family
 
     def apply_stylesheet(self):
         if self.settings["lightMode"] == 1:

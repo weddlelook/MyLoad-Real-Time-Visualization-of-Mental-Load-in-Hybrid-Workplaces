@@ -1,7 +1,7 @@
 QWidget {
     background-color: #F4F4F4; /* White background for all widgets */
-    font-family: "CUSTOM_FONT";
-    font-size: 14px;
+    font-family: Lexend;
+    font-size: 16px;
     color: #333;
 }
 
