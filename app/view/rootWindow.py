@@ -114,11 +114,12 @@ class MainWidget(QWidget):
             print(f"Error during page change: {e}")
             return None
 
-    def open_settings(self) -> QWidget:
-        self.stack.hide()
-        self.settings.show()
-        return self.settings
-
-    def close_settings(self):
-        self.settings.hide()
-        self.stack.show()
+    def toggle_settings(self) -> QWidget:
+        if self.settings.isVisible():
+            self.settings.hide()
+            self.stack.show()
+            return self.stack
+        else:
+            self.stack.hide()
+            self.settings.show()
+            return self.settings

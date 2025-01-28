@@ -32,18 +32,16 @@ class Controller():
         # GUI
         self.gui = RootWindow(self.settings_model.settings)
         self.testLogic = testLogic()
+
         # Settings
-        self.gui.settings_action.triggered.connect(self._toggle_settings)
-        self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
+        self.gui.settings_action.triggered.connect(self.gui.main_window.toggle_settings)
+        self.gui.main_window.settings.set_settings(self.settings_model.settings)
+        self.gui.main_window.settings.new_settings.connect(self.settings_model.set)
+        self.gui.main_window.settings.settings_changed.connect(self.gui.apply_stylesheet)
+        self.gui.main_window.settings.settings_changed.connect(self.gui.main_window.toggle_settings)
+        self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.toggle_settings)
 
-    def _toggle_settings(self):
-        settings_widget = self.gui.main_window.settings
-        if settings_widget.isVisible():
-            self.go_back_to_previous_page()
-        else:
-            self.open_settings()
-
-    def open_settings(self):
+    """def open_settings(self):
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.open_settings()
 
@@ -51,11 +49,11 @@ class Controller():
         widget.new_settings.connect(self.settings_model.set)
         widget.settings_changed.connect(self.gui.apply_stylesheet)
         widget.settings_changed.connect(self.go_back_to_previous_page)
-        widget.back_button.clicked.connect(self.go_back_to_previous_page)
+        widget.back_button.clicked.connect(self.go_back_to_previous_page)"""
 
-    def go_back_to_previous_page(self):
+    """def go_back_to_previous_page(self):
         self.gui.show_toolbar(True)
-        self.gui.main_window.close_settings()
+        self.gui.main_window.close_settings()"""
 
     def landing_page(self):
         # Get the start widget and its index
@@ -96,11 +94,8 @@ class Controller():
         self.eegWorker.powers.connect(widget.update_plot)
 
     def retrospective_page(self):
-        self.gui.show_toolbar(True)
-        widget = self.gui.main_window.set_page('retrospective')
-        widget.back_button.clicked.connect(self.landing_page)
-
-
+        retrospective = self.gui.main_window.set_page('retrospective')
+        retrospective.back_button.clicked.connect(self.landing_page)
 
     def maxtest_page(self):
         self.gui.show_toolbar(True)
