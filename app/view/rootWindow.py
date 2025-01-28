@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar
 from PyQt6.QtGui import QFontDatabase, QFont
+from PyQt6.QtGui import QAction
 from app.view.startWidget import StartWidget
 from app.view.plotWidget import EEGPlotWidget
 from app.view.baselinePage import BaselineWidget
@@ -15,6 +16,7 @@ class RootWindow(QMainWindow):
         self.settings = settings
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
+        self.create_toolbar()
         self.font_family = self.load_custom_font()
         self.apply_stylesheet()
         self.show()
@@ -41,10 +43,21 @@ class RootWindow(QMainWindow):
             file_path = "app/view/styles/style_dark.qss"
         try:
             with open(file_path, "r") as f:
-                qss_content = f.read().replace("CUSTOM_FONT", self.font_family)
                 self.setStyleSheet(f.read())
         except FileNotFoundError:
             print(f"Error: Stylesheet '{file_path}' not found.")
+
+    def create_toolbar(self):
+        toolbar = self.addToolBar('Main Toolbar')
+        self.settings_action = QAction('Settings', self)
+        toolbar.addAction(self.settings_action)
+
+    def show_toolbar(self, show):
+        if show:
+            self.findChild(QToolBar).setVisible(True)
+        elif not show:
+            self.findChild(QToolBar).setVisible(False)
+
 
 
 class MainWidget(QWidget):

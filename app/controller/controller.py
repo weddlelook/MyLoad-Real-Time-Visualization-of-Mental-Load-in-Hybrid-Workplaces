@@ -31,6 +31,7 @@ class Controller():
         self.monitorThread.started.connect(self.eeg_monitor.set_up)
         self.settings_model = settings.SettingsModel()
         self.gui = RootWindow(self.settings_model.settings)
+        self.gui.settings_action.triggered.connect(self.open_settings)
         self.actual_widget_index = None
 
     def _update_index(self, index):
@@ -40,9 +41,10 @@ class Controller():
         # Get the start widget and its index
         widget = self.gui.main_window.pages['start']
         widget_index = self.gui.main_window.layout.indexOf(widget)
+        self.gui.show_toolbar(True)
 
         # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._change_page(widget_index, True)
         self._update_index(widget_index)
 
         # Connect the start button to the monitoring phase
@@ -52,8 +54,9 @@ class Controller():
     def start_baseline(self):
         widget = self.gui.main_window.pages["baselineStartPage"]
         widget_index = self.gui.main_window.layout.indexOf(widget)
+        self.gui.show_toolbar(True)
 
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._change_page(widget_index, True)
         self._update_index(widget_index)
 
         widget.monitor_baseline_button.clicked.connect(self.baseline_page)
@@ -66,7 +69,7 @@ class Controller():
         widget_index = self.gui.main_window.layout.indexOf(widget)
 
         # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._change_page(widget_index, False)
 
         self.eeg_monitor.baseline_complete_signal.connect(self.eeg_monitor.start_monitoring)
         self.eeg_monitor.baseline_complete_signal.connect(self.monitoring_page)
@@ -81,7 +84,7 @@ class Controller():
         widget_index = self.gui.main_window.layout.indexOf(widget)
 
         # Set the current index of the main window layout to the plot widget
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._change_page(widget_index, True)
         self._update_index(widget_index)
 
 
@@ -98,7 +101,7 @@ class Controller():
         widget_index = self.gui.main_window.layout.indexOf(widget)
 
         # Set the current index of the main window layout to the start widget
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._change_page(widget_index, True)
         self._update_index(widget_index)
 
         # Connect the two buttons to skip the next symbol
@@ -108,7 +111,7 @@ class Controller():
         widget.set_settings(self.settings_model.settings)
         widget_index = self.gui.main_window.layout.indexOf(widget)
 
-        self.gui.main_window.layout.setCurrentIndex(widget_index)
+        self._change_page(widget_index, False)
 
         widget.new_settings.connect(self.settings_model.set)
         widget.settings_changed.connect(self.gui.apply_stylesheet)
@@ -116,7 +119,20 @@ class Controller():
         widget.back_button.clicked.connect(self.go_back_to_previous_page)
 
     def go_back_to_previous_page(self):
-        self.gui.main_window.layout.setCurrentIndex(self.actual_widget_index)
+        self._change_page(self.actual_widget_index, True)
+
+
+    def _change_page(self, widget_index, show_toolbar):
+        '''
+        use this function to change pages
+        :param widget_index: the index of the  next page
+        :param show_toolbar: True if you want toolbar on the page false else
+        '''
+        if show_toolbar:
+            self.gui.show_toolbar(True)
+        elif not show_toolbar:
+            self.gui.show_toolbar(False)
+        self.gui.main_window.layout.setCurrentIndex(widget_index)
 
 
 def create_h5_file(folder_path):
@@ -137,5 +153,3 @@ def create_h5_file(folder_path):
             h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
             print(f"HDF5 file created successfully: {HDF5_FILENAME}")
     return HDF5_FILENAME
-
-
