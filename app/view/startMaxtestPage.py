@@ -53,7 +53,7 @@ class StartMaxTestPage(QWidget):
         # Hier Icon einfügen
         self.info_icon = QLabel()
         bild_pfad = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../Ressources/Information.png"))
-        self.pixmap = QPixmap(bild_pfad) # geht net kp warum
+        self.pixmap = QPixmap(bild_pfad) # geht aber wahrscheinlich net schön
         self.scaled_pixmap = self.pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
         self.info_icon.setPixmap(self.scaled_pixmap)
         layout.addWidget(self.info_icon, 2, 0, alignment=Qt.AlignmentFlag.AlignCenter)
