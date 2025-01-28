@@ -39,6 +39,12 @@ class Controller():
         # Get the start widget and its index
         start_widget = self.gui.main_window.set_page('start')
 
+        # Vorherige Verbindungen entfernen
+        try:
+            start_widget.session_name_entered.disconnect()
+        except TypeError:
+            pass  # Keine Verbindung vorhanden
+
         # Connect the start button to the monitoring phase
         start_widget.session_name_entered.connect(lambda: self.baseline_page(start_widget.session_name))
 
