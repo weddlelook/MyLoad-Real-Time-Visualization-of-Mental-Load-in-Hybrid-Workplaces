@@ -27,15 +27,14 @@ class Controller():
         self.monitorWorker = None  # Instantiate only on session start
         self.monitorThread = QThread()
 
+        self.settings_model = settings.SettingsModel()
         # GUI
-        self.gui = RootWindow()
-        self.gui.show()
+        self.gui = RootWindow(self.settings_model.settings)
         self.testLogic = testLogic()
 
 
         # Settings
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
-        self.settings_model = settings.SettingsModel()
         self.gui.main_window.settings.settings_changed.connect(self.settings_model.set)
 
     def _change_page(self, widget_index, show_toolbar):
@@ -60,11 +59,8 @@ class Controller():
             self.open_settings()
 
     def open_settings(self):
-        widget = self.gui.main_window.pages['settings']
-        widget.set_settings(self.settings_model.settings)
-        widget_index = self.gui.main_window.layout.indexOf(widget)
-
-        self._change_page(widget_index, True)
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.open_settings()
 
         widget.new_settings.connect(self.settings_model.set)
         widget.settings_changed.connect(self.gui.apply_stylesheet)
@@ -72,33 +68,25 @@ class Controller():
         widget.back_button.clicked.connect(self.go_back_to_previous_page)
 
     def go_back_to_previous_page(self):
-        self._change_page(self.actual_widget_index, True)
+        self.gui.show_toolbar(True)
+        self.gui.main_window.close_settings()
 
     def landing_page(self):
         # Get the start widget and its index
-        widget = self.gui.main_window.pages['start']
-        widget_index = self.gui.main_window.layout.indexOf(widget)
         self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page("start")
 
-        # Set the current index of the main window layout to the start widget
-        self._change_page(widget_index, True)
-        self._update_index(widget_index)
+
 
         # Connect the start button to the monitoring phase
         widget.start_session_button.clicked.connect(self.start_baseline)
 
     def start_baseline(self):
-        widget = self.gui.main_window.pages["baselineStartPage"]
-        widget_index = self.gui.main_window.layout.indexOf(widget)
+        widget = self.gui.main_window.set_page("baselineStartPage")
         self.gui.show_toolbar(True)
-
-        self._change_page(widget_index, True)
-        self._update_index(widget_index)
-
         widget.monitor_baseline_button.clicked.connect(self.baseline_page)
         widget.monitor_baseline_button.clicked.connect(self.monitorThread.start)
         self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
-
 
     def baseline_page(self, fileName):
         folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')

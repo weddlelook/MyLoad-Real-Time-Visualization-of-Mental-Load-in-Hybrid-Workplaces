@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar
+from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar, QLineEdit
 from PyQt6.QtGui import QFontDatabase, QFont
 from PyQt6.QtGui import QAction, QIcon
 from app.view.startWidget import StartWidget
@@ -7,6 +7,8 @@ from app.view.baselinePage import BaselineWidget
 from app.view.maxtestPage import MaxtestPage
 from app.view.settingsPage import SettingsWidget
 from app.view.startBaselinePage import StartBaselinePage
+from app.view.retrospectivePage import RetrospectivePage
+from app.view.resultsPage import ResultsPage
 import os
 
 class RootWindow(QMainWindow):
@@ -85,8 +87,9 @@ class MainWidget(QWidget):
         self._register_page(StartWidget(), "start")
         self._register_page(EEGPlotWidget(), "plot")
         self._register_page(BaselineWidget(), "baseline")
+        self._register_page(StartBaselinePage(), "baselineStartPage")
         self._register_page(MaxtestPage(), "maxtest")
-        self._register_page(RetrospektivePage("h5_session_files"), "retrospective")
+        self._register_page(RetrospectivePage("h5_session_files"), "retrospective")
         self._register_page(ResultsPage(), "result")
 
 
@@ -97,7 +100,7 @@ class MainWidget(QWidget):
         self.stack_layout.addWidget(child)
         self.pages[page_name] = child
 
-    def set_page(self, page_name:str) -> QWidget:
+    def set_page(self, page_name: str) -> QWidget:
         """
         Sets the current index of the main window to the page with the given name.
         Returns the Widget.
@@ -107,13 +110,14 @@ class MainWidget(QWidget):
             widget_index = self.stack_layout.indexOf(widget)
             self.stack_layout.setCurrentIndex(widget_index)
             return widget
-        except KeyError as e: 
+        except KeyError as e:
             print(f"Error during page change: {e}")
             return None
 
-    def open_settings(self):
-        self.settings.show()
+    def open_settings(self) -> QWidget:
         self.stack.hide()
+        self.settings.show()
+        return self.settings
 
     def close_settings(self):
         self.settings.hide()
