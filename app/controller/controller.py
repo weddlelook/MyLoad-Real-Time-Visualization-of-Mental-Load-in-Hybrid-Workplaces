@@ -59,14 +59,14 @@ class Controller():
         # Get the start widget and its index
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.set_page("start")
-        widget.start_session_button.clicked.connect(self.start_baseline)
 
-    def start_baseline(self):
+        widget.session_name_entered.connect(lambda: self.start_baseline(widget.session_name))
+
+    def start_baseline(self, fileName):
         widget = self.gui.main_window.set_page("baselineStartPage")
         self.gui.show_toolbar(True)
-        widget.monitor_baseline_button.clicked.connect(self.baseline_page)
-        widget.monitor_baseline_button.clicked.connect(self.monitorThread.start)
-        self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
+        widget.monitor_baseline_button.clicked.connect(lambda: self.baseline_page(fileName))
+
 
     def baseline_page(self, fileName):
         folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
