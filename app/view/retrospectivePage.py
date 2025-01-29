@@ -37,7 +37,7 @@ class RetrospectivePage(QWidget):
 
         # Button zum Plotten
         self.plot_button = QPushButton("Ausgewählte Sessions plotten")
-        self.plot_button.clicked.connect(self.plot_sessions)
+        self.plot_button.clicked.connect(self._plot_sessions)
         layout.addWidget(self.plot_button)
 
         # Matplotlib-Canvas für das Plotten
@@ -46,7 +46,7 @@ class RetrospectivePage(QWidget):
         layout.addWidget(self.canvas)
 
         # Lade die verfügbaren Sessions
-        self.load_sessions()
+        self._load_sessions()
 
         self.back_button = QPushButton("Zurück zur Startseite")
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignRight)
