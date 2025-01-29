@@ -51,7 +51,6 @@ class RetrospektivePage(QWidget):
         self.back_button = QPushButton("Zurück zur Startseite")
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignRight)
 
-
         self.setStyleSheet("""
                     QPushButton {
                         background-color: #F4F4F4;  /* grey-ish background */
