@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSizePolicy, QLineEdit, QLabel
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSizePolicy, QLabel, QLineEdit
 from PyQt6.QtCore import Qt, pyqtSignal
 import sys
 
@@ -22,61 +22,27 @@ class StartWidget(QWidget):
         self.session_input.setPlaceholderText('Session Name...')
         layout.addWidget(self.session_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.monitor_start_button = QPushButton('startMonitoring', self)
-        layout.addWidget(self.monitor_start_button, alignment= Qt.AlignmentFlag.AlignCenter)
+        title_label = QLabel("Welcome to MyLoad")
+        title_label.setObjectName("title")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title_label)
 
-        self.retrospective_button = QPushButton("Retrospektive anzeigen")
-        layout.addWidget(self.retrospective_button, alignment= Qt.AlignmentFlag.AlignCenter)
+        text_label = QLabel(
+            "MyLoad provide users the opportunity to monitor their cognitive load during online lectures,"
+            " helping them optimize focus, productivity, and overall performance."
+        )
+        text_label.setObjectName("text")
+        text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        text_label.setWordWrap(True)
+        layout.addWidget(text_label)
 
-
-
-        self.settings_button = QPushButton('Settings', self)
-        layout.addWidget(self.settings_button, alignment=Qt.AlignmentFlag.AlignRight)
+        self.start_session_button = QPushButton('▶ Start a Session')
+        layout.addWidget(self.start_session_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.setWindowTitle('Start Widget')
 
-        self.monitor_start_button.clicked.connect(self._emit_session_name)
-
-        self.setStyleSheet("""
-                    QPushButton {
-                        background-color: #F4F4F4;  /* grey-ish background */
-                        color: black;              /* black text */
-                        border: 2px solid #000000; /* black border */
-                        border-radius: 10px;       /* Rounded corners */
-                        padding: 10px;
-                        font-size: 16px;
-                    }
-                    QPushButton:hover {
-                        background-color: #D3D3D3; /* Darker grey on hover */
-                    }
-                    QPushButton:pressed {
-                        background-color: #BEBEBE; /* Even darker grey when pressed */
-                    }
-
-                    QLabel {
-                        font-size: 16px;
-                        color: black;
-                    }
-                QLineEdit {
-                background-color: #F4F4F4;   /* Helles Grau als Hintergrund */
-                border: 2px solid #000000;    /* Schwarzer Rand */
-                border-radius: 10px;          /* Abgerundete Ecken */
-                padding: 5px;                 /* Innenabstand */
-                font-size: 16px;              /* Schriftgröße */
-                }
-
-                QLineEdit:focus {
-                    border: 2px solid #4CAF50;   /* Grüner Rand bei Fokus */
-                    background-color: #ffffff;   /* Weißer Hintergrund bei Fokus */
-                }
-
-                QLineEdit::placeholder {
-                    color: #888888;               /* Heller Grauton für Platzhaltertext */
-                }
-
-                """)
-        self.monitor_start_button.setFixedWidth(200)  # Override the width in code
+        self.start_session_button.clicked.connect(self._emit_session_name)
 
     def _emit_session_name(self):
         self.session_name = self.session_input.text().strip()

@@ -8,6 +8,7 @@ from datetime import datetime
 from app.model.eegMonitoring import EEGMonitoring
 from app.model import settings
 from PyQt6.QtCore import QThread
+from app.model.testLogic import testLogic
 
 # GUI imports
 from app.view.rootWindow import RootWindow
@@ -26,32 +27,46 @@ class Controller():
         self.monitorWorker = None  # Instantiate only on session start
         self.monitorThread = QThread()
 
+        #Settings Model
+        self.settings_model = settings.SettingsModel()
         # GUI
-        self.gui = RootWindow()
-        self.gui.show()
+        self.gui = RootWindow(self.settings_model.settings)
+        self.testLogic = testLogic()
 
         # Settings
-        self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.close_settings)
-        self.settings_model = settings.SettingsModel()
-        self.gui.main_window.settings.settings_changed.connect(self.settings_model.set)
+        self.gui.settings_action.triggered.connect(self.gui.main_window.toggle_settings)
+        self.gui.main_window.settings.set_settings(self.settings_model.settings)
+        self.gui.main_window.settings.new_settings.connect(self.settings_model.set)
+        self.gui.main_window.settings.settings_changed.connect(self.gui.apply_stylesheet)
+        self.gui.main_window.settings.settings_changed.connect(self.gui.main_window.toggle_settings)
+        self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.toggle_settings)
+
+    """def open_settings(self):
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.open_settings()
+
+        widget.set_settings(self.settings_model.settings)
+        widget.new_settings.connect(self.settings_model.set)
+        widget.settings_changed.connect(self.gui.apply_stylesheet)
+        widget.settings_changed.connect(self.go_back_to_previous_page)
+        widget.back_button.clicked.connect(self.go_back_to_previous_page)"""
+
+    """def go_back_to_previous_page(self):
+        self.gui.show_toolbar(True)
+        self.gui.main_window.close_settings()"""
 
     def landing_page(self):
         # Get the start widget and its index
-        start_widget = self.gui.main_window.set_page('start')
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page("start")
+        widget.start_session_button.clicked.connect(self.start_baseline)
 
-        # Vorherige Verbindungen entfernen
-        try:
-            start_widget.session_name_entered.disconnect()
-        except TypeError:
-            pass  # Keine Verbindung vorhanden
-
-        # Connect the start button to the monitoring phase
-        start_widget.session_name_entered.connect(lambda: self.baseline_page(start_widget.session_name))
-
-        start_widget.settings_button.clicked.connect(self.gui.main_window.open_settings)
-
-        start_widget.retrospective_button.clicked.connect(self.retrospective_page)
-
+    def start_baseline(self):
+        widget = self.gui.main_window.set_page("baselineStartPage")
+        self.gui.show_toolbar(True)
+        widget.monitor_baseline_button.clicked.connect(self.baseline_page)
+        widget.monitor_baseline_button.clicked.connect(self.monitorThread.start)
+        self.monitorThread.started.connect(self.eeg_monitor.record_asr_baseline)
 
     def baseline_page(self, fileName):
         folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
@@ -61,20 +76,20 @@ class Controller():
         self.monitorThread.started.connect(self.eegWorker.record_asr_baseline)
 
         self.monitorThread.start()
-
+        self.gui.show_toolbar(False)
         self.gui.main_window.set_page('baseline')
 
         self.eegWorker.baseline_complete_signal.connect(self.eegWorker.start_monitoring)
 
-        self.eegWorker.baseline_complete_signal.connect(self.monitoring_page)
+        self.eegWorker.baseline_complete_signal.connect(self.start_maxtest_page)
 
 
     def skip_page(self):
         pass
 
-    def monitoring_page(self): 
+    def monitoring_page(self):
+        self.gui.show_toolbar(False)
         widget = self.gui.main_window.set_page('plot')
-
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(widget.update_plot)
 
@@ -83,10 +98,38 @@ class Controller():
         retrospective.back_button.clicked.connect(self.landing_page)
 
 
+    def start_maxtest_page(self):
+        startMaxtest_widget = self.gui.main_window.set_page('startmaxtest')
+
+
+        # Connect the start Button for the maxtest
+        startMaxtest_widget.startMaxtestButton.clicked.connect(self.maxtest_page)
+
+        #Connect the skip button for the test
+        startMaxtest_widget.skipMaxtestButton.clicked.connect(self.skip_page)
+
+
+
+
 
     def maxtest_page(self):
-        self.gui.main_window.set_page('maxtest')
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page('maxtest')
+        # Connect the two buttons to skip the next symbol
+        widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
+        widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
 
+        self.testLogic.charSubmiter.connect(widget.updateChar)
+        self.testLogic.test_timer.timeout.connect(self.results_page)
+        self.testLogic.startTest()
+
+    def results_page(self):
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page('result')
+        result = self.testLogic.calculateResults()
+        widget.updateResult(result)
+        # Connect the two buttons to skip the next symbol
+        widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
 
 
 def create_h5_file(folder_path, users_session_name):
@@ -109,6 +152,5 @@ def create_h5_file(folder_path, users_session_name):
             h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
             print(f"HDF5 file created successfully: {HDF5_FILENAME}")
     return HDF5_FILENAME
-
 
 
