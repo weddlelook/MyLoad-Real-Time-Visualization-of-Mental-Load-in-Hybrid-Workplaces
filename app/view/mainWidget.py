@@ -105,7 +105,6 @@ class MainWidget(QWidget):
                 self.stack.show()
             widget = self.set_page("retrospective")
             widget.back_button.clicked.connect(lambda: self.set_page(self.previous_page_name))
-
         else:
             self.set_page(self.previous_page_name)
 
