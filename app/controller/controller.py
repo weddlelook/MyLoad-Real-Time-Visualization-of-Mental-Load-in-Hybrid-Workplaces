@@ -48,7 +48,15 @@ class Controller():
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.set_page("start")
 
+        # saving room name in controller object, so that we reach it later 
+        widget.user_input_entered.connect(lambda: self.set_room_name(widget.jitsi_room_name))
+        # opening start baseline page 
         widget.user_input_entered.connect(lambda: self.start_baseline(widget.session_name))
+        
+
+    def set_room_name(self, room_name): 
+        self.jitsi_room_name = room_name
+    
 
     def start_baseline(self, file_name):
         widget = self.gui.main_window.set_page("baselineStartPage")
@@ -114,7 +122,14 @@ class Controller():
         result = self.testLogic.calculateResults()
         widget.updateResult(result)
         # Connect the two buttons to skip the next symbol
-        widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
+        # I changed the connect from plotWidget to JitsiWidget for testing the jitsi page
+        widget.next_button.clicked.connect(self.jitsi_page) # muss noch verbunden werden
+
+    def jitsi_page(self): 
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page("jitsi")
+        # takes the room name from controller object and gives it to the jitsi view
+        widget.load_jitsi_meeting(self.jitsi_room_name)  
 
 
 def create_h5_file(folder_path, users_session_name):
