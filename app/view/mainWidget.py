@@ -53,7 +53,7 @@ class MainWidget(QWidget):
         self._register_page(BaselineWidget(), "baseline")
         self._register_page(StartBaselinePage(), "baselineStartPage")
         self._register_page(MaxtestPage(), "maxtest")
-        self._register_page(RetrospectivePage("h5_session_files"), "retrospective")
+        self._register_page(RetrospectivePage("app/h5_session_files"), "retrospective")
         self._register_page(ResultsPage(), "result")
         self._register_page(StartMaxTestPage(), "startmaxtest")
 
