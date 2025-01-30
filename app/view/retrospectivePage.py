@@ -48,24 +48,9 @@ class RetrospectivePage(QWidget):
         # Lade die verfügbaren Sessions
         self._load_sessions()
 
-        self.back_button = QPushButton("Zurück zur Startseite")
+        self.back_button = QPushButton("Back")
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignRight)
 
-        self.setStyleSheet("""
-                    QPushButton {
-                        background-color: #F4F4F4;  /* grey-ish background */
-                        color: black;              /* black text */
-                        border: 2px solid #000000; /* black border */
-                        border-radius: 10px;       /* Rounded corners */
-                        padding: 10px;
-                        font-size: 16px;
-                    }
-                    QPushButton:hover {
-                        background-color: #D3D3D3; /* Darker grey on hover */
-                    }
-                    QPushButton:pressed {
-                        background-color: #BEBEBE; /* Even darker grey when pressed */
-                    }""")
 
     def _load_sessions(self):
         """Lade alle .h5-Dateien aus dem Session-Ordner."""

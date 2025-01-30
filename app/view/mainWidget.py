@@ -42,6 +42,8 @@ class MainWidget(QWidget):
 
         # Dict for all registered pages
         self.pages = {}
+        #Previous page in stack
+        self.previous_page_name = None
 
         # Registering all pages 
         # NOTE: We could decide to not register all pages here, but instead register them 
@@ -66,8 +68,11 @@ class MainWidget(QWidget):
     def set_page(self, page_name: str) -> QWidget:
         """
         Sets the current index of the main window to the page with the given name.
+        And updates the previous widgets name
         Returns the Widget.
         """
+        current_page_name = self._get_name_of_widget()
+        self.previous_page_name = current_page_name
         try:
             widget = self.pages[page_name]
             widget_index = self.stack_layout.indexOf(widget)
@@ -88,3 +93,29 @@ class MainWidget(QWidget):
         else:
             self.stack.hide()
             self.settings.show()
+
+    def toggle_retrospective(self):
+        """
+        Toggels the main window between retrospective page and previous page
+        """
+        current_widget = self._get_name_of_widget()
+        if current_widget != "retrospective":
+            if self.settings.isVisible():
+                self.settings.hide()
+                self.stack.show()
+            widget = self.set_page("retrospective")
+            widget.back_button.clicked.connect(lambda: self.set_page(self.previous_page_name))
+
+        else:
+            self.set_page(self.previous_page_name)
+
+    def _get_name_of_widget(self, get_widget=None):
+        """
+        Gets the name of the given widget in pages
+        if no widget is given default it returns the current widgets name
+        """
+        if get_widget is None:
+            get_widget = self.stack_layout.currentWidget()
+        for name, widget in self.pages.items():
+            if widget == get_widget:
+                return name

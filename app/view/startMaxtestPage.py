@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushButton, QMessageBox, QStyle
 from PyQt6.QtCore import Qt, QSize, QDir
 from PyQt6.QtGui import QFont, QIcon, QPixmap
-from click import style
 from setuptools.warnings import InformationOnly
 import os
 

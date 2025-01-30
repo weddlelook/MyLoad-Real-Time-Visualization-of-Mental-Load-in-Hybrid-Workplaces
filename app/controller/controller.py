@@ -37,23 +37,11 @@ class Controller():
         self.gui.settings_action.triggered.connect(self.gui.main_window.toggle_settings)
         self.gui.main_window.settings.set_settings(self.settings_model.settings)
         self.gui.main_window.settings.new_settings.connect(self.settings_model.set)
-        self.gui.main_window.settings.settings_changed.connect(self.gui.apply_stylesheet)
-        self.gui.main_window.settings.settings_changed.connect(self.gui.main_window.toggle_settings)
+        self.gui.main_window.settings.new_settings.connect(self.gui.apply_stylesheet)
+        self.gui.main_window.settings.new_settings.connect(self.gui.main_window.toggle_settings)
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.toggle_settings)
-
-    """def open_settings(self):
-        self.gui.show_toolbar(True)
-        widget = self.gui.main_window.open_settings()
-
-        widget.set_settings(self.settings_model.settings)
-        widget.new_settings.connect(self.settings_model.set)
-        widget.settings_changed.connect(self.gui.apply_stylesheet)
-        widget.settings_changed.connect(self.go_back_to_previous_page)
-        widget.back_button.clicked.connect(self.go_back_to_previous_page)"""
-
-    """def go_back_to_previous_page(self):
-        self.gui.show_toolbar(True)
-        self.gui.main_window.close_settings()"""
+        # Retrospective Page
+        self.gui.retrospective_action.triggered.connect(self.gui.main_window.toggle_retrospective)
 
     def landing_page(self):
         # Get the start widget and its index
@@ -62,15 +50,14 @@ class Controller():
 
         widget.session_name_entered.connect(lambda: self.start_baseline(widget.session_name))
 
-    def start_baseline(self, fileName):
+    def start_baseline(self, file_name):
         widget = self.gui.main_window.set_page("baselineStartPage")
         self.gui.show_toolbar(True)
-        widget.monitor_baseline_button.clicked.connect(lambda: self.baseline_page(fileName))
+        widget.monitor_baseline_button.clicked.connect(lambda: self.baseline_page(file_name))
 
-
-    def baseline_page(self, fileName):
+    def baseline_page(self, file_name):
         folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
-        self.eegWorker = EEGMonitoring(create_h5_file(folder_path, fileName))
+        self.eegWorker = EEGMonitoring(create_h5_file(folder_path, file_name))
         self.eegWorker.moveToThread(self.monitorThread)
         self.monitorThread.started.connect(self.eegWorker.set_up)
         self.monitorThread.started.connect(self.eegWorker.record_asr_baseline)
@@ -83,7 +70,6 @@ class Controller():
 
         self.eegWorker.baseline_complete_signal.connect(self.start_maxtest_page)
 
-
     def skip_page(self):
         pass
 
@@ -93,12 +79,15 @@ class Controller():
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(widget.update_plot)
 
+    #Currently this function is never called instead to open this page toggle_retrospective in mainWidget is called
     def retrospective_page(self):
+        self.gui.show_toolbar(True)
         retrospective = self.gui.main_window.set_page('retrospective')
         retrospective.back_button.clicked.connect(self.landing_page)
 
-
     def start_maxtest_page(self):
+        self.gui.show_toolbar(True)
+
         startMaxtest_widget = self.gui.main_window.set_page('startmaxtest')
 
 
@@ -108,12 +97,8 @@ class Controller():
         #Connect the skip button for the test
         startMaxtest_widget.skipMaxtestButton.clicked.connect(self.skip_page)
 
-
-
-
-
     def maxtest_page(self):
-        self.gui.show_toolbar(True)
+        self.gui.show_toolbar(False)
         widget = self.gui.main_window.set_page('maxtest')
         # Connect the two buttons to skip the next symbol
         widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)

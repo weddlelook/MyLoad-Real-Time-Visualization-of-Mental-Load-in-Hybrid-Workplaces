@@ -32,7 +32,9 @@ class RootWindow(QMainWindow):
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
         self.settings_action = QAction(QIcon("app/view/styles/img/settings-icon.png"), 'Settings', self)
+        self.retrospective_action = QAction("Previous Sessions", self)
         toolbar.addAction(self.settings_action)
+        toolbar.addAction(self.retrospective_action)
 
     def show_toolbar(self, show):
         if show:
