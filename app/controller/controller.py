@@ -48,7 +48,7 @@ class Controller():
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.set_page("start")
 
-        widget.session_name_entered.connect(lambda: self.start_baseline(widget.session_name))
+        widget.user_input_entered.connect(lambda: self.start_baseline(widget.session_name))
 
     def start_baseline(self, file_name):
         widget = self.gui.main_window.set_page("baselineStartPage")

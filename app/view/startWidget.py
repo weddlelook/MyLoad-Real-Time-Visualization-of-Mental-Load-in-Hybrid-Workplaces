@@ -5,8 +5,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 import sys
 
 class StartWidget(QWidget):
-    session_name_entered = pyqtSignal(str)
-    room_name_entered = pyqtSignal(str)
+    user_input_entered = pyqtSignal(list)
 
     def __init__(self):
         super().__init__()
@@ -67,20 +66,19 @@ class StartWidget(QWidget):
         layout.addWidget(self.start_session_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
+        #Assign a minimum size for the window
+        self.setMinimumSize(600, 450)
+        self.start_session_button.clicked.connect(self._emit_user_input)
 
-        self.start_session_button.clicked.connect(self._emit_session_name)
-        self.start_session_button.clicked.connect(self._emit_room_name)
-
-    def _emit_session_name(self):
+    def _emit_user_input(self):
         self.session_name = self.session_input.text().strip()
-        if self.session_name:
-            self.session_name_entered.emit(self.session_name)  # Signal mit dem eingegebenen Sessionnamen senden
-        else:
-            self.label_session.setText("Please provide a label to proceed")  # Fehlerhinweis anzeigen
-
-    def _emit_room_name(self):
         self.jitsi_room_name = self.jitsi_input.text().strip()
-        if self.jitsi_room_name:
-            self.room_name_entered.emit(self.jitsi_room_name)
-        else:
+        if not self.session_name:
+            self.label_session.setText("Please provide a label to proceed")  # Fehlerhinweis anzeigen
+        if not self.jitsi_room_name:
             self.label_jitsi.setText("Please provide a room name to proceed")
+        if self.session_name and self.jitsi_room_name:
+            user_input = [self.session_name, self.jitsi_room_name]
+            self.user_input_entered.emit(user_input)
+
+
