@@ -1,0 +1,162 @@
+QWidget {
+    background-color: #f4f4f4;
+    font-family: Arial;
+    font-size: 16px;
+    color: #393938;
+}
+
+QPushButton {
+    background-color: transparent;
+    color: #393938;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: 2px solid #E9E7E2;
+    border-radius: 12px;
+    max-width: 238px;
+    max-height: 81px;
+}
+
+QPushButton:hover {
+    background-color: #626971;
+    color: #FFFFFF;
+}
+
+QPushButton:pressed {
+    background-color: #BEBEBE;
+}
+
+QLabel#title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: black;
+}
+QLabel#subtitle {
+    font-size: 20px;
+    font-weight: semi-bold;
+    color: #464646;
+    margin-bottom: 15px;
+}
+QLabel#text {
+    font-size: 16px;
+    color: black;
+    margin-bottom: 20px;
+}
+QLabel#text-settings {
+    font-size: 16px;
+    color: black;
+    margin-bottom: 20px;
+    background-color: #E9E7E2;
+}
+QLineEdit {
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+}
+QGroupBox {
+    border: 2px solid #E9E7E2; /* Blue border around the container */
+    border-radius: 5px; /* Rounded corners */
+    margin: 10px; /* Space around the group box */
+    padding: 10px; /* Space between the border and content */
+    font-size: 16px; /* Title font size */
+    font-weight: bold;
+    color: #393938; /* Title color */
+    background-color: #E9E7E2; /* Light blue background */
+}
+/* Styling the Toolbar */
+QToolBar {
+    background-color: #E9E7E2;  /* Dark background for the toolbar */
+    border: none;  /* Remove the border */
+    spacing: 10px;  /* Space between buttons */
+    padding: 5px;  /* Padding around the toolbar */
+}
+
+/* Styling the individual buttons (actions) in the toolbar */
+QToolBar QToolButton {
+    background-color: #F4F4F4;  /* Dark button background */
+    border: 1px solid #E9E7E2;  /* Button border */
+    border-radius: 10px;  /* Rounded corners */
+    color: #393938;  /* Text color */
+    padding: 5px 10px;  /* Padding for the buttons */
+    font-size: 14px;  /* Button text size */
+    min-width: 40px;  /* Minimum width for buttons */
+}
+
+/* Hover effect on buttons (when mouse is over a button) */
+QToolBar QToolButton:hover {
+    background-color: #1abc9c;  /* Highlight color on hover */
+    border-color: #16a085;  /* Border color on hover */
+}
+
+/* Action (button) pressed state (when button is clicked) */
+QToolBar QToolButton:pressed {
+    background-color: #1e8449;  /* Dark green background when pressed */
+    border-color: #27ae60;  /* Dark green border when pressed */
+}
+
+/* Disabled action (button) state */
+QToolBar QToolButton:disabled {
+    background-color: #bdc3c7;  /* Disabled background color */
+    border-color: #95a5a6;  /* Disabled border color */
+    color: #7f8c8d;  /* Disabled text color */
+}
+
+/* Styling separators (if you use separators between actions) */
+QToolBar::separator {
+    background-color: #7f8c8d;  /* Gray separator line */
+    width: 2px;  /* Separator width */
+}
+
+/* Styling action icons */
+QToolBar QToolButton::icon {
+    width: 20px;  /* Icon width */
+    height: 20px;  /* Icon height */
+}
+
+/* Highlighting action (when it is selected) */
+QToolBar QToolButton:checked {
+    background-color: #e67e22;  /* Orange background when action is checked */
+    border-color: #d35400;  /* Border color for checked state */
+}
+/* Styling for QAction text */
+QAction {
+    color: black;  /* Text color for actions */
+}
+
+/* Optional: If you want to add some additional space around the actions in the toolbar */
+QToolBar::addAction {
+    margin-left: 10px;  /* Space between actions */
+    margin-right: 10px;
+}
+/* Buttons (Checkboxes) on Settings */
+QRadioButton {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;  /* Text color */
+    padding: 5px;
+    border-radius: 3px;
+    background-color: #E9E7E2;
+}
+
+QRadioButton::indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #3498db; /* Border color */
+    border-radius: 10px;
+    background-color: #FFF; /* Background color when unchecked */
+}
+
+QRadioButton::indicator:checked {
+    background-color: #3498db; /* Background color when checked */
+    border-color: #2980b9;
+}
+
+QRadioButton::indicator:hover {
+    border-color: #2980b9;
+}
+
+QRadioButton::indicator:checked:hover {
+    background-color: #2980b9;
+}
