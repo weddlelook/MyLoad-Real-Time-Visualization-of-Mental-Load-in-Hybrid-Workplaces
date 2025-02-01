@@ -1,6 +1,6 @@
 QWidget {
     background-color: #f4f4f4;
-    font-family: Arial;
+    font-family: "Lexend", Arial;
     font-size: 16px;
     color: #393938;
 }

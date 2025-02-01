@@ -74,7 +74,7 @@ class StartWidget(QWidget):
         self.session_name = self.session_input.text().strip()
         self.jitsi_room_name = self.jitsi_input.text().strip()
         if not self.session_name:
-            self.label_session.setText("Please provide a label to proceed")  # Fehlerhinweis anzeigen
+            self.label_session.setText("Please provide a label to proceed")
         if not self.jitsi_room_name:
             self.label_jitsi.setText("Please provide a room name to proceed")
         if self.session_name and self.jitsi_room_name:
