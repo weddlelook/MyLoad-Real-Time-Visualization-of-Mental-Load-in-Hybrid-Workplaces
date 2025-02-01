@@ -122,7 +122,7 @@ class Controller():
         result = self.testLogic.calculateResults()
         widget.updateResult(result)
         # Connect the two buttons to skip the next symbol
-        # I changed the connect from plotWidget to JitsiWidget for testing the jitsi page
+        # I changed the connection from plotWidget to JitsiWidget for testing the jitsi page
         widget.next_button.clicked.connect(self.jitsi_page) # muss noch verbunden werden
 
     def jitsi_page(self): 
