@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, \
-    QFormLayout, QRadioButton, QButtonGroup, QGroupBox
+    QFormLayout, QRadioButton, QButtonGroup, QGroupBox, QHBoxLayout
 from PyQt6.QtCore import pyqtSignal
 from app.model.settings import SettingsModel
 
@@ -60,13 +60,17 @@ class SettingsWidget(QWidget):
         form_layout.addRow(mode_container)
         layout.addLayout(form_layout)
 
-        # Save button
-        self.save_button = QPushButton('Save Changes')
-        layout.addWidget(self.save_button)
-
+        #Layout for buttons
+        horizontal_layout = QHBoxLayout()
         # Back button
         self.back_button = QPushButton('Back')
-        layout.addWidget(self.back_button)
+        horizontal_layout.addWidget(self.back_button)
+
+        # Save button
+        self.save_button = QPushButton('Save Changes')
+        horizontal_layout.addWidget(self.save_button)
+
+        layout.addLayout(horizontal_layout)
 
         self.save_button.clicked.connect(self.save_settings)
         self.setLayout(layout)

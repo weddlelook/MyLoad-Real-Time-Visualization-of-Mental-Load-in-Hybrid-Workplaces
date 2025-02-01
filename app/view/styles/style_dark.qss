@@ -1,33 +1,162 @@
 QWidget {
-    background-color: #000000; /* White background for all widgets */
+    background-color: #242424; /*#1E1E1E */
     font-family: "Lexend", Arial;
     font-size: 16px;
-    color: #FFFFFF;
+    color: #E0E0E0;
 }
 
 QPushButton {
-    background-color: #F4F4F4;
-    color: black;
-    border: 2px solid #000000;
-    border-radius: 10px;
-    padding: 10px;
+    background-color: transparent;
+    color: #E0E0E0; /* button text color */
     font-size: 16px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: 2px solid #444444; /* buttons border color */
+    border-radius: 12px;
+    max-width: 238px;
+    max-height: 81px;
 }
+
 QPushButton:hover {
-    background-color: #D3D3D3;
+    background-color: #448AFF; /*#626971 */
+    color: #FFFFFF;
 }
+
 QPushButton:pressed {
     background-color: #BEBEBE;
 }
 
-QLabel {
-    font-size: 16px;
+QLabel#title {
+    font-size: 24px;
     font-weight: bold;
+    margin-bottom: 10px;
+    color: #E0E0E0;
 }
-
+QLabel#subtitle {
+    font-size: 20px;
+    font-weight: semi-bold;
+    color: #C8C8C8;
+    margin-bottom: 15px;
+}
+QLabel#text {
+    font-size: 16px;
+    color: #C8C8C8;
+    margin-bottom: 20px;
+}
+QLabel#text-settings {
+    font-size: 16px;
+    color: #E0E0E0;
+    margin-bottom: 20px;
+    background-color: #505050;
+}
 QLineEdit {
-    border: 1px solid #000;
+    border: 1px solid #444444;
     border-radius: 5px;
     padding: 5px;
     font-size: 14px;
+}
+QLineEdit::placeholderText {
+    color: #C8C8C8; /* Light gray placeholder text */
+}
+QGroupBox {
+    border: 2px solid #444444; /* border around the container */
+    border-radius: 5px; /* Rounded corners */
+    margin: 10px; /* Space around the group box */
+    padding: 10px; /* Space between the border and content */
+    font-size: 16px; /* Title font size */
+    font-weight: bold;
+    color: #E0E0E0; /* Title color */
+    background-color: #505050; /* Container background color */
+}
+QGroupBox QLabel {
+    margin-top: 10px; /* Adds space below the title */
+}
+/* Styling the Toolbar */
+QToolBar {
+    background-color: #1B2A40;  /* background for the toolbar */
+    border: none;  /* Remove the border */
+    spacing: 10px;  /* Space between buttons */
+    padding: 5px;  /* Padding around the toolbar */
+}
+
+/* Styling the individual buttons (actions) in the toolbar */
+QToolBar QToolButton {
+    background-color: #505050;  /* button background */
+    border: 1px solid #444444;  /* Button border */
+    border-radius: 10px;  /* Rounded corners */
+    color: #E0E0E0;  /* Text color */
+    padding: 5px 10px;  /* Padding for the buttons */
+    font-size: 14px;  /* Button text size */
+    min-width: 20px;  /* Minimum width for buttons */
+    max-height:25px;
+}
+
+/* Hover effect on buttons (when mouse is over a button) */
+QToolBar QToolButton:hover {
+    background-color: #a7a7a7;
+    color: black;  /* Highlight color on hover */
+    border-color: #444444;  /* Border color on hover */
+}
+
+/* Action (button) pressed state (when button is clicked) */
+QToolBar QToolButton:pressed {
+    background-color: #448AFF;  /* background when pressed */
+    border-color: #444444;  /* border when pressed */
+}
+
+/* Disabled action (button) state */
+QToolBar QToolButton:disabled {
+    background-color: #448AFF;  /* Disabled background color */
+    border-color: #444444;  /* Disabled border color */
+    color: #7f8c8d;  /* Disabled text color */
+}
+
+/* Styling action icons */
+QToolBar QToolButton::icon {
+    width: 20px;  /* Icon width */
+    height: 20px;  /* Icon height */
+    max-width 20px;
+}
+
+/* Highlighting action (when it is selected) */
+QToolBar QToolButton:checked {
+    background-color: #448AFF;  /* Orange background when action is checked */
+    border-color: #444444;  /* Border color for checked state */
+}
+
+/* Optional: If you want to add some additional space around the actions in the toolbar */
+QToolBar::addAction {
+    margin-left: 10px;  /* Space between actions */
+    margin-right: 10px;
+}
+/* Buttons (Checkboxes) on Settings */
+QRadioButton {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;  /* Text color */
+    padding: 5px;
+    background-color: #505050;
+    padding-left: 15px;
+    spacing: 15px
+}
+
+QRadioButton::indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #242424; /* Border color */
+    border-radius: 12px; /* makes the checkboxes circle */
+    background-color: #505050; /* Background color when unchecked */
+}
+
+QRadioButton::indicator:checked {
+    background-color: #2825be; /* Background color when checked */
+    border-color: #242424;
+}
+
+QRadioButton::indicator:hover {
+    border-color: #000000;
+}
+
+QRadioButton::indicator:checked:hover {
+    background-color: #448AFF;
 }
