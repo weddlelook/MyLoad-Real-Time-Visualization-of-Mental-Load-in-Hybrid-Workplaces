@@ -12,19 +12,17 @@ class CustomWebEnginePage(QWebEnginePage):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.featurePermissionRequested.connect(self.acceptFeaturePermission)
 
-    def acceptFeaturePermission(self, security_origin, feature,):
+
+    def acceptFeaturePermission(self, securityOrigin, feature, enable):
         """ Automatically grant microphone and audio permissions """
         if feature in [
-            QWebEnginePage.MediaAudioCapture,
-            QWebEnginePage.MediaVideoCapture,
-            QWebEnginePage.MediaAudioVideoCapture
+            QWebEnginePage.Feature.MediaAudioCapture,
+            QWebEnginePage.Feature.MediaVideoCapture,
+            QWebEnginePage.Feature.MediaAudioVideoCapture
         ]:
-            self.setFeaturePermission(security_origin, feature,
-                                      QWebEnginePage.PermissionGrantedByUser)
-        else:
-            self.setFeaturePermission(security_origin, feature, QWebEnginePage.PermissionDeniedByUser)
+            enable = True  # ✅ Allow access
+        super().acceptFeaturePermission(securityOrigin, feature, enable)
 
 
 
