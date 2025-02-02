@@ -36,7 +36,7 @@ class RetrospectivePage(QWidget):
         layout.addWidget(self.session_list)
 
         # Button zum Plotten
-        self.plot_button = QPushButton("Ausgewählte Sessions plotten")
+        self.plot_button = QPushButton("Plot Sessions")
         self.plot_button.clicked.connect(self._plot_sessions)
         layout.addWidget(self.plot_button)
 

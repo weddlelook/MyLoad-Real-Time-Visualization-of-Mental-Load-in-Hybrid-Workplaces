@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QStackedLayout, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QStackedLayout, QVBoxLayout, QWidget, QSizePolicy, QPushButton, QLabel, \
+    QLineEdit
 
 # Custom pages import
 from app.view.startWidget import StartWidget
@@ -27,6 +28,7 @@ class MainWidget(QWidget):
 
         # Main layout container
         self.main_layout = QVBoxLayout()
+        self.main_layout.setContentsMargins(20, 10, 20, 10) #left top right bottom
         self.setLayout(self.main_layout)
 
         # Setting up Settings
@@ -63,8 +65,25 @@ class MainWidget(QWidget):
 
     def _register_page(self, child: QWidget, page_name: str):
         """Registers a page with the main window."""
+        self._apply_resize_policy(child)
         self.stack_layout.addWidget(child)
         self.pages[page_name] = child
+
+    def _apply_resize_policy(self, widget: QWidget):
+        """Recursively applies the size policy to all widgets in the page."""
+        widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        for child in widget.findChildren(QWidget):
+            child.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            if isinstance(child, QPushButton):
+                child.setMinimumSize(100, 50)
+            elif isinstance(child, QLabel):
+                if child.objectName() == "title":
+                    child.setMaximumHeight(250)
+                elif child.objectName() == "text":
+                    child.setMaximumHeight(200)
+                child.setMinimumSize(100, 30)
+            elif isinstance(child, QLineEdit):
+                child.setMinimumSize(120, 30)
 
     def set_page(self, page_name: str) -> QWidget:
         """

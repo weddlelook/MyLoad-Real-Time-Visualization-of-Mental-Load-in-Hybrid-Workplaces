@@ -16,8 +16,6 @@ class StartWidget(QWidget):
     def initUI(self):
         self.setWindowTitle('Start Widget')
         layout = QVBoxLayout()
-        layout.setSpacing(10)
-        layout.setContentsMargins(30, 20, 30, 20)
 
         #Title
         title_label = QLabel("Welcome to MyLoad")
