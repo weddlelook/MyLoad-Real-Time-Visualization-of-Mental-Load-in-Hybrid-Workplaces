@@ -13,17 +13,14 @@ class CustomWebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-
-    def acceptFeaturePermission(self, securityOrigin, feature, enable):
-        """ Automatically grant microphone and audio permissions """
+    def featurePermissionRequested(self, securityOrigin, feature):
+        """ Automatically grant microphone and video permissions """
         if feature in [
             QWebEnginePage.Feature.MediaAudioCapture,
             QWebEnginePage.Feature.MediaVideoCapture,
             QWebEnginePage.Feature.MediaAudioVideoCapture
         ]:
-            enable = True  # ✅ Allow access
-        super().acceptFeaturePermission(securityOrigin, feature, enable)
-
+            self.setFeaturePermission(securityOrigin, feature, QWebEnginePage.PermissionGrantedByUser)
 
 
 class JitsiWidget(QWidget):
