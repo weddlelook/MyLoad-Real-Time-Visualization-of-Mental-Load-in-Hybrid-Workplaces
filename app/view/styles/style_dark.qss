@@ -1,14 +1,14 @@
 QWidget {
     background-color: #242424; /*#1E1E1E */
     font-family: "Lexend", Arial;
-    font-size: 16px;
+    font-size: 18px;
     color: #E0E0E0;
 }
 
 QPushButton {
     background-color: transparent;
     color: #E0E0E0; /* button text color */
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     padding: 12px 20px;
     border: 2px solid #444444; /* buttons border color */
@@ -27,24 +27,24 @@ QPushButton:pressed {
 }
 
 QLabel#title {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: bold;
     margin-bottom: 10px;
     color: #E0E0E0;
 }
 QLabel#subtitle {
-    font-size: 20px;
+    font-size: 25px;
     font-weight: semi-bold;
     color: #C8C8C8;
     margin-bottom: 15px;
 }
 QLabel#text {
-    font-size: 16px;
+    font-size: 22px;
     color: #C8C8C8;
     margin-bottom: 20px;
 }
 QLabel#text-settings {
-    font-size: 16px;
+    font-size: 20px;
     color: #E0E0E0;
     margin-bottom: 20px;
     background-color: #505050;
@@ -53,17 +53,18 @@ QLineEdit {
     border: 1px solid #444444;
     border-radius: 5px;
     padding: 5px;
-    font-size: 14px;
+    font-size: 16px;
 }
 QLineEdit::placeholderText {
     color: #C8C8C8; /* Light gray placeholder text */
+    font: 16px;
 }
 QGroupBox {
     border: 2px solid #444444; /* border around the container */
     border-radius: 5px; /* Rounded corners */
     margin: 10px; /* Space around the group box */
     padding: 10px; /* Space between the border and content */
-    font-size: 16px; /* Title font size */
+    font-size: 25px; /* Title font size */
     font-weight: bold;
     color: #E0E0E0; /* Title color */
     background-color: #505050; /* Container background color */
@@ -86,7 +87,7 @@ QToolBar QToolButton {
     border-radius: 10px;  /* Rounded corners */
     color: #E0E0E0;  /* Text color */
     padding: 5px 10px;  /* Padding for the buttons */
-    font-size: 14px;  /* Button text size */
+    font-size: 16px;  /* Button text size */
     min-width: 20px;  /* Minimum width for buttons */
     max-height:25px;
 }
@@ -131,7 +132,7 @@ QToolBar::addAction {
 }
 /* Buttons (Checkboxes) on Settings */
 QRadioButton {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     color: #ffffff;  /* Text color */
     padding: 5px;
