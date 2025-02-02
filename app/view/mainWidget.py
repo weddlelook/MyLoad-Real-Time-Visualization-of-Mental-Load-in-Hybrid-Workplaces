@@ -81,6 +81,8 @@ class MainWidget(QWidget):
                     child.setMaximumHeight(250)
                 elif child.objectName() == "text":
                     child.setMaximumHeight(200)
+                elif child.objectName() == "subtitle":
+                    child.setMaximumHeight(200)
                 child.setMinimumSize(100, 30)
             elif isinstance(child, QLineEdit):
                 child.setMinimumSize(120, 30)

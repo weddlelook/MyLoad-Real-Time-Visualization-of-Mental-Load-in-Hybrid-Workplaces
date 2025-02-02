@@ -20,7 +20,7 @@ class MaxtestPage(QWidget):
         layout.addWidget(self.title_label)
 
         # Display the letters
-        self.charForTest = QLabel("Test")
+        self.charForTest = QLabel()
         self.charForTest.setObjectName("title")
         self.charForTest.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.charForTest)
