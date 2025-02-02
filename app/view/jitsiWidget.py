@@ -12,6 +12,7 @@ class CustomWebEnginePage(QWebEnginePage):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        ''' on permission request connects onFeaturePermissionRequested-method'''
         self.featurePermissionRequested.connect(self.onFeaturePermissionRequested)
 
     def onFeaturePermissionRequested(self, securityOrigin, feature):
@@ -21,8 +22,6 @@ class CustomWebEnginePage(QWebEnginePage):
             QWebEnginePage.Feature.MediaVideoCapture,
             QWebEnginePage.Feature.MediaAudioVideoCapture
         ]:
-            print(f"Granting permission for feature: {feature}")  # Debugging
-            # Use the correct enum value for granting permissions
             self.setFeaturePermission(securityOrigin, feature, QWebEnginePage.PermissionPolicy.PermissionGrantedByUser)
 
 
@@ -40,11 +39,9 @@ class JitsiWidget(QWidget):
         self.end_button = QPushButton("End Meeting")
 
         main_layout = QHBoxLayout()
-
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.browser)
         left_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignCenter)
-
         right_widget = self.plot_widget
 
         main_layout.addLayout(left_layout)
@@ -64,7 +61,7 @@ class JitsiWidget(QWidget):
         settings.setAttribute(QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins, True)
         settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
 
-    # takes the room_name from controller object in jitsi_page, and makes the browser show the intended html file.     
+    ''' takes the room_name from controller object in jitsi_page, and makes the browser show the intended html file. '''
     def load_jitsi_meeting(self, room_name):
         base_path = Path(__file__).resolve().parent
         html_path = base_path / "styles" / "jitsi.html"
