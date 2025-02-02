@@ -127,9 +127,14 @@ class Controller():
 
     def jitsi_page(self): 
         self.gui.show_toolbar(True)
-        widget = self.gui.main_window.set_page("jitsi")
+        jitsi_widget = self.gui.main_window.set_page("jitsi")
         # takes the room name from controller object and gives it to the jitsi view
-        widget.load_jitsi_meeting(self.jitsi_room_name)  
+        jitsi_widget.load_jitsi_meeting(self.jitsi_room_name)
+        jitsi_widget.end_button.clicked.connect(jitsi_widget.end_meeting)
+
+        plot_widget = jitsi_widget.plot_widget
+        # Connect the EEGMonitoring thread to the EEGPlotWidget
+        self.eegWorker.powers.connect(plot_widget.update_plot)
 
 
 def create_h5_file(folder_path, users_session_name):

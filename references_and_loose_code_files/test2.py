@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout,
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEnginePage
 from PyQt6.QtCore import QUrl
+from pathlib import Path
 
 
 class CustomWebEnginePage(QWebEnginePage):
@@ -50,8 +51,10 @@ class JitsiApp(QMainWindow):
         settings.setAttribute(QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins, True)
         settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
 
-
-        self.browser.setUrl(QUrl("file:///C:/Users/Clara/Desktop/MyLoad/tes_myload/references_and_loose_code_files/jitsi.html"))
+        base_path = Path(__file__).resolve().parent
+        html_path = base_path / "jitsi.html"
+        print(html_path)
+        self.browser.setUrl(QUrl.fromLocalFile(str(html_path)))
 
         # Button to end the meeting
         self.end_button = QPushButton("")
