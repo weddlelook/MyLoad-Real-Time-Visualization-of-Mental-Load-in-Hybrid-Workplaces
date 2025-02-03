@@ -71,7 +71,6 @@ class RetrospectivePage(QWidget):
         converted_timestamps = []
         for seconds in range(len(timestamps)):
             new_timestamp = start_time + timedelta(seconds=seconds)
-            print(new_timestamp)
             if new_timestamp not in converted_timestamps:
 
                 converted_timestamps.append(start_time + timedelta(seconds=seconds))
