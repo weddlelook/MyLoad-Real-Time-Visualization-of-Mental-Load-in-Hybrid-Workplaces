@@ -51,13 +51,12 @@ class StartMaxTestPage(QWidget):
         #self.scaled_pixmap = self.pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
         #self.info_icon.setPixmap(self.scaled_pixmap)
         #v_layout.addWidget(self.info_icon, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.skipMaxtestButton.setToolTip("Diese Funktion macht nur Sinn falls Sie schon eine gespeicherte Sesssion haben bei denen "
-                                  "Ihre umstände ca gleich sind, wie z.B schlaf, "
-                                  "Uhrzeit, keine großen Änderungen in Ihrem Leben etc.")
-
+        self.skipMaxtestButton.setToolTip("Click skip if only you have already saved a session "
+                                          "in which your conditions like sleep, time, etc are similar")
         h_layout.addWidget(self.skipMaxtestButton, alignment=Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
 
         v_layout.addLayout(h_layout)
 
         self.setLayout(v_layout)
         self.setWindowTitle('StartMaxtest Widget')
+
