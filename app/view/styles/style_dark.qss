@@ -161,3 +161,19 @@ QRadioButton::indicator:hover {
 QRadioButton::indicator:checked:hover {
     background-color: #448AFF;
 }
+QListWidget {
+    background-color: #242424;
+    border: 2px solid #444444;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 18px;
+}
+QListWidget::item {
+    padding: 8px; /* Space between item and its border */
+    border-bottom: 1px solid #444444;
+}
+QListWidget::item:selected {
+    background-color: #0060ac;
+    color: white;
+    font-weight: bold;
+}
