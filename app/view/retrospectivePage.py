@@ -48,7 +48,7 @@ class RetrospectivePage(QWidget):
         # Lade die verfügbaren Sessions
         self._load_sessions()
 
-        self.back_button = QPushButton("Back")
+        self.back_button = QPushButton("Back to Homepage")
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignRight)
 
 

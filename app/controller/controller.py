@@ -103,7 +103,7 @@ class Controller():
         startMaxtest_widget.startMaxtestButton.clicked.connect(self.maxtest_page)
 
         #Connect the skip button for the test
-        startMaxtest_widget.skipMaxtestButton.clicked.connect(self.skip_page)
+        startMaxtest_widget.skipMaxtestButton.clicked.connect(self.jitsi_page)
 
     def maxtest_page(self):
         self.gui.show_toolbar(False)
@@ -131,6 +131,8 @@ class Controller():
         # takes the room name from controller object and gives it to the jitsi view
         jitsi_widget.load_jitsi_meeting(self.jitsi_room_name)
         jitsi_widget.end_button.clicked.connect(jitsi_widget.end_meeting) # button for ending the meeting
+        jitsi_widget.end_button.clicked.connect(self.retrospective_page) # button for ending the meeting
+
         '''
         I added the plot widget to the jitsi page, so that we can see the plot too. I think this is not the best way
         to do it, but i am leaving it so for now
