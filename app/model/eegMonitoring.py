@@ -16,7 +16,10 @@ class EEGMonitoring(QObject):
     """
     powers = pyqtSignal(dict) # contains timestamp, theta, alpha, beta powers, cognitive load that were last calculated
     status_callback = pyqtSignal(str) # Signals current status of the EEG monitor
+
+    #Phase signal
     baseline_complete_signal = pyqtSignal() # Signal that the baseline recording is complete
+    min_complete = pyqtSignal()
 
     NUM_CHANNELS = 8
 
@@ -28,7 +31,9 @@ class EEGMonitoring(QObject):
         self.session_active = False
         self.filename = hdf5_file
         self.monitor_timer = None
-        self.baseline_timer = None
+        self.phase_timer = None
+        self.minwert = 2200
+        self.maxwert = 0
 
         # Buffer for EEG data
         self.data_buffer = None
@@ -36,6 +41,8 @@ class EEGMonitoring(QObject):
 
         # NOTE: This will be taken out later, but for now lets log all status updates
         self.status_callback.connect(print)
+
+        # NOTE: Starting streaming only once now
 
     def set_up(self):
         """
@@ -47,14 +54,17 @@ class EEGMonitoring(QObject):
         in that thread.
         """
         self._connect_board()
+        self.board_shim.start_stream()
 
         # Setting up timer for monitoring function
         self.monitor_timer = QTimer()
         self.monitor_timer.setInterval(1000)  # Update every second
         self.monitor_timer.timeout.connect(self._monitor_cognitive_load)
 
-        # Setting up timer for baseline recording
-        self.baseline_timer = QTimer()
+        # Setting up timer for the phases of recording
+        self.phase_timer = QTimer()
+
+    # ------------------------ Phases ----------------------------------------------------
 
     def record_asr_baseline(self):
         """
@@ -66,12 +76,53 @@ class EEGMonitoring(QObject):
         """
         self.status_callback.emit("Starting ASR Baseline recording for 60 seconds!")
         try:
-            self.board_shim.start_stream()
             self.status_callback.emit("Recording baseline...")
-            self.baseline_timer.singleShot(3000, self._finish_baseline_recording)
+            self.phase_timer.singleShot(3000, self._finish_baseline_recording)
 
         except BrainFlowError as e:
             self.status_callback(f"BrainFlowError occurred: {e}")
+
+    def record_min(self):
+        self.status_callback.emit("Starting maximum CL recording")
+        if not self.session_active:
+            self.start_monitoring()
+
+        def _calculate_min(self, powers):
+            print("calculating min")
+
+            if powers["cognitive_load"] < self.minwert:
+                self.minwert = powers["cognitive_load"]
+
+        def _finish_min_recording(self):
+            self.status_callback.emit("finished min recording")
+            self.powers.disconnect(self._calculate_min)
+            print(self.minwert)
+
+        self.powers.connect(self._calculate_min)
+        self.phase_timer.singleShot(10000, self._finish_min_recording)
+
+    def record_max(self):
+        self.status_callback.emit("Starting maximum CL recording")
+        if not self.session_active:
+            self.start_monitoring()
+
+        def _calculate_max(self,powers):
+            print("calculating min")
+
+            if powers["cognitive_load"] > self.maxwert:
+                self.maxwert = powers["cognitive_load"]
+
+
+        def _finish_max_recording(self):
+            self.status_callback.emit("finished min recording")
+            self.powers.disconnect(self._calculate_max)
+            print(self.maxwert)
+
+
+        self.powers.connect(self._calculate_max)
+        self.phase_timer.singleShot(10000, self._finish_min_max_recording)
+
+    # ------------------------ Basic monitoring functionality ---------------------------------
 
     def start_monitoring(self):
         """
@@ -91,7 +142,6 @@ class EEGMonitoring(QObject):
             self.data_buffer = np.zeros((self.NUM_CHANNELS, buffer_length))
 
             # Start the streaming session
-            self.board_shim.start_stream()
             self.session_active = True
             self.monitor_timer.start()  # Start the periodic updates using QTimer
 
@@ -107,7 +157,6 @@ class EEGMonitoring(QObject):
             self.session_active = False
             self.monitor_timer.stop()
             self.status_callback.emit("Monitoring stopped")
-            self.board_shim.stop_stream()
         except BrainFlowError as e:
             self.status_callback(f"Error stopping monitoring: {e}")
 
@@ -119,7 +168,6 @@ class EEGMonitoring(QObject):
             self.session_active = True
             self.monitor_timer.start()
             self.status_callback.emit("Monitoring resumed")
-            self.board_shim.start_stream()
         except BrainFlowError as e:
             self.status_callback(f"Error resuming monitoring: {e}")
 
@@ -130,7 +178,6 @@ class EEGMonitoring(QObject):
         try:
             # Stop streaming session and get data
             baseline_data = self.board_shim.get_board_data()
-            self.board_shim.stop_stream()
 
             # Preprocess and train ASR, buffer size is 10
             baseline_data = baseline_data[1:9]
@@ -160,7 +207,7 @@ class EEGMonitoring(QObject):
 
             if self.update_count > 0:  # Beginne erst nach dem ersten Update mit der Datenerfassung
 
-                transformed_data = self._apply_asr_filter(new_data[:self.NUM_CHANNELS, :])
+                transformed_data = new_data[:self.NUM_CHANNELS, :]
                 self.data_buffer = np.hstack((self.data_buffer[:, new_data.shape[1]:], transformed_data))
 
                 theta_power, alpha_power, beta_power = self._calculate_powers(self.data_buffer, self.sampling_rate)
