@@ -48,7 +48,15 @@ class Controller():
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.set_page("start")
 
-        widget.session_name_entered.connect(lambda: self.start_baseline(widget.session_name))
+        # saving room name in controller object, so that we reach it later 
+        widget.user_input_entered.connect(lambda: self.set_room_name(widget.jitsi_room_name))
+        # opening start baseline page 
+        widget.user_input_entered.connect(lambda: self.start_baseline(widget.session_name))
+        
+
+    def set_room_name(self, room_name): 
+        self.jitsi_room_name = room_name
+    
 
     def start_baseline(self, file_name):
         widget = self.gui.main_window.set_page("baselineStartPage")
@@ -114,7 +122,22 @@ class Controller():
         result = self.testLogic.calculateResults()
         widget.updateResult(result)
         # Connect the two buttons to skip the next symbol
-        widget.next_button.clicked.connect(self.monitoring_page) # muss noch verbunden werden
+        # I changed the connection from plotWidget to JitsiWidget for testing the jitsi page
+        widget.next_button.clicked.connect(self.jitsi_page) # muss noch verbunden werden
+
+    def jitsi_page(self): 
+        self.gui.show_toolbar(True)
+        jitsi_widget = self.gui.main_window.set_page("jitsi")
+        # takes the room name from controller object and gives it to the jitsi view
+        jitsi_widget.load_jitsi_meeting(self.jitsi_room_name)
+        jitsi_widget.end_button.clicked.connect(jitsi_widget.end_meeting) # button for ending the meeting
+        '''
+        I added the plot widget to the jitsi page, so that we can see the plot too. I think this is not the best way
+        to do it, but i am leaving it so for now
+        '''
+        plot_widget = jitsi_widget.plot_widget
+        # Connect the EEGMonitoring thread to the EEGPlotWidget
+        self.eegWorker.powers.connect(plot_widget.update_plot)
 
 
 def create_h5_file(folder_path, users_session_name):

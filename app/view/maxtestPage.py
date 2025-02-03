@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushButton
+from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushButton, QVBoxLayout, QHBoxLayout
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
@@ -11,48 +11,32 @@ class MaxtestPage(QWidget):
         self.initUI()
 
     def initUI(self):
-        layout = QGridLayout()
+        layout = QVBoxLayout()
 
-        self.label = QLabel()
-        self.label.setText("Maximaltest")
+        self.title_label = QLabel("Test will end automatically when the timer runs out")
+        self.title_label.setWordWrap(True)
+        self.title_label.setObjectName("subtitle")
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.title_label)
 
-        # Text größer machen
-        font = QFont("Arial", 15)  # Schriftart und Schriftgröße
-        self.label.setFont(font)
-        #Text ausrichten und einfügen
-        layout.addWidget(self.label, 0, 1, alignment = Qt.AlignmentFlag.AlignCenter)
-
-        #Button für richtiges Zeichen des N-Backtests
-        self.correct_button = QPushButton('Correct',self)
-        layout.addWidget(self.correct_button, 2, 0, alignment = Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
-
-
-
-        #Button für falsches Zeichen des N-Backtests
-        self.skip_button = QPushButton('Skip',self)
-        layout.addWidget(self.skip_button, 2, 2, alignment = Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
-
-
-
-        #N-Backtest einfügen
+        # Display the letters
         self.charForTest = QLabel()
-        font_test = QFont("Arial", 80)
-        self.charForTest.setFont(font_test)
-        self.charForTest.setText("test")
-        layout.addWidget(self.charForTest, 1, 1, alignment=Qt.AlignmentFlag.AlignHCenter)
+        self.charForTest.setObjectName("title")
+        self.charForTest.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.charForTest)
 
+        #Horizontal Layout for the buttons
+        h_layout = QHBoxLayout()
+        #Button für richtiges Zeichen des N-Backtests
+        self.correct_button = QPushButton('Correct')
+        h_layout.addWidget(self.correct_button, alignment=Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
+        #Button für falsches Zeichen des N-Backtests
+        self.skip_button = QPushButton('Skip')
+        h_layout.addWidget(self.skip_button, alignment = Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
+
+        layout.addLayout(h_layout)
         self.setLayout(layout)
         self.setWindowTitle('Maxtest Widget')
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        # Calculate 10% width and 15% height of the parent widget
-        button_width = int(self.width() * 0.1)
-        button_height = int(self.height() * 0.15)
-
-        # Set button sizes dynamically
-        self.correct_button.setFixedSize(button_width, button_height)
-        self.skip_button.setFixedSize(button_width, button_height)
 
     def updateChar(self, testChar):
         self.charForTest.setText(testChar)

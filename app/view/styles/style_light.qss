@@ -1,17 +1,17 @@
 QWidget {
-    background-color: #f4f4f4;
-    font-family: Arial;
-    font-size: 16px;
+    background-color: #F8F8FF;
+    font-family: "Lexend", Arial;
+    font-size: 18px;
     color: #393938;
 }
 
 QPushButton {
     background-color: transparent;
-    color: #393938;
-    font-size: 16px;
+    color: #393938; /* button text color */
+    font-size: 18px;
     font-weight: 600;
     padding: 12px 20px;
-    border: 2px solid #E9E7E2;
+    border: 2px solid #237e96; /* buttons border color #E9E7E2 #6ba5cf */
     border-radius: 12px;
     max-width: 238px;
     max-height: 81px;
@@ -27,47 +27,53 @@ QPushButton:pressed {
 }
 
 QLabel#title {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: bold;
     margin-bottom: 10px;
     color: black;
 }
 QLabel#subtitle {
-    font-size: 20px;
+    font-size: 25px;
     font-weight: semi-bold;
     color: #464646;
     margin-bottom: 15px;
 }
 QLabel#text {
-    font-size: 16px;
+    font-size: 22px;
     color: black;
     margin-bottom: 20px;
 }
 QLabel#text-settings {
-    font-size: 16px;
+    font-size: 22px;
     color: black;
     margin-bottom: 20px;
-    background-color: #E9E7E2;
+    background-color: #d5e5f1;
 }
 QLineEdit {
-    border: 1px solid #000;
+    border: 1px solid #237e96;
     border-radius: 5px;
     padding: 5px;
-    font-size: 14px;
+    font-size: 16px;
+}
+QLineEdit::placeholderText {
+    font: 16px;
 }
 QGroupBox {
-    border: 2px solid #E9E7E2; /* Blue border around the container */
+    border: 2px solid #237e96; /* border around the container */
     border-radius: 5px; /* Rounded corners */
     margin: 10px; /* Space around the group box */
     padding: 10px; /* Space between the border and content */
-    font-size: 16px; /* Title font size */
+    font-size: 25px; /* Title font size */
     font-weight: bold;
     color: #393938; /* Title color */
-    background-color: #E9E7E2; /* Light blue background */
+    background-color: #d5e5f1; /* Container background color */
+}
+QGroupBox QLabel {
+    margin-top: 10px; /* Adds space below the title */
 }
 /* Styling the Toolbar */
 QToolBar {
-    background-color: #E9E7E2;  /* Dark background for the toolbar */
+    background-color: #237e96;  /* background for the toolbar */
     border: none;  /* Remove the border */
     spacing: 10px;  /* Space between buttons */
     padding: 5px;  /* Padding around the toolbar */
@@ -75,18 +81,20 @@ QToolBar {
 
 /* Styling the individual buttons (actions) in the toolbar */
 QToolBar QToolButton {
-    background-color: #F4F4F4;  /* Dark button background */
-    border: 1px solid #E9E7E2;  /* Button border */
+    background-color: #d5e5f1;  /* button background */
+    border: 1px solid #237e962;  /* Button border #E9E7E*/
     border-radius: 10px;  /* Rounded corners */
     color: #393938;  /* Text color */
     padding: 5px 10px;  /* Padding for the buttons */
-    font-size: 14px;  /* Button text size */
-    min-width: 40px;  /* Minimum width for buttons */
+    font-size: 16px;  /* Button text size */
+    min-width: 20px;  /* Minimum width for buttons */
+    max-height:25px;
 }
 
 /* Hover effect on buttons (when mouse is over a button) */
 QToolBar QToolButton:hover {
-    background-color: #1abc9c;  /* Highlight color on hover */
+    background-color: #626971;
+    color: #FFFFFF;;  /* Highlight color on hover */
     border-color: #16a085;  /* Border color on hover */
 }
 
@@ -103,16 +111,11 @@ QToolBar QToolButton:disabled {
     color: #7f8c8d;  /* Disabled text color */
 }
 
-/* Styling separators (if you use separators between actions) */
-QToolBar::separator {
-    background-color: #7f8c8d;  /* Gray separator line */
-    width: 2px;  /* Separator width */
-}
-
 /* Styling action icons */
 QToolBar QToolButton::icon {
     width: 20px;  /* Icon width */
     height: 20px;  /* Icon height */
+    max-width 20px;
 }
 
 /* Highlighting action (when it is selected) */
@@ -132,31 +135,32 @@ QToolBar::addAction {
 }
 /* Buttons (Checkboxes) on Settings */
 QRadioButton {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     color: #333;  /* Text color */
     padding: 5px;
-    border-radius: 3px;
-    background-color: #E9E7E2;
+    background-color: #d5e5f1;
+    padding-left: 15px;
+    spacing: 15px
 }
 
 QRadioButton::indicator {
     width: 20px;
     height: 20px;
-    border: 2px solid #3498db; /* Border color */
-    border-radius: 10px;
+    border: 2px solid #237e96; /* Border color */
+    border-radius: 12px; /* makes the checkboxes circle */
     background-color: #FFF; /* Background color when unchecked */
 }
 
 QRadioButton::indicator:checked {
-    background-color: #3498db; /* Background color when checked */
-    border-color: #2980b9;
+    background-color: #25b9be; /* Background color when checked */
+    border-color: #2c61bb;
 }
 
 QRadioButton::indicator:hover {
-    border-color: #2980b9;
+    border-color: #12274b;
 }
 
 QRadioButton::indicator:checked:hover {
-    background-color: #2980b9;
+    background-color: #66ced2;
 }
