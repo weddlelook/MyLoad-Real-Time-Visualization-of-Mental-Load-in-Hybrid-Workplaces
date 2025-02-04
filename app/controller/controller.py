@@ -40,6 +40,7 @@ class Controller():
         self.gui.main_window.settings.new_settings.connect(self.gui.apply_stylesheet)
         self.gui.main_window.settings.new_settings.connect(self.gui.main_window.toggle_settings)
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.toggle_settings)
+        self.gui.main_window.settings.clear_all_button.clicked.connect(self.settings_model.clear_sessions)
         # Retrospective Page
         self.gui.retrospective_action.triggered.connect(self.gui.main_window.toggle_retrospective)
 
@@ -94,7 +95,7 @@ class Controller():
         retrospective.back_button.clicked.connect(self.landing_page)
 
     def start_maxtest_page(self):
-        self.gui.show_toolbar(True)
+        self.gui.show_toolbar(False)
 
         startMaxtest_widget = self.gui.main_window.set_page('startmaxtest')
 
@@ -117,7 +118,7 @@ class Controller():
         self.testLogic.startTest()
 
     def results_page(self):
-        self.gui.show_toolbar(True)
+        self.gui.show_toolbar(False)
         widget = self.gui.main_window.set_page('result')
         result = self.testLogic.calculateResults()
         widget.updateResult(result)

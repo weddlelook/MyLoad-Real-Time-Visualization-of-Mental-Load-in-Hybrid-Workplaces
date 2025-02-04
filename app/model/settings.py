@@ -38,3 +38,11 @@ class SettingsModel:
         for key, value in dic.items():
             self.settings[key] = value
         self.save_settings()
+
+    @staticmethod
+    def clear_sessions():
+        dir_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
+        if os.path.exists(dir_path):
+            for file in os.listdir(dir_path):
+                file_path = os.path.join(dir_path, file)
+                os.remove(file_path)

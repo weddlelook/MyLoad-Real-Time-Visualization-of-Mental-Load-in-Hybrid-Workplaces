@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, \
     QFormLayout, QRadioButton, QButtonGroup, QGroupBox, QHBoxLayout
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, Qt
 from app.model.settings import SettingsModel
 
 
@@ -58,7 +58,19 @@ class SettingsWidget(QWidget):
 
         form_layout.addRow(display_container)
         form_layout.addRow(mode_container)
+
         layout.addLayout(form_layout)
+
+        h_layout = QHBoxLayout()
+        delete_label = QLabel("To clear all previous sessions information:")
+        delete_label.setObjectName("text")
+        delete_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        h_layout.addWidget(delete_label, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        self.clear_all_button = QPushButton("Clear All")
+        self.clear_all_button.setObjectName("settings")
+        h_layout.addWidget(self.clear_all_button)
+        layout.addLayout(h_layout)
 
         #Layout for buttons
         horizontal_layout = QHBoxLayout()
