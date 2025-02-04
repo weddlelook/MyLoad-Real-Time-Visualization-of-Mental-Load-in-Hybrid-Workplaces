@@ -41,7 +41,7 @@ class RetrospectivePage(QWidget):
         layout.addWidget(self.plot_button)
 
         # Matplotlib-Canvas für das Plotten
-        self.figure = Figure()
+        self.figure = Figure(facecolor="#F8F8FF", edgecolor="#444444")
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
 
