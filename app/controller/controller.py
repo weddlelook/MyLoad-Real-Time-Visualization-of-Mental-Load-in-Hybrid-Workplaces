@@ -88,12 +88,6 @@ class Controller():
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(widget.update_plot)
 
-    #Currently this function is never called instead to open this page toggle_retrospective in mainWidget is called
-    def retrospective_page(self):
-        self.gui.show_toolbar(True)
-        retrospective = self.gui.main_window.set_page('retrospective')
-        retrospective.back_button.clicked.connect(self.landing_page)
-
     def start_maxtest_page(self):
         self.gui.show_toolbar(False)
 
@@ -134,6 +128,7 @@ class Controller():
         jitsi_widget.end_button.clicked.connect(jitsi_widget.end_meeting) # button for ending the meeting
         jitsi_widget.end_button.clicked.connect(self.retrospective_page) # button for ending the meeting
 
+
         '''
         I added the plot widget to the jitsi page, so that we can see the plot too. I think this is not the best way
         to do it, but i am leaving it so for now
@@ -141,6 +136,13 @@ class Controller():
         plot_widget = jitsi_widget.plot_widget
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(plot_widget.update_plot)
+
+    #Currently this function is never called instead to open this page toggle_retrospective in mainWidget is called
+    def retrospective_page(self):
+        self.gui.show_toolbar(True)
+        widget = self.gui.main_window.set_page('retrospective')
+        widget.load_sessions()
+        widget.back_button.clicked.connect(self.landing_page)
 
 
 def create_h5_file(folder_path, users_session_name):

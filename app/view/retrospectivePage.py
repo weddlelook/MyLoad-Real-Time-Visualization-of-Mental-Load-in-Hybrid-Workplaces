@@ -46,13 +46,13 @@ class RetrospectivePage(QWidget):
         layout.addWidget(self.canvas)
 
         # Lade die verfügbaren Sessions
-        self._load_sessions()
+        self.load_sessions()
 
         self.back_button = QPushButton("Back to Homepage")
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignRight)
 
 
-    def _load_sessions(self):
+    def load_sessions(self):
         """Lade alle .h5-Dateien aus dem Session-Ordner."""
         self.session_list.clear()
         if os.path.exists(self.session_folder):
