@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar, QLineEdit
 from PyQt6.QtGui import QFontDatabase, QFont, QAction, QIcon
-from app.view.mainWidget import MainWidget
+from .mainWidget import MainWidget
+from .constants import *
 import os
 
 class RootWindow(QMainWindow):
@@ -11,7 +12,7 @@ class RootWindow(QMainWindow):
         self.settings = settings
         #Set minimum size for application window
         self.setMinimumSize(733, 625)
-        #Set a default size
+        #Set default window size
         self.resize(1200, 625)
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
@@ -22,9 +23,9 @@ class RootWindow(QMainWindow):
 
     def apply_stylesheet(self):
         if self.settings["lightMode"] == 1:
-            file_path = r"app/view/styles/style_light.qss"
+            file_path = FILE_PATH_CSS_LIGHTMODE
         elif self.settings["darkMode"] == 1:
-            file_path = r"app/view/styles/style_dark.qss"
+            file_path = FILE_PATH_CSS_DARKMODE
         try:
             with open(file_path, "r") as f:
                 self.setStyleSheet(f.read())
@@ -35,7 +36,7 @@ class RootWindow(QMainWindow):
         toolbar = self.addToolBar('Main Toolbar')
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
-        self.settings_action = QAction(QIcon("app/view/styles/images/settings-icon.png"), 'Settings', self)
+        self.settings_action = QAction(QIcon(FILE_PATH_SETTINGS_ICON), 'Settings', self)
         self.retrospective_action = QAction("Previous Sessions", self)
         toolbar.addAction(self.settings_action)
         toolbar.addAction(self.retrospective_action)
@@ -48,7 +49,7 @@ class RootWindow(QMainWindow):
 
     @staticmethod
     def apply_font():
-        font_path = os.path.join(os.path.dirname(__file__), r"styles/fonts/Lexend-VariableFont_wght.ttf")
+        font_path = os.path.join(os.path.dirname(__file__), FILE_PATH_FONT)
         print(font_path)
         if os.path.exists(font_path):
             font_id = QFontDatabase.addApplicationFont(font_path)

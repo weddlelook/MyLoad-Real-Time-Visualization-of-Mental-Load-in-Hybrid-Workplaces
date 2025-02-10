@@ -2,16 +2,7 @@ from PyQt6.QtWidgets import QStackedLayout, QVBoxLayout, QWidget, QSizePolicy, Q
     QLineEdit
 
 # Custom pages import
-from app.view.startWidget import StartWidget
-from app.view.plotWidget import EEGPlotWidget
-from app.view.baselinePage import BaselineWidget
-from app.view.maxtestPage import MaxtestPage
-from app.view.settingsPage import SettingsWidget
-from app.view.startBaselinePage import StartBaselinePage
-from app.view.retrospectivePage import RetrospectivePage
-from app.view.resultsPage import ResultsPage
-from app.view.startMaxtestPage import StartMaxTestPage
-from app.view.jitsiWidget import JitsiWidget
+import app.view.pages as p
 
 class MainWidget(QWidget):
 
@@ -32,7 +23,7 @@ class MainWidget(QWidget):
         self.setLayout(self.main_layout)
 
         # Setting up Settings
-        self.settings = SettingsWidget()
+        self.settings = p.SettingsWidget()
 
         # Setting up Stack
         self.stack = QWidget()
@@ -51,15 +42,15 @@ class MainWidget(QWidget):
         # Registering all pages 
         # NOTE: We could decide to not register all pages here, but instead register them 
         #       as we go along in the application lifecycle, but for now, we will register them all here
-        self._register_page(StartWidget(), "start")
-        self._register_page(EEGPlotWidget(), "plot")
-        self._register_page(BaselineWidget(), "baseline")
-        self._register_page(StartBaselinePage(), "baselineStartPage")
-        self._register_page(MaxtestPage(), "maxtest")
-        self._register_page(RetrospectivePage("app/h5_session_files"), "retrospective")
-        self._register_page(ResultsPage(), "result")
-        self._register_page(StartMaxTestPage(), "startmaxtest")
-        self._register_page(JitsiWidget(), "jitsi")
+        self._register_page(p.StartWidget(), "start")
+        self._register_page(p.EEGPlotWidget(), "plot")
+        self._register_page(p.BaselineWidget(), "baseline")
+        self._register_page(p.StartBaselinePage(), "baselineStartPage")
+        self._register_page(p.MaxtestPage(), "maxtest")
+        self._register_page(p.RetrospectivePage("app/h5_session_files"), "retrospective")
+        self._register_page(p.ResultsPage(), "result")
+        self._register_page(p.StartMaxTestPage(), "startmaxtest")
+        self._register_page(p.JitsiWidget(), "jitsi")
 
         self.settings.hide()
 
