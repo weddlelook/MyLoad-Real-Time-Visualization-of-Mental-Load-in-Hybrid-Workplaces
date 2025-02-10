@@ -77,6 +77,7 @@ class EEGMonitoring(QObject):
         self.status_callback.emit("Starting ASR Baseline recording for 60 seconds!")
         try:
             self.status_callback.emit("Recording baseline...")
+            self.phase_timer = QTimer()
             self.phase_timer.singleShot(3000, self._finish_baseline_recording)
 
         except BrainFlowError as e:
@@ -188,7 +189,7 @@ class EEGMonitoring(QObject):
             self.baseline_complete_signal.emit()
 
         except BrainFlowError as e:
-            self.status_callback(f"BrainFlowError occurred: {e}")
+            self.status_callback.emit(f"BrainFlowError occurred: {e}")
 
     def _monitor_cognitive_load(self):
 
@@ -310,7 +311,7 @@ class EEGMonitoring(QObject):
         # TODO: Since this is not the main entry point, there is little point in doing this here. If somebody wants to clean up that would be lovely
         parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
         parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards', required=False, default=BoardIds.SYNTHETIC_BOARD)
-        args = parser.parse_args(['--serial-port', 'COM3', '--board-id', BoardIds.CYTON_BOARD ]) #BoardIds.CYTON_BOARD
+        args = parser.parse_args(['--serial-port', 'COM3', '--board-id', '-1' ]) #BoardIds.CYTON_BOARD
 
         # Connect to the board
         params = BrainFlowInputParams()
