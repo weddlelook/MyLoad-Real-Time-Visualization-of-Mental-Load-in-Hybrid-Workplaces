@@ -158,7 +158,7 @@ class EEGMonitoring(QObject):
             self.monitor_timer.stop()
             self.status_callback.emit("Monitoring stopped")
         except BrainFlowError as e:
-            self.status_callback(f"Error stopping monitoring: {e}")
+            self.status_callback.emit(f"Error stopping monitoring: {e}")
 
     def resume_monitoring(self):
         """
@@ -169,7 +169,7 @@ class EEGMonitoring(QObject):
             self.monitor_timer.start()
             self.status_callback.emit("Monitoring resumed")
         except BrainFlowError as e:
-            self.status_callback(f"Error resuming monitoring: {e}")
+            self.status_callback.emit(f"Error resuming monitoring: {e}")
 
     #----------------- Private methods --------------------
 
@@ -182,7 +182,7 @@ class EEGMonitoring(QObject):
             # Preprocess and train ASR, buffer size is 10
             baseline_data = baseline_data[1:9]
             baseline_data_pp = self._preprocess_data(baseline_data, self.sampling_rate)
-            self._train_asr_filter(baseline_data_pp, self.sampling_rate)
+            #self._train_asr_filter(baseline_data_pp, self.sampling_rate)
 
             # Emit signal that baseline recording is complete
             self.baseline_complete_signal.emit()
@@ -191,6 +191,8 @@ class EEGMonitoring(QObject):
             self.status_callback(f"BrainFlowError occurred: {e}")
 
     def _monitor_cognitive_load(self):
+
+        print("Test")
 
         # Fail-safe, probably not needed
         if not self.session_active:
@@ -225,6 +227,8 @@ class EEGMonitoring(QObject):
                     'cognitive_load': cognitive_load
                 }
                 self.powers.emit(data)
+
+
 
                 # Speichere die berechneten Werte und den Zeitstempel direkt in die HDF5-Datei
                 self._save_eeg_data_as_hdf5(timestamp, theta_power, alpha_power, beta_power, cognitive_load)
@@ -306,7 +310,7 @@ class EEGMonitoring(QObject):
         # TODO: Since this is not the main entry point, there is little point in doing this here. If somebody wants to clean up that would be lovely
         parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
         parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards', required=False, default=BoardIds.SYNTHETIC_BOARD)
-        args = parser.parse_args(['--serial-port', 'COM3', '--board-id', '-1'])
+        args = parser.parse_args(['--serial-port', 'COM3', '--board-id', BoardIds.CYTON_BOARD ]) #BoardIds.CYTON_BOARD
 
         # Connect to the board
         params = BrainFlowInputParams()

@@ -9,6 +9,7 @@ from app.model.eegMonitoring import EEGMonitoring
 from app.model import settings
 from PyQt6.QtCore import QThread
 from app.model.testLogic import testLogic
+from app.model.calculateScore import calculateScore
 
 # GUI imports
 from app.view.rootWindow import RootWindow
@@ -32,6 +33,7 @@ class Controller():
         # GUI
         self.gui = RootWindow(self.settings_model.settings)
         self.testLogic = testLogic()
+        self.calculateScore = calculateScore()
 
         # Settings
         self.gui.settings_action.triggered.connect(self.gui.main_window.toggle_settings)
