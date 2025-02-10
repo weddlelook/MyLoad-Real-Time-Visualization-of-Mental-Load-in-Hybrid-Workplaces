@@ -25,8 +25,6 @@ class testLogic(QObject):
         self.test_timer = QTimer()
         self.test_timer.setSingleShot(True)
 
-
-
     # Funktion zum Start des Maxtest und des Timers für diesen
     # Wird im Controller aufgerufen sobald der Baseline Test fertig istw
     # Hier könnte dann auch noch eine Zahl übergeben werden n falls verschiedene n Backtest gemacht werden sollen

@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, QSize, QDir
 from PyQt6.QtGui import QFont, QIcon, QPixmap
 from setuptools.warnings import InformationOnly
 import os
+from ..constants import *
 
 
 class StartMaxTestPage(QWidget):
@@ -44,7 +45,7 @@ class StartMaxTestPage(QWidget):
 
         # Popup als Info zum skippen / Kann man sich überlegen das direkt auf den skip button zu machen
         # Hier Icon einfügen
-        info_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "styles/images/info.png"))
+        info_icon_path = getAbsPath(FILE_PATH_INFO_ICON)
         self.skipMaxtestButton.setIcon(QIcon(info_icon_path))
         #self.info_icon = QLabel()
         #self.pixmap = QPixmap(bild_pfad) # geht aber wahrscheinlich net schön

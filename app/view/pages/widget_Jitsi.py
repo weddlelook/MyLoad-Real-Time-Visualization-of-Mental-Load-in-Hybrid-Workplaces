@@ -4,7 +4,8 @@ from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEng
 from PyQt6.QtCore import QUrl, QTimer, Qt
 import os
 from pathlib import Path
-from app.view.plotWidget import EEGPlotWidget
+from .widget_Plot import EEGPlotWidget
+from ..constants import *
 
 
 class CustomWebEnginePage(QWebEnginePage):
@@ -63,8 +64,7 @@ class JitsiWidget(QWidget):
 
     ''' takes the room_name from controller object in jitsi_page, and makes the browser show the intended html file. '''
     def load_jitsi_meeting(self, room_name):
-        base_path = Path(__file__).resolve().parent
-        html_path = base_path / "styles" / "jitsi.html"
+        html_path = getAbsPath(FILE_PATH_JITSI_HTML)
 
         url = QUrl.fromLocalFile(str(html_path))
         url.setQuery(f"room_name={room_name}")
