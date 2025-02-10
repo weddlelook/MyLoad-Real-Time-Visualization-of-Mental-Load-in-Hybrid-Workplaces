@@ -48,6 +48,8 @@ class Controller():
         # Get the start widget and its index
         self.gui.show_toolbar(True)
         widget = self.gui.main_window.set_page("start")
+        widget.session_input.clear()
+        widget.jitsi_input.clear()
 
         # saving room name in controller object, so that we reach it later 
         widget.user_input_entered.connect(lambda: self.set_room_name(widget.jitsi_room_name))
