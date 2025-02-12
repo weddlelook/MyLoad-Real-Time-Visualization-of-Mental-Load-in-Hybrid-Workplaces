@@ -1,12 +1,14 @@
 import argparse # argparse is a module that allows you to parse arguments passed to your script when running it from the command line
-import asyncio
 import numpy as np
 import time
-import h5py
+
+# Board Utilities
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 from meegkit.asr import ASR
 from brainflow.exit_codes import BrainFlowError
+
+# PyQt6 Imports
 from PyQt6.QtCore import  pyqtSignal, QTimer, QThread, pyqtSlot, QObject
 
 class EEGMonitoring(QObject):
@@ -24,13 +26,12 @@ class EEGMonitoring(QObject):
 
     NUM_CHANNELS = 8
 
-    def __init__(self, hdf5_file):
+    def __init__(self):
         super().__init__()
         self.board_shim = None
         self.sampling_rate = None
         self.asr = None
         self.session_active = False
-        self.filename = hdf5_file
         self.monitor_timer = None
         self.phase_timer = None
         self.minwert = 2200
@@ -66,17 +67,8 @@ class EEGMonitoring(QObject):
 
         :time Time to record data for in milliseconds
         """
-        if not session_active:
+        if not self.session_active:
             self.start_monitoring()
-
-        self.status_callback.emit("Starting ASR Baseline recording for 60 seconds!")
-        try:
-            self.status_callback.emit("Recording baseline...")
-            self.phase_timer = QTimer()
-            self.phase_timer.singleShot(time, _finish_baseline_recording)
-
-        except BrainFlowError as e:
-            self.status_callback(f"BrainFlowError occurred: {e}")
 
         def _finish_baseline_recording(self):
             try:
@@ -86,13 +78,22 @@ class EEGMonitoring(QObject):
                 # Preprocess and train ASR, buffer size is 10
                 baseline_data = baseline_data[1:9]
                 baseline_data_pp = self._preprocess_data(baseline_data, self.sampling_rate)
-                self._train_asr_filter(baseline_data_pp, self.sampling_rate)
+                # _self._train_asr_filter(baseline_data_pp, self.sampling_rate)
 
                 # Emit signal that baseline recording is complete
                 self.baseline_complete.emit()
 
             except BrainFlowError as e:
                 self.status_callback.emit(f"BrainFlowError occurred: {e}")
+
+        self.status_callback.emit("Starting ASR Baseline recording for 60 seconds!")
+        try:
+            self.status_callback.emit("Recording baseline...")
+            self.phase_timer = QTimer()
+            self.phase_timer.singleShot(time, lambda:_finish_baseline_recording(self))
+
+        except BrainFlowError as e:
+            self.status_callback(f"BrainFlowError occurred: {e}")
 
     def record_min(self, time:int):
         """
@@ -159,11 +160,6 @@ class EEGMonitoring(QObject):
 
         self.board_shim.start_stream()
 
-        # Setting up timer for monitoring function
-        self.monitor_timer = QTimer()
-        self.monitor_timer.setInterval(1000)  # Update every second
-        self.monitor_timer.timeout.connect(self._monitor_cognitive_load)
-
         self.status_callback.emit("Starting EEG recording for video meetings!")
         self.session_active = True
 
@@ -202,15 +198,15 @@ class EEGMonitoring(QObject):
                     }
                     self.powers.emit(data)
 
-
-
-                    # Speichere die berechneten Werte und den Zeitstempel direkt in die HDF5-Datei
-                    self._save_eeg_data_as_hdf5(timestamp, theta_power, alpha_power, beta_power, cognitive_load)
-
                 self.update_count += 1
 
             except Exception as e:
                 self.status_callback.emit(f"Error during monitoring: {e}")
+
+        # Setting up timer for monitoring function
+        self.monitor_timer = QTimer()
+        self.monitor_timer.setInterval(1000)  # Update every second
+        self.monitor_timer.timeout.connect(lambda: _monitor_cognitive_load(self))
 
         try:
             self.status_callback.emit("Starting live recording!")
@@ -239,21 +235,6 @@ class EEGMonitoring(QObject):
             self.status_callback.emit(f"Error stopping monitoring: {e}")
 
     #----------------- Private methods --------------------
-
-
-    def _save_eeg_data_as_hdf5(self, timestamp, theta_power, alpha_power, beta_power, cognitive_load):
-        """
-        Speichert die EEG-Daten als HDF5-Datei.
-        TODO: Depending on where we implement the calculation of CL out of the powers, we might want to move this function to the controller or implement the calculation of CL here
-              The file layout also needs adjustment for the CL if we also store that in the file
-        """
-        # Neue Daten hinzufügen
-        with h5py.File(self.filename, 'a') as h5_file:
-            eeg_dataset = h5_file['EEG_data']
-            new_index = eeg_dataset.shape[0]
-
-            eeg_dataset.resize((new_index + 1,))
-            eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power, cognitive_load)
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:

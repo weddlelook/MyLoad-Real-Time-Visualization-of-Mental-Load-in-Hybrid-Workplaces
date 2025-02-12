@@ -10,6 +10,7 @@ from app.model import settings
 from PyQt6.QtCore import QThread
 from app.model.testLogic import testLogic
 from app.model.calculateScore import calculateScore
+from app.model.hdf5Util import hdf5File
 
 # GUI imports
 from app.view.rootWindow import RootWindow
@@ -28,12 +29,14 @@ class Controller():
         self.monitorWorker = None  # Instantiate only on session start
         self.monitorThread = QThread()
 
-        #Settings Model
+        # Models
         self.settings_model = settings.SettingsModel()
-        # GUI
-        self.gui = RootWindow(self.settings_model.settings)
         self.testLogic = testLogic()
         self.calculateScore = calculateScore()
+        self.sessionFile = None
+
+        # View
+        self.gui = RootWindow(self.settings_model.settings)
 
         # Settings
         self.gui.settings_action.triggered.connect(self.gui.main_window.toggle_settings)
@@ -69,19 +72,19 @@ class Controller():
         widget.monitor_baseline_button.clicked.connect(lambda: self.baseline_page(file_name))
 
     def baseline_page(self, file_name):
-        folder_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
-        self.eegWorker = EEGMonitoring(create_h5_file(folder_path, file_name))
+        self.eegWorker = EEGMonitoring()
+        self.sessionFile = hdf5File(file_name)
         self.eegWorker.moveToThread(self.monitorThread)
         self.monitorThread.started.connect(self.eegWorker.set_up)
-        self.monitorThread.started.connect(self.eegWorker.record_asr_baseline)
+        self.monitorThread.started.connect(lambda: self.eegWorker.record_asr_baseline(1000))
 
         self.monitorThread.start()
         self.gui.show_toolbar(False)
         self.gui.main_window.set_page('baseline')
 
-        self.eegWorker.baseline_complete_signal.connect(self.eegWorker.start_monitoring)
+        self.eegWorker.baseline_complete.connect(self.eegWorker.start_monitoring)
 
-        self.eegWorker.baseline_complete_signal.connect(self.start_maxtest_page)
+        self.eegWorker.baseline_complete.connect(self.start_maxtest_page)
 
     def skip_page(self):
         pass
@@ -93,6 +96,7 @@ class Controller():
         self.eegWorker.powers.connect(widget.update_plot)
         self.eegWorker.powers.connect(self.calculateScore.calculatingScore())
         self.calculateScore.score.connect(widget.update_score)
+        self.eegWorker.powers.connect(self.sessionFile.safe_eeg_data_as_hdf5)
 
     def start_maxtest_page(self):
         self.gui.show_toolbar(False)
@@ -129,6 +133,8 @@ class Controller():
         widget.next_button.clicked.connect(self.jitsi_page) # muss noch verbunden werden
 
     def jitsi_page(self): 
+        self.eegWorker.powers.connect(self.sessionFile.save_eeg_data_as_hdf5)
+        self.eegWorker.powers.connect(self.testprint)
         self.gui.show_toolbar(True)
         jitsi_widget = self.gui.main_window.set_page("jitsi")
         # takes the room name from controller object and gives it to the jitsi view
