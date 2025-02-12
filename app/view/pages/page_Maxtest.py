@@ -33,6 +33,7 @@ class MaxtestPage(QWidget):
         #Button für falsches Zeichen des N-Backtests
         self.skip_button = QPushButton('Skip')
         h_layout.addWidget(self.skip_button, alignment = Qt.AlignmentFlag.AlignCenter) # Button ausrichten und einfügen
+        self.correct_button.hide()
 
         layout.addLayout(h_layout)
         self.setLayout(layout)
@@ -40,6 +41,9 @@ class MaxtestPage(QWidget):
 
     def updateChar(self, testChar):
         self.charForTest.setText(testChar)
+
+    def show_correct_button(self):
+        self.correct_button.show()
 
 
 

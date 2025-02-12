@@ -7,13 +7,14 @@ from PyQt6.QtCore import QTimer, pyqtSignal, QObject
 class testLogic(QObject):
 
     charSubmiter = pyqtSignal(str)
+    showButton = pyqtSignal()
 
 
     def __init__(self):
         super().__init__()
         self.charList = []
         self.booleanList = []
-        self.n = 2  # N ist N backtest Zahl wenn später durch funktion übergeben hier einfach dann gleich 0 eingeben
+        self.n = 3  # N ist N backtest Zahl wenn später durch funktion übergeben hier einfach dann gleich 0 eingeben
 
         """
         Dat Problem war, dass du den schon connected hast bevor du 
@@ -29,7 +30,7 @@ class testLogic(QObject):
     # Wird im Controller aufgerufen sobald der Baseline Test fertig istw
     # Hier könnte dann auch noch eine Zahl übergeben werden n falls verschiedene n Backtest gemacht werden sollen
     def startTest(self):
-        self.test_timer.start(10000)
+        self.test_timer.start(60000)
         self.generateChar()
         #self.n = n
 
@@ -42,7 +43,7 @@ class testLogic(QObject):
             testChar = random.choice(string.ascii_uppercase)
             if len(self.charList) >= self.n :
                 nBackChar = self.charList[len(self.charList) - self.n]
-                testChar = random.choices([testChar, nBackChar], [10, 90])[0]
+                testChar = random.choices([testChar, nBackChar], [70, 30])[0]
             self.charList.append(testChar)
             self.charSubmiter.emit(testChar)
 
@@ -60,6 +61,9 @@ class testLogic(QObject):
     def skipButtonClicked(self):
         self.booleanList.append(False)
         self.generateChar()
+        if len(self.booleanList) == self.n :
+            self.showButton.emit()
+
 
 
     # Diese Funktion berechnet aus der Liste der Buchstaben und der Liste der booleans also welcher Knopf gedrückt wurde
