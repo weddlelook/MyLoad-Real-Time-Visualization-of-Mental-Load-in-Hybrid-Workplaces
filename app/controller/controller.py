@@ -134,7 +134,6 @@ class Controller():
 
     def jitsi_page(self): 
         self.eegWorker.powers.connect(self.sessionFile.save_eeg_data_as_hdf5)
-        self.eegWorker.powers.connect(self.testprint)
         self.gui.show_toolbar(True)
         jitsi_widget = self.gui.main_window.set_page("jitsi")
         # takes the room name from controller object and gives it to the jitsi view
