@@ -91,6 +91,8 @@ class Controller():
         widget = self.gui.main_window.set_page('plot')
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(widget.update_plot)
+        self.eegWorker.powers.connect(self.calculateScore.calculatingScore())
+        self.calculateScore.score.connect(widget.update_score)
 
     def start_maxtest_page(self):
         self.gui.show_toolbar(False)
@@ -142,6 +144,8 @@ class Controller():
         plot_widget = jitsi_widget.plot_widget
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(plot_widget.update_plot)
+        self.eegWorker.powers.connect(self.calculateScore.calculatingScore)
+        self.calculateScore.score.connect(plot_widget.update_score)
 
     #Currently this function is never called instead to open this page toggle_retrospective in mainWidget is called
     def retrospective_page(self):
