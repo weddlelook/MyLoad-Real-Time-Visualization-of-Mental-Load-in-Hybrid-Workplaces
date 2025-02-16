@@ -6,8 +6,8 @@ class calculateScore(QObject):
 
     def __init__(self):
         super().__init__()
-        self.maxScore = 8
-        self.baselineScore = 2
+        self.maxScore = 1
+        self.baselineScore = 0
 
 
 
@@ -25,25 +25,25 @@ class calculateScore(QObject):
 
     def calculatingScore(self, powers):
 
-        self.currentScore = 0
+        self.currentindex = 0
 
-        self.currentScore = powers['cognitive_load']
+        self.currentindex = powers['cognitive_load']
         print("theta")
         print(powers['theta_power'])
         print("alpha")
         print(powers['alpha_power'])
         print( "cogloadindex")
-        print(self.currentScore)
+        print(self.currentindex)
 
-        scorePercentage = 10 + (self.currentScore - self.baselineScore) / (self.maxScore - self.baselineScore) * 80
-        print(scorePercentage)
-        if scorePercentage < 0:
-            scorePercentage = 0
-        elif scorePercentage > 100:
-            scorePercentage = 100
+        score = 10 + (self.currentScore - self.baselineScore) / (self.maxScore - self.baselineScore) * 80
+        print(score)
+        if score < 0:
+            score = 0
+        elif score > 100:
+            score = 100
         print("Score")
-        print(scorePercentage)
-        self.score.emit(int(scorePercentage))
+        print(score)
+        self.score.emit(int(score))
 
 
 

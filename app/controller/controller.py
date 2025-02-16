@@ -86,6 +86,9 @@ class Controller():
     def skip_page(self):
         pass
 
+
+    ''' 
+                                    (not used anymore)
     def monitoring_page(self):
         self.gui.show_toolbar(False)
         widget = self.gui.main_window.set_page('plot')
@@ -93,7 +96,7 @@ class Controller():
         self.eegWorker.powers.connect(widget.update_plot)
         self.eegWorker.powers.connect(self.calculateScore.calculatingScore())
         self.calculateScore.score.connect(widget.update_score)
-
+    '''
     def start_maxtest_page(self):
         self.gui.show_toolbar(False)
 

@@ -88,13 +88,13 @@ class EEGMonitoring(QObject):
         if not self.session_active:
             self.start_monitoring()
 
-        def _calculate_min(self, powers):
+        def _calculate_min(powers):
             print("calculating min")
 
             if powers["cognitive_load"] < self.minwert:
                 self.minwert = powers["cognitive_load"]
 
-        def _finish_min_recording(self):
+        def _finish_min_recording():
             self.status_callback.emit("finished min recording")
             self.powers.disconnect(self._calculate_min)
             print(self.minwert)
@@ -107,14 +107,14 @@ class EEGMonitoring(QObject):
         if not self.session_active:
             self.start_monitoring()
 
-        def _calculate_max(self,powers):
+        def _calculate_max(powers):
             print("calculating min")
 
             if powers["cognitive_load"] > self.maxwert:
                 self.maxwert = powers["cognitive_load"]
 
 
-        def _finish_max_recording(self):
+        def _finish_max_recording():
             self.status_callback.emit("finished min recording")
             self.powers.disconnect(self._calculate_max)
             print(self.maxwert)
