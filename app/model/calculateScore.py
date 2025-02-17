@@ -35,7 +35,7 @@ class calculateScore(QObject):
         print( "cogloadindex")
         print(self.currentindex)
 
-        score = 10 + (self.currentScore - self.baselineScore) / (self.maxScore - self.baselineScore) * 80
+        score = 10 + (self.currentindex - self.baselineScore) / (self.maxScore - self.baselineScore) * 80
         print(score)
         if score < 0:
             score = 0

@@ -20,6 +20,7 @@ class EEGMonitoring(QObject):
     #Phase signal
     baseline_complete_signal = pyqtSignal() # Signal that the baseline recording is complete
     min_complete = pyqtSignal()
+    max_complete = pyqtSignal()
 
     NUM_CHANNELS = 8
 
@@ -57,12 +58,7 @@ class EEGMonitoring(QObject):
         self.board_shim.start_stream()
 
         # Setting up timer for monitoring function
-        self.monitor_timer = QTimer()
-        self.monitor_timer.setInterval(1000)  # Update every second
-        self.monitor_timer.timeout.connect(self._monitor_cognitive_load)
 
-        # Setting up timer for the phases of recording
-        self.phase_timer = QTimer()
 
     # ------------------------ Phases ----------------------------------------------------
 
@@ -113,7 +109,7 @@ class EEGMonitoring(QObject):
         self.phase_timer = QTimer()
         self.phase_timer.singleShot(time, _finish_min_recording)
 
-    def record_max(self):
+    def record_max(self, time:int):
         self.status_callback.emit("Starting maximum CL recording")
         if not self.session_active:
             self.start_monitoring()
@@ -153,6 +149,9 @@ class EEGMonitoring(QObject):
 
             # Start the streaming session
             self.session_active = True
+            self.monitor_timer = QTimer()
+            self.monitor_timer.setInterval(1000)  # Update every second
+            self.monitor_timer.timeout.connect(self._monitor_cognitive_load)
             self.monitor_timer.start()  # Start the periodic updates using QTimer
 
         except Exception as e:

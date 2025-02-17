@@ -121,7 +121,8 @@ class Controller():
         self.testLogic.showButton.connect(widget.show_correct_button)
 
         self.testLogic.charSubmiter.connect(widget.updateChar)
-        self.testLogic.test_timer.timeout.connect(self.results_page)
+        self.eegWorker.max_complete.connect(self.results_page)
+        #self.testLogic.test_timer.timeout.connect(self.results_page)
         self.testLogic.startTest()
 
     def results_page(self):
@@ -132,6 +133,9 @@ class Controller():
         # Connect the two buttons to skip the next symbol
         # I changed the connection from plotWidget to JitsiWidget for testing the jitsi page
         widget.next_button.clicked.connect(self.jitsi_page) # muss noch verbunden werden
+
+        self.calculateScore.setMaxScore(self.eegWorker.maxwert)
+        self.calculateScore.setBaselineScore(self.eegWorker.minwert)
 
     def jitsi_page(self):
         self.gui.show_toolbar(True)
@@ -150,7 +154,7 @@ class Controller():
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(plot_widget.update_plot)
         self.eegWorker.powers.connect(self.calculateScore.calculatingScore)
-        self.calculateScore.score.connect(plot_widget.update_score)
+        self.calculateScore.score.connect(plot_widget.updateScore)
 
     #Currently this function is never called instead to open this page toggle_retrospective in mainWidget is called
     def retrospective_page(self):
