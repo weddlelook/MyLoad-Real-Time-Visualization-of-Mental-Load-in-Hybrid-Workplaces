@@ -30,7 +30,7 @@ class testLogic(QObject):
     # Wird im Controller aufgerufen sobald der Baseline Test fertig istw
     # Hier könnte dann auch noch eine Zahl übergeben werden n falls verschiedene n Backtest gemacht werden sollen
     def startTest(self):
-        self.test_timer.start(60000)
+        self.test_timer.start(10000)
         self.generateChar()
         #self.n = n
 

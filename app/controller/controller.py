@@ -30,9 +30,10 @@ class Controller():
         self.monitorThread = QThread()
 
         # Models
+        self.eegWorker = EEGMonitoring()
         self.settings_model = settings.SettingsModel()
         self.testLogic = testLogic()
-        self.calculateScore = calculateScore()
+        self.calculateScore = None # Instantiate after max_complete signal
         self.sessionFile = None
 
         # View
@@ -72,7 +73,6 @@ class Controller():
         widget.monitor_baseline_button.clicked.connect(lambda: self.baseline_page(file_name))
 
     def baseline_page(self, file_name):
-        self.eegWorker = EEGMonitoring()
         self.sessionFile = hdf5File(file_name)
         self.eegWorker.moveToThread(self.monitorThread)
         self.monitorThread.started.connect(self.eegWorker.set_up)
@@ -117,6 +117,12 @@ class Controller():
         self.testLogic.test_timer.timeout.connect(self.results_page)
         self.testLogic.startTest()
 
+        self.eegWorker.max_complete.connect(self._set_calculateScore)
+
+    def _set_calculateScore(self):
+            I_Base, I_Max = self.eegWorker.minwert, self.eegWorker.maxwert
+            self.calculateScore = calculateScore(I_Base, I_Max)
+
     def results_page(self):
         self.gui.show_toolbar(False)
         widget = self.gui.main_window.set_page('result')
@@ -144,7 +150,7 @@ class Controller():
         # Connect the EEGMonitoring thread to the EEGPlotWidget
         self.eegWorker.powers.connect(plot_widget.update_plot)
         self.eegWorker.powers.connect(self.calculateScore.calculatingScore)
-        self.calculateScore.score.connect(plot_widget.update_score)
+        self.calculateScore.score.connect(plot_widget.updateScore)
 
     #Currently this function is never called instead to open this page toggle_retrospective in mainWidget is called
     def retrospective_page(self):

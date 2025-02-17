@@ -1,49 +1,60 @@
 from PyQt6.QtCore import pyqtSignal, QObject
+import numpy as np
 
+'''
+We want to build a function for normalization of CLI values. Let name the function S. S should have the following features: 
+S: I --> (0,100)
+I = (0, ∞)
+IBase, IMax ∈ I
+S(IBase) ≈ 10
+S(IMax) ≈ 90
+lim I -> 0 S(I) = 0
+lim I -> ∞ S(I) = 100
+S is degressiv (? not decided on yet)
 
+In the following there is the function logistic function, which fulfills the required features
+
+'''
 class calculateScore(QObject):
     score = pyqtSignal(int)
 
-    def __init__(self):
+    def __init__(self, I_base, I_max):
         super().__init__()
-        self.maxScore = 8
-        self.baselineScore = 2
+        self.I_base = I_base
+        self.I_max = I_max
+        self.k, self.I_0 = self._solve_parameters()
 
+    def _solve_parameters(self):
+        """ Solves for logistic function parameters k and I_0. """
+        S_base, S_max = 10, 90  # Desired output mappings
+        logit_base = np.log(S_base / (100 - S_base))
+        logit_max = np.log(S_max / (100 - S_max))
 
+        k = (logit_max - logit_base) / (self.I_max - self.I_base)
+        I_0 = self.I_base - logit_base / k
+        return k, I_0
 
-
-
-
-    def setMaxScore(self, maxScore):
-        self.maxScore = maxScore
-
-
-
-    def setBaselineScore(self, baselineScore):
-        self.baselineScore = baselineScore
 
 
     def calculatingScore(self, powers):
 
-        self.currentScore = 0
+        self.currentIndex = 0
 
-        self.currentScore = powers['cognitive_load']
+        print(self.I_base)
+        print(self.I_max)
+        self.currentIndex = powers['cognitive_load']
         print("theta")
         print(powers['theta_power'])
         print("alpha")
         print(powers['alpha_power'])
         print( "cogloadindex")
-        print(self.currentScore)
+        print(self.currentIndex)
 
-        scorePercentage = 10 + (self.currentScore - self.baselineScore) / (self.maxScore - self.baselineScore) * 80
-        print(scorePercentage)
-        if scorePercentage < 0:
-            scorePercentage = 0
-        elif scorePercentage > 100:
-            scorePercentage = 100
-        print("Score")
-        print(scorePercentage)
-        self.score.emit(int(scorePercentage))
+        CLScore = 100 / (1 + np.exp(-self.k * (self.currentIndex - self.I_0)))
+        
+        print("CLScore")
+        print(CLScore)
+        self.score.emit(int(CLScore))
 
 
 
