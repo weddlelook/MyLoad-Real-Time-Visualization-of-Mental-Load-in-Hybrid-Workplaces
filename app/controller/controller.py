@@ -114,7 +114,8 @@ class Controller():
         self.testLogic.showButton.connect(widget.show_correct_button)
 
         self.testLogic.charSubmiter.connect(widget.updateChar)
-        self.testLogic.test_timer.timeout.connect(self.results_page)
+        self.eegWorker.max_complete.connect(self.results_page)
+        #self.testLogic.test_timer.timeout.connect(self.results_page)
         self.testLogic.startTest()
 
         self.eegWorker.max_complete.connect(self._set_calculateScore)

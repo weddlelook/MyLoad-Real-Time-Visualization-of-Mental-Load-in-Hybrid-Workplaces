@@ -222,6 +222,9 @@ class EEGMonitoring(QObject):
 
             # Start the streaming session
             self.session_active = True
+            self.monitor_timer = QTimer()
+            self.monitor_timer.setInterval(1000)  # Update every second
+            self.monitor_timer.timeout.connect(self._monitor_cognitive_load)
             self.monitor_timer.start()  # Start the periodic updates using QTimer
 
         except Exception as e:
