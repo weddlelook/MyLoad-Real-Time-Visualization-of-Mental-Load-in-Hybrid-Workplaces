@@ -1,12 +1,14 @@
 import argparse # argparse is a module that allows you to parse arguments passed to your script when running it from the command line
-import asyncio
 import numpy as np
 import time
-import h5py
+
+# Board Utilities
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 from meegkit.asr import ASR
 from brainflow.exit_codes import BrainFlowError
+
+# PyQt6 Imports
 from PyQt6.QtCore import  pyqtSignal, QTimer, QThread, pyqtSlot, QObject
 
 class EEGMonitoring(QObject):
@@ -18,19 +20,18 @@ class EEGMonitoring(QObject):
     status_callback = pyqtSignal(str) # Signals current status of the EEG monitor
 
     #Phase signal
-    baseline_complete_signal = pyqtSignal() # Signal that the baseline recording is complete
+    baseline_complete = pyqtSignal() # Signal that the baseline recording is complete
     min_complete = pyqtSignal()
     max_complete = pyqtSignal()
 
     NUM_CHANNELS = 8
 
-    def __init__(self, hdf5_file):
+    def __init__(self):
         super().__init__()
         self.board_shim = None
         self.sampling_rate = None
         self.asr = None
         self.session_active = False
-        self.filename = hdf5_file
         self.monitor_timer = None
         self.phase_timer = None
         self.minwert = 2200
@@ -43,7 +44,7 @@ class EEGMonitoring(QObject):
         # NOTE: This will be taken out later, but for now lets log all status updates
         self.status_callback.connect(print)
 
-        # NOTE: Starting streaming only once now
+        self._connect_board()
 
     def set_up(self):
         """
@@ -54,27 +55,42 @@ class EEGMonitoring(QObject):
         they always belong to the thread they were instatniated on and can only be started and stopped
         in that thread.
         """
-        self._connect_board()
-        self.board_shim.start_stream()
-
-        # Setting up timer for monitoring function
-
+        pass
 
     # ------------------------ Phases ----------------------------------------------------
 
-    def record_asr_baseline(self):
+    def record_asr_baseline(self, time:int):
         """
-        This method starts the Board-Stream and timer for the Baseline recording.
-        The private method finish_baseline_recording will be called at the end of the timer to
-        process the data internally, once it is done a finish signal will be emitted.
-        You can place a slot on that to adjust the GUI/Other appropriatly.
-        (signal.connect(slot) <- in case confusion exist about what terminology)
+        Records board data and trains the asr-filter
+        Emits baseline_complete signal when done
+        NOTE: Do not call this function unless you are using synthetic data
+
+        :time Time to record data for in milliseconds
         """
+        if not self.session_active:
+            self.start_monitoring()
+
+        def _finish_baseline_recording(self):
+            try:
+                # Get data from ring buffer
+                baseline_data = self.board_shim.get_board_data()
+
+                # Preprocess and train ASR, buffer size is 10
+                baseline_data = baseline_data[1:9]
+                baseline_data_pp = self._preprocess_data(baseline_data, self.sampling_rate)
+                # _self._train_asr_filter(baseline_data_pp, self.sampling_rate)
+
+                # Emit signal that baseline recording is complete
+                self.baseline_complete.emit()
+
+            except BrainFlowError as e:
+                self.status_callback.emit(f"BrainFlowError occurred: {e}")
+
         self.status_callback.emit("Starting ASR Baseline recording for 60 seconds!")
         try:
             self.status_callback.emit("Recording baseline...")
             self.phase_timer = QTimer()
-            self.phase_timer.singleShot(3000, self._finish_baseline_recording)
+            self.phase_timer.singleShot(time, lambda:_finish_baseline_recording(self))
 
         except BrainFlowError as e:
             self.status_callback(f"BrainFlowError occurred: {e}")
@@ -110,6 +126,13 @@ class EEGMonitoring(QObject):
         self.phase_timer.singleShot(time, _finish_min_recording)
 
     def record_max(self, time:int):
+        """
+        Records the maximum cognitive load over the given duration tracks the highest value
+        Value can be accessed via {self.maxwert}
+        Emits max_complete signal when done
+
+        :time time to record for in milliseconds
+        """
         self.status_callback.emit("Starting maximum CL recording")
         if not self.session_active:
             self.start_monitoring()
@@ -137,8 +160,58 @@ class EEGMonitoring(QObject):
         emitted with fresh data every second until the process is paused or shut down.   
         It also will write the data to h5-File specified on __init__
         """
+        if self.session_active:
+            return
+
+        self.board_shim.start_stream()
+
         self.status_callback.emit("Starting EEG recording for video meetings!")
         self.session_active = True
+
+        def _monitor_cognitive_load(self):
+            # Fail-safe, probably not needed
+            if not self.session_active:
+                self.monitor_timer.stop()
+                return
+
+            try:
+                new_data = self.board_shim.get_board_data()
+
+                if new_data.shape[0] < self.NUM_CHANNELS:
+                    raise ValueError(
+                        f"Board does not provide enough channels: "
+                        f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
+
+                if self.update_count > 0:  # Beginne erst nach dem ersten Update mit der Datenerfassung
+
+                    transformed_data = new_data[:self.NUM_CHANNELS, :]
+                    self.data_buffer = np.hstack((self.data_buffer[:, new_data.shape[1]:], transformed_data))
+
+                    theta_power, alpha_power, beta_power = self._calculate_powers(self.data_buffer, self.sampling_rate)
+
+                    # Data to be emitted
+                    timestamp = time.time()
+                    cognitive_load = 0
+                    if alpha_power != 0:
+                        cognitive_load = theta_power / alpha_power
+                    data = {
+                        'timestamp': timestamp,
+                        'theta_power': theta_power,
+                        'alpha_power': alpha_power,
+                        'beta_power': beta_power,
+                        'cognitive_load': cognitive_load
+                    }
+                    self.powers.emit(data)
+
+                self.update_count += 1
+
+            except Exception as e:
+                self.status_callback.emit(f"Error during monitoring: {e}")
+
+        # Setting up timer for monitoring function
+        self.monitor_timer = QTimer()
+        self.monitor_timer.setInterval(1000)  # Update every second
+        self.monitor_timer.timeout.connect(lambda: _monitor_cognitive_load(self))
 
         try:
             self.status_callback.emit("Starting live recording!")
@@ -160,7 +233,7 @@ class EEGMonitoring(QObject):
     def pause_monitoring(self):
         """
         Temporarily stops the monitoring process, no powers will be emitted or files be written
-        Resume with resume_monitoring
+        Resume with resume_monitoring 
         """
         try:
             self.session_active = False
@@ -169,97 +242,7 @@ class EEGMonitoring(QObject):
         except BrainFlowError as e:
             self.status_callback.emit(f"Error stopping monitoring: {e}")
 
-    def resume_monitoring(self):
-        """
-        Resumes monitoring
-        """
-        try:
-            self.session_active = True
-            self.monitor_timer.start()
-            self.status_callback.emit("Monitoring resumed")
-        except BrainFlowError as e:
-            self.status_callback.emit(f"Error resuming monitoring: {e}")
-
     #----------------- Private methods --------------------
-
-    def _finish_baseline_recording(self):
-        print ("Baseline recording finished")
-        try:
-            # Stop streaming session and get data
-            baseline_data = self.board_shim.get_board_data()
-
-            # Preprocess and train ASR, buffer size is 10
-            baseline_data = baseline_data[1:9]
-            baseline_data_pp = self._preprocess_data(baseline_data, self.sampling_rate)
-            #self._train_asr_filter(baseline_data_pp, self.sampling_rate)
-
-            # Emit signal that baseline recording is complete
-            self.baseline_complete_signal.emit()
-
-        except BrainFlowError as e:
-            self.status_callback.emit(f"BrainFlowError occurred: {e}")
-
-    def _monitor_cognitive_load(self):
-
-        print("Test")
-
-        # Fail-safe, probably not needed
-        if not self.session_active:
-            self.monitor_timer.stop()
-            return
-
-        try:
-            new_data = self.board_shim.get_board_data()
-
-            if new_data.shape[0] < self.NUM_CHANNELS:
-                raise ValueError(
-                    f"Board does not provide enough channels: "
-                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
-
-            if self.update_count > 0:  # Beginne erst nach dem ersten Update mit der Datenerfassung
-
-                transformed_data = new_data[:self.NUM_CHANNELS, :]
-                self.data_buffer = np.hstack((self.data_buffer[:, new_data.shape[1]:], transformed_data))
-
-                theta_power, alpha_power, beta_power = self._calculate_powers(self.data_buffer, self.sampling_rate)
-
-                # Data to be emitted
-                timestamp = time.time()
-                cognitive_load = 0
-                if alpha_power != 0:
-                    cognitive_load = theta_power / alpha_power
-                data = {
-                    'timestamp': timestamp,
-                    'theta_power': theta_power,
-                    'alpha_power': alpha_power,
-                    'beta_power': beta_power,
-                    'cognitive_load': cognitive_load
-                }
-                self.powers.emit(data)
-
-
-
-                # Speichere die berechneten Werte und den Zeitstempel direkt in die HDF5-Datei
-                self._save_eeg_data_as_hdf5(timestamp, theta_power, alpha_power, beta_power, cognitive_load)
-
-            self.update_count += 1
-
-        except Exception as e:
-            self.status_callback.emit(f"Error during monitoring: {e}")
-
-    def _save_eeg_data_as_hdf5(self, timestamp, theta_power, alpha_power, beta_power, cognitive_load):
-        """
-        Speichert die EEG-Daten als HDF5-Datei.
-        TODO: Depending on where we implement the calculation of CL out of the powers, we might want to move this function to the controller or implement the calculation of CL here
-              The file layout also needs adjustment for the CL if we also store that in the file
-        """
-        # Neue Daten hinzufügen
-        with h5py.File(self.filename, 'a') as h5_file:
-            eeg_dataset = h5_file['EEG_data']
-            new_index = eeg_dataset.shape[0]
-
-            eeg_dataset.resize((new_index + 1,))
-            eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power, cognitive_load)
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:

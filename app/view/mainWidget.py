@@ -43,7 +43,6 @@ class MainWidget(QWidget):
         # NOTE: We could decide to not register all pages here, but instead register them 
         #       as we go along in the application lifecycle, but for now, we will register them all here
         self._register_page(p.StartWidget(), "start")
-        self._register_page(p.EEGPlotWidget(), "plot")
         self._register_page(p.BaselineWidget(), "baseline")
         self._register_page(p.StartBaselinePage(), "baselineStartPage")
         self._register_page(p.MaxtestPage(), "maxtest")
