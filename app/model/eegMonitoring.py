@@ -69,9 +69,9 @@ class EEGMonitoring(QObject):
     def record_asr_baseline(self):
         """
         This method starts the Board-Stream and timer for the Baseline recording.
-        The private method finish_baseline_recording will be called at the end of the timer to 
+        The private method finish_baseline_recording will be called at the end of the timer to
         process the data internally, once it is done a finish signal will be emitted.
-        You can place a slot on that to adjust the GUI/Other appropriatly. 
+        You can place a slot on that to adjust the GUI/Other appropriatly.
         (signal.connect(slot) <- in case confusion exist about what terminology)
         """
         self.status_callback.emit("Starting ASR Baseline recording for 60 seconds!")
@@ -83,24 +83,35 @@ class EEGMonitoring(QObject):
         except BrainFlowError as e:
             self.status_callback(f"BrainFlowError occurred: {e}")
 
-    def record_min(self):
-        self.status_callback.emit("Starting maximum CL recording")
+    def record_min(self, time:int):
+        """
+        Records the minimum cognitive load over the given duration tracks the lowest value
+        Value can be accessed via {self.minwert}
+        Emits min_complete signal when done
+
+        :time time to record for in milliseconds
+        """
+        if not self.session_active:
+            self.start_monitoring()
+
+        self.status_callback.emit("Starting minimum CL recording")
         if not self.session_active:
             self.start_monitoring()
 
         def _calculate_min(powers):
-            print("calculating min")
-
             if powers["cognitive_load"] < self.minwert:
                 self.minwert = powers["cognitive_load"]
+            print("calculate min")
 
         def _finish_min_recording():
             self.status_callback.emit("finished min recording")
-            self.powers.disconnect(self._calculate_min)
+            self.min_complete.emit()
+            self.powers.disconnect(_calculate_min)
             print(self.minwert)
 
-        self.powers.connect(self._calculate_min)
-        self.phase_timer.singleShot(10000, self._finish_min_recording)
+        self.powers.connect(_calculate_min)
+        self.phase_timer = QTimer()
+        self.phase_timer.singleShot(time, _finish_min_recording)
 
     def record_max(self):
         self.status_callback.emit("Starting maximum CL recording")
@@ -108,20 +119,18 @@ class EEGMonitoring(QObject):
             self.start_monitoring()
 
         def _calculate_max(powers):
-            print("calculating min")
-
             if powers["cognitive_load"] > self.maxwert:
                 self.maxwert = powers["cognitive_load"]
-
+            print("calculate max")
 
         def _finish_max_recording():
-            self.status_callback.emit("finished min recording")
-            self.powers.disconnect(self._calculate_max)
+            self.status_callback.emit("finished max recording")
+            self.powers.disconnect(_calculate_max)
+            self.max_complete.emit()
             print(self.maxwert)
 
-
-        self.powers.connect(self._calculate_max)
-        self.phase_timer.singleShot(10000, self._finish_min_max_recording)
+        self.powers.connect(_calculate_max)
+        self.phase_timer.singleShot(time, _finish_max_recording)
 
     # ------------------------ Basic monitoring functionality ---------------------------------
 
