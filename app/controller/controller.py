@@ -89,14 +89,6 @@ class Controller():
     def skip_page(self):
         pass
 
-    def monitoring_page(self):
-        self.gui.show_toolbar(False)
-        widget = self.gui.main_window.set_page('plot')
-        # Connect the EEGMonitoring thread to the EEGPlotWidget
-        self.eegWorker.powers.connect(widget.update_plot)
-        self.eegWorker.powers.connect(self.calculateScore.calculatingScore())
-        self.calculateScore.score.connect(widget.update_score)
-        self.eegWorker.powers.connect(self.sessionFile.safe_eeg_data_as_hdf5)
 
     def start_maxtest_page(self):
         self.gui.show_toolbar(False)
