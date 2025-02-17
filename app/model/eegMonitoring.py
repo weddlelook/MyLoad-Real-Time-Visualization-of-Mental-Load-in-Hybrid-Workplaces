@@ -106,20 +106,23 @@ class EEGMonitoring(QObject):
         if not self.session_active:
             self.start_monitoring()
 
-        self.status_callback.emit("Starting maximum CL recording")
+        self.status_callback.emit("Starting minimum CL recording")
         if not self.session_active:
             self.start_monitoring()
 
-        def _calculate_min(self, powers):
+        def _calculate_min(powers):
             if powers["cognitive_load"] < self.minwert:
                 self.minwert = powers["cognitive_load"]
+            print("calculate min")
 
-        def _finish_min_recording(self):
+        def _finish_min_recording():
             self.status_callback.emit("finished min recording")
             self.min_complete.emit()
-            self.powers.disconnect(self._calculate_min)
+            self.powers.disconnect(_calculate_min)
+            print(self.minwert)
 
         self.powers.connect(_calculate_min)
+        self.phase_timer = QTimer()
         self.phase_timer.singleShot(time, _finish_min_recording)
 
     def record_max(self, time:int):
@@ -134,17 +137,19 @@ class EEGMonitoring(QObject):
         if not self.session_active:
             self.start_monitoring()
 
-        def _calculate_max(self,powers):
+        def _calculate_max(powers):
             if powers["cognitive_load"] > self.maxwert:
                 self.maxwert = powers["cognitive_load"]
+            print("calculate max")
 
-        def _finish_max_recording(self):
+        def _finish_max_recording():
             self.status_callback.emit("finished max recording")
-            self.powers.disconnect(self._calculate_max)
+            self.powers.disconnect(_calculate_max)
             self.max_complete.emit()
+            print(self.maxwert)
 
-        self.powers.connect(self._calculate_max)
-        self.phase_timer.singleShot(time, self._finish_min_max_recording)
+        self.powers.connect(_calculate_max)
+        self.phase_timer.singleShot(time, _finish_max_recording)
 
     # ------------------------ Basic monitoring functionality ---------------------------------
 

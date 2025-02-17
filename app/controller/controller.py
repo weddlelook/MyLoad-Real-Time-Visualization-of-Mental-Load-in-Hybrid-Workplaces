@@ -76,7 +76,7 @@ class Controller():
         self.sessionFile = hdf5File(file_name)
         self.eegWorker.moveToThread(self.monitorThread)
         self.monitorThread.started.connect(self.eegWorker.set_up)
-        self.monitorThread.started.connect(lambda: self.eegWorker.record_asr_baseline(1000))
+        self.monitorThread.started.connect(lambda: self.eegWorker.record_min(10000))
 
         self.monitorThread.start()
         self.gui.show_toolbar(False)
@@ -84,7 +84,7 @@ class Controller():
 
         self.eegWorker.baseline_complete.connect(self.eegWorker.start_monitoring)
 
-        self.eegWorker.baseline_complete.connect(self.start_maxtest_page)
+        self.eegWorker.min_complete.connect(self.start_maxtest_page)
 
     def skip_page(self):
         pass
@@ -116,6 +116,8 @@ class Controller():
         # Connect the two buttons to skip the next symbol
         widget.correct_button.clicked.connect(self.testLogic.correctButtonClicked)
         widget.skip_button.clicked.connect(self.testLogic.skipButtonClicked)
+
+        self.eegWorker.record_max(10000)
 
         self.testLogic.showButton.connect(widget.show_correct_button)
 
