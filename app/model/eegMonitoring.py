@@ -168,7 +168,7 @@ class EEGMonitoring(QObject):
         self.status_callback.emit("Starting EEG recording for video meetings!")
         self.session_active = True
 
-        def _monitor_cognitive_load(self):
+        def _monitor_cognitive_load():
             # Fail-safe, probably not needed
             if not self.session_active:
                 self.monitor_timer.stop()
@@ -208,10 +208,6 @@ class EEGMonitoring(QObject):
             except Exception as e:
                 self.status_callback.emit(f"Error during monitoring: {e}")
 
-        # Setting up timer for monitoring function
-        self.monitor_timer = QTimer()
-        self.monitor_timer.setInterval(1000)  # Update every second
-        self.monitor_timer.timeout.connect(lambda: _monitor_cognitive_load(self))
 
         try:
             self.status_callback.emit("Starting live recording!")
@@ -224,7 +220,7 @@ class EEGMonitoring(QObject):
             self.session_active = True
             self.monitor_timer = QTimer()
             self.monitor_timer.setInterval(1000)  # Update every second
-            self.monitor_timer.timeout.connect(self._monitor_cognitive_load)
+            self.monitor_timer.timeout.connect(_monitor_cognitive_load)
             self.monitor_timer.start()  # Start the periodic updates using QTimer
 
         except Exception as e:

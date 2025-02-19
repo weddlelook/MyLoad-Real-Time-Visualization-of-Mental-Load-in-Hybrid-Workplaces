@@ -23,8 +23,8 @@ class testLogic(QObject):
         nicht vorhandenen Objekt passiert das du startTest erst nach denen aufgerufen hast
         Warum das da noch nicht gemeckert hat ist fraglich.
         """
-        #self.test_timer = QTimer()
-        #self.test_timer.setSingleShot(True)
+        self.test_timer = QTimer()
+        self.test_timer.setSingleShot(True)
 
     # Funktion zum Start des Maxtest und des Timers für diesen
     # Wird im Controller aufgerufen sobald der Baseline Test fertig istw
