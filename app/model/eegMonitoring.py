@@ -209,6 +209,7 @@ class EEGMonitoring(QObject):
                 self.status_callback.emit(f"Error during monitoring: {e}")
 
 
+
         try:
             self.status_callback.emit("Starting live recording!")
 

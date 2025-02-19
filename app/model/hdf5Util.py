@@ -33,14 +33,15 @@ class hdf5File:
 
       def _create_h5_file(self, users_session_name:str):
             # Ordner erstellen, falls er nicht existiert
-            if not os.path.exists(HDF5_FOLDER_PATH):
-                  os.makedirs(HDF5_FOLDER_PATH)
+            folder_path = getAbsPath(HDF5_FOLDER_PATH)
+            if not os.path.exists(folder_path):
+                  os.makedirs(folder_path)
 
             # Variable welche den Sessions noch eine Nummer gibt, damit diese nummeriert bleiben
-            count_of_sessions = len([f for f in os.listdir(HDF5_FOLDER_PATH) if os.path.isfile(os.path.join(folder_path, f))]) + 1
+            count_of_sessions = len([f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]) + 1
 
             timestamp = datetime.now().strftime("%H-%M-%S_%d-%m-%Y")
-            HDF5_FILENAME = os.path.join(HDF5_FOLDER_PATH, f"{count_of_sessions}__{users_session_name}__{timestamp}.h5")
+            HDF5_FILENAME = os.path.join(folder_path, f"{count_of_sessions}__{users_session_name}__{timestamp}.h5")
 
             # Datei erstellen, falls sie nicht existiert
             if not os.path.exists(HDF5_FILENAME):

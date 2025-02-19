@@ -1,11 +1,10 @@
 import json
 import os
+from .constants import *
 
 
 class SettingsModel:
 
-    FOLDER_PATH = os.path.join(os.path.dirname(__file__), '../Settings Files')
-    FILE_NAME = 'user_settings.json'
     DEFAULT_SETTINGS = {
         'trafficLight': 1,
         'bar': 0,
@@ -18,8 +17,9 @@ class SettingsModel:
 
     def load_settings(self):
         """Load settings from the file, or return default settings if file doesn't exist."""
-        if os.path.exists(SettingsModel.FOLDER_PATH):
-            file_path = os.path.join(SettingsModel.FOLDER_PATH, SettingsModel.FILE_NAME)
+        folder_path = getAbsPath(FOLDER_PATH_SETTINGS)
+        if os.path.exists(folder_path):
+            file_path = os.path.join(folder_path, FILE_NAME_SETTINGS)
             with open(file_path, 'r') as file:
                 return json.load(file)
         else:
@@ -28,9 +28,10 @@ class SettingsModel:
 
     def save_settings(self):
         """Save the current settings to the settings file."""
-        if not os.path.exists(SettingsModel.FOLDER_PATH):
-            os.makedirs(SettingsModel.FOLDER_PATH)
-        file_path = os.path.join(SettingsModel.FOLDER_PATH, SettingsModel.FILE_NAME)
+        folder_path = getAbsPath(FOLDER_PATH_SETTINGS)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        file_path = os.path.join(folder_path, FILE_NAME_SETTINGS)
         with open(file_path, 'w') as file:
             json.dump(self.settings, file, indent=4)
 
@@ -41,7 +42,7 @@ class SettingsModel:
 
     @staticmethod
     def clear_sessions():
-        dir_path = os.path.join(os.path.dirname(__file__), '../h5_session_files')
+        dir_path = os.path.join(getAbsPath(HDF5_FOLDER_PATH))
         if os.path.exists(dir_path):
             for file in os.listdir(dir_path):
                 file_path = os.path.join(dir_path, file)

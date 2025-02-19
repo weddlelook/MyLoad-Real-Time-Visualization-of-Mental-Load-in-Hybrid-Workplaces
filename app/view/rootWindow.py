@@ -23,9 +23,9 @@ class RootWindow(QMainWindow):
 
     def apply_stylesheet(self):
         if self.settings["lightMode"] == 1:
-            file_path = FILE_PATH_CSS_LIGHTMODE
+            file_path = getAbsPath(FILE_PATH_CSS_LIGHTMODE)
         elif self.settings["darkMode"] == 1:
-            file_path = FILE_PATH_CSS_DARKMODE
+            file_path = getAbsPath(FILE_PATH_CSS_DARKMODE)
         try:
             with open(file_path, "r") as f:
                 self.setStyleSheet(f.read())
@@ -36,7 +36,7 @@ class RootWindow(QMainWindow):
         toolbar = self.addToolBar('Main Toolbar')
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
-        self.settings_action = QAction(QIcon(FILE_PATH_SETTINGS_ICON), 'Settings', self)
+        self.settings_action = QAction(QIcon(getAbsPath(FILE_PATH_SETTINGS_ICON)), 'Settings', self)
         self.retrospective_action = QAction("Previous Sessions", self)
         toolbar.addAction(self.settings_action)
         toolbar.addAction(self.retrospective_action)
@@ -49,10 +49,8 @@ class RootWindow(QMainWindow):
 
     @staticmethod
     def apply_font():
-        font_path = os.path.join(os.path.dirname(__file__), FILE_PATH_FONT)
-        print(font_path)
-        if os.path.exists(font_path):
-            font_id = QFontDatabase.addApplicationFont(font_path)
+        if os.path.exists(getAbsPath(FILE_PATH_FONT)):
+            font_id = QFontDatabase.addApplicationFont(getAbsPath(FILE_PATH_FONT))
             if font_id != -1:
                 # Retrieve the family name of the loaded font
                 families = QFontDatabase.applicationFontFamilies(font_id)
