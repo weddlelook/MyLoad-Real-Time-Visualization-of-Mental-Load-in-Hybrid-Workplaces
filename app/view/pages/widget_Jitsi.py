@@ -5,6 +5,7 @@ from PyQt6.QtCore import QUrl, QTimer, Qt
 import os
 from pathlib import Path
 from .widget_Plot import EEGPlotWidget
+from .widget_indicator import Indicator
 from ..constants import *
 
 
@@ -29,7 +30,7 @@ class CustomWebEnginePage(QWebEnginePage):
 class JitsiWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.plot_widget = EEGPlotWidget()
+        self.plot_widget = Indicator()
         self.initUI()
         self.set_settings()
 

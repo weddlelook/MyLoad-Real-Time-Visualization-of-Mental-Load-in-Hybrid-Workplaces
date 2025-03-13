@@ -77,7 +77,7 @@ class JitsiPage(Page):
         super().__init__(widget, False)
         self.widget.end_button.clicked.connect(lambda: controller.next_page(next_page))
         self.widget.end_button.clicked.connect(controller.stop_monitoring)
-        controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
+       # controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
         
     def start(self, controller):
