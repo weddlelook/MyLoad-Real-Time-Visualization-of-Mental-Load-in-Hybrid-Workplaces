@@ -38,22 +38,9 @@ class MainWidget(QWidget):
         self.pages = {}
         #Previous page in stack
         self.previous_page_name = None
-
-        # Registering all pages 
-        # NOTE: We could decide to not register all pages here, but instead register them 
-        #       as we go along in the application lifecycle, but for now, we will register them all here
-        self._register_page(p.StartWidget(), "start")
-        self._register_page(p.BaselineWidget(), "baseline")
-        self._register_page(p.StartBaselinePage(), "baselineStartPage")
-        self._register_page(p.MaxtestPage(), "maxtest")
-        self._register_page(p.RetrospectivePage("app/h5_session_files"), "retrospective")
-        self._register_page(p.ResultsPage(), "result")
-        self._register_page(p.StartMaxTestPage(), "startmaxtest")
-        self._register_page(p.JitsiWidget(), "jitsi")
-
         self.settings.hide()
 
-    def _register_page(self, child: QWidget, page_name: str):
+    def register_page(self, child: QWidget, page_name: str):
         """Registers a page with the main window."""
         self._apply_resize_policy(child)
         self.stack_layout.addWidget(child)

@@ -1,11 +1,11 @@
 import sys
-from app.controller.controller import Controller
+from app.controller.Controller2 import Controller
 from PyQt6.QtWidgets import QApplication
 
 def main():
     app = QApplication(sys.argv)
     controller = Controller()
-    controller.landing_page()
+    controller.next_page("start")
     app.exec()
     app.deleteLater()
 

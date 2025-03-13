@@ -1,4 +1,4 @@
-from .constants import * 
+from ..constants import * 
 import os
 import h5py
 from datetime import datetime
@@ -10,17 +10,13 @@ class hdf5File:
             self.filename = self._create_h5_file(users_session_name)
 
       def save_eeg_data_as_hdf5(self, powers):     
-            """
-            Speichert die EEG-Daten als HDF5-Datei.
-            TODO: Depending on where we implement the calculation of CL out of the powers, we might want to move this function to the controller or implement the calculation of CL here
-                  The file layout also needs adjustment for the CL if we also store that in the file
-            """
-            timestamp, theta_power, alpha_power, beta_power, cognitive_load = (
+            timestamp, theta_power, alpha_power, beta_power, cognitive_load, load_score = (
                   powers["timestamp"],
                   powers["theta_power"],
                   powers["alpha_power"],
                   powers["beta_power"],
                   powers["cognitive_load"],
+                  powers["load_score"]
             )
 
             # Neue Daten hinzufügen
@@ -29,7 +25,15 @@ class hdf5File:
                   new_index = eeg_dataset.shape[0]
 
                   eeg_dataset.resize((new_index + 1,))
-                  eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power, cognitive_load)
+                  eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power, cognitive_load, load_score)
+
+      def set_min(self, min_value: float):
+            with h5py.File(self.filename, 'a') as h5_file:
+                  h5_file.attrs['min'] = min_value  # Store min as an attribute
+
+      def set_max(self, max_value: float):
+            with h5py.File(self.filename, 'a') as h5_file:
+                  h5_file.attrs['max'] = max_value  # Store max as an attribute
 
       def _create_h5_file(self, users_session_name:str):
             # Ordner erstellen, falls er nicht existiert
@@ -46,9 +50,16 @@ class hdf5File:
             # Datei erstellen, falls sie nicht existiert
             if not os.path.exists(HDF5_FILENAME):
                   with h5py.File(HDF5_FILENAME, 'w') as h5_file:
-                        eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8'),
-                                          ('cognitive_load', 'f8')])
+                        eeg_dtype = np.dtype([
+                              ('timestamp', 'f8'), 
+                              ('theta', 'f8'), 
+                              ('alpha', 'f8'), 
+                              ('beta', 'f8'),
+                              ('cognitive_load', 'f8'),
+                              ('load_score', 'f8')])
                         h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
+                        h5_file.attrs['min'] = np.nan
+                        h5_file.attrs['max'] = np.nan
                         print(f"HDF5 file created successfully: {HDF5_FILENAME}")
             return HDF5_FILENAME
 

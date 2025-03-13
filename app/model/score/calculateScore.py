@@ -55,6 +55,7 @@ class calculateScore(QObject):
         print("CLScore")
         print(CLScore)
         self.score.emit(int(CLScore))
+        return int(CLScore)
 
 
 
