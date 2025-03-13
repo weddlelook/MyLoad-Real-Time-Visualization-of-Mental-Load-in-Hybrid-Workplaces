@@ -4,7 +4,7 @@ from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEng
 from PyQt6.QtCore import QUrl, QTimer, Qt
 import os
 from pathlib import Path
-from .widget_Plot import EEGPlotWidget
+#from .widget_Plot import EEGPlotWidget
 from .widget_indicator import Indicator
 from ..constants import *
 

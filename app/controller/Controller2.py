@@ -79,11 +79,25 @@ class Controller(QObject):
         return self.TestLogic.calculateResults()
 
     def next_page(self, page_name:str, *args):
-            page = self.pages[page_name]
-            print(f"Changing to page {page_name}")
-            self.gui.show_toolbar(page.toolbar_shown)
-            self.gui.main_window.set_page(page_name)
-            page.start(self, *args)
+            #page = self.pages[page_name]
+            #print(f"Changing to page {page_name}")
+            #self.gui.show_toolbar(page.toolbar_shown)
+            #self.gui.main_window.set_page(page_name)
+            #page.start(self, *args)
+            print(f"[DEBUG] next_page called with page_name: {page_name} (type: {type(page_name)})")  # Debug-Ausgabe
+            if not isinstance(page_name, str):
+                print(f"[ERROR] Invalid page_name: {page_name}. Expected a string.")  # Debug-Ausgabe
+                return
+            try:
+                page = self.pages[page_name]
+                print(f"[DEBUG] Changing to page {page_name}")  # Debug-Ausgabe
+                self.gui.show_toolbar(page.toolbar_shown)
+                self.gui.main_window.set_page(page_name)
+                page.start(self, *args)
+            except KeyError:
+                print(
+                    f"[ERROR] Invalid page_name: {page_name}. Valid keys are: {list(self.pages.keys())}")  # Debug-Ausgabe
+                raise  # Wirft den Fehler erneut, um das Programm zu stoppen
 
     def handle_error(self, e):
         print(f"Error during page change: {e}")
