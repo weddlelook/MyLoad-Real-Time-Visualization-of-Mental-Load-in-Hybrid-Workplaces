@@ -1,12 +1,9 @@
 import os
+import sys
 
 HDF5_FOLDER_PATH = folder_path = '../h5_session_files'
 FOLDER_PATH_SETTINGS = '../Settings Files'
 FILE_NAME_SETTINGS = 'user_settings.json'
-
-
-import os
-import sys
 
 def getAbsPath(relative_path):
     bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
