@@ -8,6 +8,8 @@ from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 import time
 from datetime import datetime, timedelta
+import mplcursors
+
 
 
 
@@ -117,10 +119,26 @@ class RetrospectivePage(QWidget):
 
                         ax.plot(time_labels, cognitive_load, label=file)
 
-                        # Formatierung der X-Achse
-                        # ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+                        # Lade und plotte Marker
+                        if 'markers' in h5_file:
+                            markers = h5_file['markers'][:]
+                            marker_times = [start_time + timedelta(seconds=int(m[0] - timestamps[0])) for m in markers]
+                            marker_descriptions = [m[1].decode() for m in markers]
 
-                    #Falls mehrere Sessions geplottet werden sollen
+                            marker_cl_values = [
+                                cognitive_load[np.argmin(np.abs(timestamps - m[0]))] for m in markers
+                            ]
+
+                            scatter = ax.scatter(marker_times, marker_cl_values, color='red', label='Kommentare',
+                                                 marker='o', s=50)
+                            cursor = mplcursors.cursor(scatter, hover=True)
+
+                            @cursor.connect("add")
+                            def on_hover(sel):
+                                sel.annotation.set_text(marker_descriptions[sel.index])
+
+
+                            #Falls mehrere Sessions geplottet werden sollen
                     else:
                         # Setze die Zeitstempel relativ zum Startzeitpunkt
                         timestamps_rel = timestamps - timestamps[0]  # Startzeitpunkt abziehen
