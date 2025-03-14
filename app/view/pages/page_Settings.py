@@ -46,7 +46,7 @@ class SettingsWidget(QWidget):
         # Mode settings buttons
         self.show_option = QRadioButton("Show")
         self.hide_option = QRadioButton("Hide")
-        display_layout.addWidget(mode_label)
+        display_layout.addWidget(display_label)
         display_layout.addWidget(self.show_option)
         display_layout.addWidget(self.hide_option)
 
