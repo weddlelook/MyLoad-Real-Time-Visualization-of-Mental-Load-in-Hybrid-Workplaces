@@ -44,6 +44,7 @@ class JitsiWidget(QWidget):
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.browser)
         left_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        
         right_widget = self.plot_widget
 
         main_layout.addLayout(left_layout, 9)  # 90% of the space
