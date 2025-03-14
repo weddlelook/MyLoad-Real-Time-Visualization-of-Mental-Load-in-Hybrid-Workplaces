@@ -15,27 +15,6 @@ class SettingsWidget(QWidget):
         layout = QVBoxLayout()
         form_layout = QFormLayout()
 
-        #Container for display seetings
-        display_container = QGroupBox("Display Settings")
-        display_layout = QVBoxLayout()
-        display_label = QLabel("Change the display type")
-        display_label.setObjectName("text-settings")
-
-        #Buttons for display settings
-        self.traffic_light_option = QRadioButton("Traffic Light")
-        self.bar_option = QRadioButton("Bar")
-
-        display_layout.addWidget(display_label)
-        display_layout.addWidget(self.traffic_light_option)
-        display_layout.addWidget(self.bar_option)
-
-        #Grouping buttons so only one can be checked at same time
-        self.display_options = QButtonGroup(self)
-        self.display_options.addButton(self.traffic_light_option)
-        self.display_options.addButton(self.bar_option)
-
-        display_container.setLayout(display_layout)
-
         # Container for Mode Settings
         mode_container = QGroupBox("Mode Settings")
         mode_layout = QVBoxLayout()
@@ -56,7 +35,6 @@ class SettingsWidget(QWidget):
 
         mode_container.setLayout(mode_layout)
 
-        form_layout.addRow(display_container)
         form_layout.addRow(mode_container)
 
         layout.addLayout(form_layout)
@@ -90,28 +68,16 @@ class SettingsWidget(QWidget):
 
     def save_settings(self):
         dic = {}
-        if self.traffic_light_option.isChecked():
-            dic["trafficLight"] = 1
-            dic["bar"] = 0
-        elif self.bar_option.isChecked():
-            dic["trafficLight"] = 0
-            dic["bar"] = 1
         if self.light_mode_option.isChecked():
-            dic["lightMode"] = 1
-            dic["darkMode"] =0
+            dic["isDarkMode"] = False
         elif self.dark_mode_option.isChecked():
-            dic["lightMode"] = 0
-            dic["darkMode"] = 1
+            dic["isDarkMode"] = True
         self.new_settings.emit(dic)
 
     def set_settings(self, settings):
         self.settings = settings
-        if self.settings.get("trafficLight") == 1:
-            self.traffic_light_option.setChecked(True)
-        elif self.settings.get("bar") == 1:
-            self.bar_option.setChecked(True)
-        if self.settings.get("lightMode") == 1:
+        if self.settings.get("isDarkMode") == False:
             self.light_mode_option.setChecked(True),
-        elif self.settings.get("darkMode") == 1:
+        elif self.settings.get("isDarkMode") == True:
             self.dark_mode_option.setChecked(True)
 
