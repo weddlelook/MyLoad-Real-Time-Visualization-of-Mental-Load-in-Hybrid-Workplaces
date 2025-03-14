@@ -37,18 +37,19 @@ class SettingsWidget(QWidget):
 
         form_layout.addRow(mode_container)
 
-        layout.addLayout(form_layout)
-
-        h_layout = QHBoxLayout()
-        delete_label = QLabel("To clear all previous sessions information:")
-        delete_label.setObjectName("text")
-        delete_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        h_layout.addWidget(delete_label, alignment=Qt.AlignmentFlag.AlignLeft)
+        del_files_container = QGroupBox("Clear Files")
+        del_files_layout = QHBoxLayout()
+        del_files_label = QLabel("To clear all previous sessions information:")
+        del_files_label.setObjectName("text-settings")
 
         self.clear_all_button = QPushButton("Clear All")
-        self.clear_all_button.setObjectName("settings")
-        h_layout.addWidget(self.clear_all_button)
-        layout.addLayout(h_layout)
+        del_files_layout.addWidget(del_files_label)
+        del_files_layout.addWidget(self.clear_all_button)
+        del_files_container.setLayout(del_files_layout)
+
+        form_layout.addRow(del_files_container)
+
+        layout.addLayout(form_layout)
 
         #Layout for buttons
         horizontal_layout = QHBoxLayout()
