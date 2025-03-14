@@ -7,6 +7,7 @@ class SettingsModel:
 
     DEFAULT_SETTINGS = {
         'isDarkMode': False,
+        'showDisplay': True,
     }
     def __init__(self):
         self.settings = self.load_settings()

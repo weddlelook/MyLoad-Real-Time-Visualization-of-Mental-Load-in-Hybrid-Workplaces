@@ -37,6 +37,28 @@ class SettingsWidget(QWidget):
 
         form_layout.addRow(mode_container)
 
+        # Container for Mode Settings
+        display_container = QGroupBox("Display Settings")
+        display_layout = QVBoxLayout()
+        display_label = QLabel("Real time interpretation as bar, during meeting")
+        display_label.setObjectName("text-settings")
+
+        # Mode settings buttons
+        self.show_option = QRadioButton("Show")
+        self.hide_option = QRadioButton("Hide")
+        display_layout.addWidget(mode_label)
+        display_layout.addWidget(self.show_option)
+        display_layout.addWidget(self.hide_option)
+
+        # Grouping buttons so only one can be checked at same time
+        self.display_option = QButtonGroup(self)
+        self.display_option.addButton(self.light_mode_option)
+        self.display_option.addButton(self.dark_mode_option)
+
+        display_container.setLayout(display_layout)
+
+        form_layout.addRow(display_container)
+
         del_files_container = QGroupBox("Clear Files")
         del_files_layout = QHBoxLayout()
         del_files_label = QLabel("To clear all previous sessions information:")
@@ -73,6 +95,10 @@ class SettingsWidget(QWidget):
             dic["isDarkMode"] = False
         elif self.dark_mode_option.isChecked():
             dic["isDarkMode"] = True
+        if self.show_option.isChecked():
+            dic["showDisplay"] = True
+        elif self.hide_option.isChecked():
+            dic["showDisplay"] = False
         self.new_settings.emit(dic)
 
     def set_settings(self, settings):
@@ -81,4 +107,8 @@ class SettingsWidget(QWidget):
             self.light_mode_option.setChecked(True),
         elif self.settings.get("isDarkMode") == True:
             self.dark_mode_option.setChecked(True)
+        if self.settings.get("showDisplay") == False:
+            self.hide_option.setChecked(True),
+        elif self.settings.get("showDisplay") == True:
+            self.show_option.setChecked(True)
 

@@ -38,18 +38,22 @@ class JitsiWidget(QWidget):
         self.browser = QWebEngineView()
         self.browser.setPage(CustomWebEnginePage(self.browser))
 
-        self.end_button = QPushButton("End Meeting")
 
         main_layout = QHBoxLayout()
+
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.browser)
-        left_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignCenter)
-        
+
+        right_layout = QVBoxLayout()
         right_widget = self.plot_widget
+        self.end_button = QPushButton("End Meeting")
+
+        right_layout.addWidget(right_widget)
+        right_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignBottom)
+
 
         main_layout.addLayout(left_layout, 9)  # 90% of the space
-        main_layout.addWidget(right_widget, 1)  # 10% of the space
-
+        main_layout.addLayout(right_layout, 1)  # 10% of the space
 
         self.setLayout(main_layout)
 
