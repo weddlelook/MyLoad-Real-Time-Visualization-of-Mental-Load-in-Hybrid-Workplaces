@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QSpacerItem, QSizePolicy
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEnginePage
 from PyQt6.QtCore import QUrl, QTimer, Qt
@@ -38,18 +38,29 @@ class JitsiWidget(QWidget):
         self.browser = QWebEngineView()
         self.browser.setPage(CustomWebEnginePage(self.browser))
 
+        self.end_button = QPushButton("End Meeting")
+        self.comment_input = QLineEdit()
+        self.comment_input.setPlaceholderText("Comment...")
+        self.comment_sent_button = QPushButton("Comment Sent")
 
         main_layout = QHBoxLayout()
-
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.browser)
+
 
         right_layout = QVBoxLayout()
         right_widget = self.plot_widget
         self.end_button = QPushButton("End Meeting")
 
         right_layout.addWidget(right_widget)
+        right_layout.addWidget(self.comment_input, alignment=Qt.AlignmentFlag.AlignCenter)
+        right_layout.addWidget(self.comment_sent_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        right_layout.addItem(spacer)
+
         right_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignBottom)
+
 
 
         main_layout.addLayout(left_layout, 9)  # 90% of the space
