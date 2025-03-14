@@ -4,6 +4,8 @@ from app.model.Recorder import Phase
 from app.view.rootWindow import RootWindow
 from app.model.score.calculateScore import calculateScore
 from PyQt6.QtCore import pyqtSignal, QObject
+from app.model.score.hdf5Util import hdf5File
+
 
 import app.view.pages as widget
 
@@ -23,6 +25,8 @@ class Controller(QObject):
 
         self.connect_settings()
         self.connect_recorder()
+
+        self.hdf5_File = None
 
         self.pages = {
             "start": StartPage(widget.StartWidget(), self, "baseline_start"),
@@ -63,7 +67,8 @@ class Controller(QObject):
     def set_session_variables(self, session_name:str, jitsi_room_name:str):
         self.session_name = session_name
         self.jitsi_room_name = jitsi_room_name
-        self.recorder.new_session(session_name)
+        self.hdf5_File = hdf5File(session_name)
+        self.recorder.new_session(self.hdf5_File)
 
     def provide_char(self):
         return self.TestLogic.provide_char()

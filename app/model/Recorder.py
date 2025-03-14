@@ -33,8 +33,8 @@ class Recorder(QObject):
         self.maximum = None
         self.monitoring = False
 
-    def new_session(self, session_name:str):
-        self.hdf5Session = hdf5File(session_name)
+    def new_session(self, hdf5_File):
+        self.hdf5Session = hdf5_File
         self.minimum = None
         self.maximum = None
         self.monitoring = False
