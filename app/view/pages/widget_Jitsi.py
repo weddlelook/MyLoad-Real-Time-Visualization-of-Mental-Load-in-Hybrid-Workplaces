@@ -81,3 +81,9 @@ class JitsiWidget(QWidget):
     def end_meeting(self):
         """ Calls JavaScript function to end the meeting """
         self.browser.page().runJavaScript("endMeeting();")  # ✅ Call the JS function
+
+    def hide_ClScore(self):
+        self.plot_widget.hide()
+
+    def show_ClScore(self):
+        self.plot_widget.show()
