@@ -87,7 +87,6 @@ class EegWorker(QObject):
         self.status_callback.emit("Recording minimum cognitive load")
         minwert = 100
         faults = 0 
-        faults = 0 
 
         while time > 0:
             QThread.msleep(1000)
