@@ -10,9 +10,8 @@ class Indicator(QWidget):
         self.setMinimumSize(200, 150)
         
         self.label = QLabel(f"{self.value}", self)
+        self.label.setObjectName("title")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setFont(QFont("Arial", 18)) # TODO use the general font
-        self.label.setStyleSheet("color: #237e96;") 
         
     def updateScore(self, score): 
         self.value = score
