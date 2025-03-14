@@ -56,9 +56,16 @@ class RetrospectivePage(QWidget):
         """Lade alle .h5-Dateien aus dem Session-Ordner."""
         self.session_list.clear()
         if os.path.exists(self.session_folder):
-            for file in os.listdir(self.session_folder):
-                if file.endswith(".h5"):
-                    self.session_list.addItem(file)
+            files = [f for f in os.listdir(self.session_folder) if f.endswith(".h5")]
+
+            def extract_index(file_name):
+                file_name = str(file_name)
+                index = file_name.split("__")[0].strip()
+                return int(index)
+
+            files.sort(key=extract_index, reverse=True)
+            for file in files:
+                self.session_list.addItem(file)
 
     def _extract_start_time(self, filename):
         # Extrahiere den Zeitstempel aus dem Dateinamen
