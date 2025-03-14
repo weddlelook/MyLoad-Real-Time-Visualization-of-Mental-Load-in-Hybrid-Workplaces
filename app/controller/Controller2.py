@@ -53,6 +53,7 @@ class Controller(QObject):
         self.session_name = None
         self.jitsi_room_name = None
 
+
     def start_min(self):
         self.start_min_signal.emit(1000)
 
