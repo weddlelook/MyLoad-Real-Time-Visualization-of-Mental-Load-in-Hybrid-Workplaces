@@ -22,9 +22,9 @@ class RootWindow(QMainWindow):
         self.show()
 
     def apply_stylesheet(self):
-        if self.settings["lightMode"] == 1:
+        if self.settings["isDarkMode"] == False:
             file_path = getAbsPath(FILE_PATH_CSS_LIGHTMODE)
-        elif self.settings["darkMode"] == 1:
+        elif self.settings["isDarkMode"] == True:
             file_path = getAbsPath(FILE_PATH_CSS_DARKMODE)
         try:
             with open(file_path, "r") as f:
