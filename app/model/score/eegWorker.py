@@ -33,10 +33,11 @@ class EegWorker(QObject):
         self.board_shim = None
         self.sampling_rate = None
         self.asr = None
-
         self.data_buffer = None
+        self.update_count = None
 
-        self.status_callback.connect(print)
+        self.status_callback.connect(print) 
+        self._start_session()   
 
     def monitor_cognitive_load(self):
         if not self.session_active:
@@ -51,26 +52,28 @@ class EegWorker(QObject):
                     f"Board does not provide enough channels: "
                     f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
 
-            transformed_data = new_data[:self.NUM_CHANNELS, :]
-            if self.data_buffer is None:
-                self.data_buffer = transformed_data.copy()
-            self.data_buffer = np.hstack((self.data_buffer[:, new_data.shape[1]:], transformed_data))
+            if self.update_count > 0:  # Beginne erst nach dem ersten Update mit der Datenerfassung
+                transformed_data = new_data[:self.NUM_CHANNELS, :]
+                self.data_buffer = np.hstack((self.data_buffer[:, new_data.shape[1]:], transformed_data))
 
-            theta_power, alpha_power, beta_power = self._calculate_powers(self.data_buffer, self.sampling_rate)
+                theta_power, alpha_power, beta_power = self._calculate_powers(self.data_buffer, self.sampling_rate)
 
-            # Data to be emitted
-            timestamp = time.time()
-            cognitive_load = 0
-            if alpha_power != 0:
-                cognitive_load = theta_power / alpha_power
-            data = {
-                'timestamp': timestamp,
-                'theta_power': theta_power,
-                'alpha_power': alpha_power,
-                'beta_power': beta_power,
-                'cognitive_load': self._filter_cl(cognitive_load)
-            }
-            return data
+                # Data to be emitted
+                timestamp = time.time()
+                cognitive_load = 0
+                if alpha_power != 0:
+                    cognitive_load = theta_power / alpha_power
+                data = {
+                    'timestamp': timestamp,
+                    'theta_power': theta_power,
+                    'alpha_power': alpha_power,
+                    'beta_power': beta_power,
+                    'cognitive_load': self._filter_cl(cognitive_load)
+                }
+                return data
+            else:
+                self.update_count += 1
+                return None
 
         except Exception as e:
             self.status_callback.emit(f"Error during monitoring: {e}")
@@ -84,13 +87,17 @@ class EegWorker(QObject):
         self.status_callback.emit("Recording minimum cognitive load")
         minwert = 100
         faults = 0 
+        faults = 0 
 
         while time > 0:
             QThread.msleep(1000)
             data = self.monitor_cognitive_load()
             try: 
+                try: 
                 if data['cognitive_load'] < minwert:
-                    minwert = data['cognitive_load']
+                        minwert = data['cognitive_load']
+            except TypeError:
+                faults += 1
             except TypeError:
                 faults += 1
             time -= 1000
@@ -98,7 +105,7 @@ class EegWorker(QObject):
         if minwert == 100:
             raise ValueError("No valid data recorded")
         
-        self.status_callback.emit(f"Minimum cognitive load: {minwert} with {faults} faults")
+        self.status_callback.emit(f"Minimum cognitive load: {minwert} with {faults} faults with {faults} faults")
         return minwert
     
     def record_maximum(self, time:int):
@@ -108,13 +115,17 @@ class EegWorker(QObject):
         self.status_callback.emit("Recording maximum cognitive load")
         maxwert = 0
         faults = 0
+        faults = 0
 
         while time > 0:
             QThread.msleep(1000)
             data = self.monitor_cognitive_load()
             try:
+                try:
                 if data['cognitive_load'] > maxwert:
-                    maxwert = data['cognitive_load']
+                        maxwert = data['cognitive_load']
+            except TypeError:
+                faults += 1
             except TypeError:
                 faults += 1
             time -= 1000
@@ -122,8 +133,8 @@ class EegWorker(QObject):
         if maxwert == 0:
             raise ValueError("No valid data recorded")
         
-        self.status_callback.emit(f"Maximum cognitive load: {maxwert} with {faults} faults")
-        return maxwert     
+        self.status_callback.emit(f"Maximum cognitive load: {maxwert} with {faults} faults with {faults} faults")
+        return maxwert    
 
     # --------------- Private methods -----------------
 
@@ -202,4 +213,8 @@ class EegWorker(QObject):
         self.board_shim.start_stream()
         self.status_callback.emit("Started session")
         self.session_active = True
+        buffer_length = 10 * self.sampling_rate
+        self.data_buffer = np.zeros((self.NUM_CHANNELS, buffer_length))
+        self.update_count = 0
         QThread.msleep(1000)
+        self.monitor_cognitive_load()
