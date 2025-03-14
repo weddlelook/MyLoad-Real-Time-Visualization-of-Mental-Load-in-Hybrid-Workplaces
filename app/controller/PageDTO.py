@@ -1,10 +1,15 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
+
+import h5py
 from PyQt6.QtWidgets import QWidget
+from app.model.score.hdf5Util import hdf5File
 
 class Page(ABC):
     def __init__(self, widget:QWidget, toolbar_shown:bool):
         self.widget = widget
         self.toolbar_shown = toolbar_shown
+        self.hdf5_marker = hdf5File
 
     def start(self, controller):
         """
@@ -76,15 +81,28 @@ class ResultPage(Page):
 class JitsiPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
         super().__init__(widget, False)
+        self.controller = controller
         self.widget.end_button.clicked.connect(lambda: controller.next_page(next_page))
         self.widget.end_button.clicked.connect(controller.stop_monitoring)
        # controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
         self.widget.end_button.clicked.connect(self.widget.end_meeting)
-        
+        self.widget.comment_sent_button.clicked.connect(self.save_comment)
+
     def start(self, controller):
         self.widget.load_jitsi_meeting(controller.jitsi_room_name)
         controller.start_monitoring()
+
+    def save_comment(self):
+        comment = self.widget.comment_input.text().strip()
+        print(comment)
+        if comment:
+            current_timestamp = datetime.now().timestamp()  # Aktuellen Zeitstempel holen
+            self.hdf5_marker.save_marker(self.controller.hdf5_File, current_timestamp, comment)
+            self.widget.comment_input.clear()
+        else:
+            print("Please provide a comment before saving")
+
 
 class RetrospectivePage(Page):
     def __init__(self, widget:QWidget, controller):

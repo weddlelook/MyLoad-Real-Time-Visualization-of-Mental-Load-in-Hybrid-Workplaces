@@ -27,6 +27,22 @@ class hdf5File:
                   eeg_dataset.resize((new_index + 1,))
                   eeg_dataset[new_index] = (timestamp, theta_power, alpha_power, beta_power, cognitive_load, load_score)
 
+      def save_marker(self, timestamp, description):
+            with h5py.File(self.filename, 'a') as h5_file:
+                  markers = h5_file['markers']
+                  new_marker = np.array([(timestamp, description)], dtype=markers.dtype)
+                  markers.resize((markers.shape[0] + 1,))
+                  markers[-1] = new_marker[0]
+
+            with h5py.File(self.filename, 'r') as h5_file:
+                  if 'markers' in h5_file:
+                        markers = h5_file['markers'][:]
+                        print("Alle Marker in der .h5-Datei:")
+                        for marker in markers:
+                              timestamp = marker[0]
+                              description = marker[1].decode()  # Konvertiere den Byte-String in einen normalen String
+                              print(f"Zeitstempel: {timestamp}, Beschreibung: {description}")
+
       def set_min(self, min_value: float):
             with h5py.File(self.filename, 'a') as h5_file:
                   h5_file.attrs['min'] = min_value  # Store min as an attribute
@@ -50,6 +66,7 @@ class hdf5File:
             # Datei erstellen, falls sie nicht existiert
             if not os.path.exists(HDF5_FILENAME):
                   with h5py.File(HDF5_FILENAME, 'w') as h5_file:
+                        #Dataset for eeg data
                         eeg_dtype = np.dtype([
                               ('timestamp', 'f8'), 
                               ('theta', 'f8'), 
@@ -60,6 +77,15 @@ class hdf5File:
                         h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
                         h5_file.attrs['min'] = np.nan
                         h5_file.attrs['max'] = np.nan
+
+                        #Dataset for user comments
+                        marker_dtype = np.dtype(
+                              [('timestamp', 'f8'),
+                               ('description', 'S50')])  # 'S50' String with max 50 symbols
+                        h5_file.create_dataset('markers', shape=(0,), maxshape=(None,), dtype=marker_dtype)
+
+
+
                         print(f"HDF5 file created successfully: {HDF5_FILENAME}")
             return HDF5_FILENAME
 
