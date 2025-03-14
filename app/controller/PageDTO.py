@@ -58,6 +58,7 @@ class MaxtestPage(Page):
     def start(self, controller):
         controller.start_max()
         controller.TestLogic.startTest() # TODO
+        self.widget.hide_correct_button()
 
 class MaxtestStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
