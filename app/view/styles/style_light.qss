@@ -82,7 +82,7 @@ QToolBar {
 /* Styling the individual buttons (actions) in the toolbar */
 QToolBar QToolButton {
     background-color: #d5e5f1;  /* button background */
-    border: 1px solid #237e962;  /* Button border #E9E7E*/
+    border: 1px solid #237e96;  /* Button border #E9E7E*/
     border-radius: 10px;  /* Rounded corners */
     color: #393938;  /* Text color */
     padding: 5px 10px;  /* Padding for the buttons */
