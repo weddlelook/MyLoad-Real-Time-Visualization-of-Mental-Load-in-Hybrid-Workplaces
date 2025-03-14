@@ -15,27 +15,6 @@ class SettingsWidget(QWidget):
         layout = QVBoxLayout()
         form_layout = QFormLayout()
 
-        #Container for display seetings
-        display_container = QGroupBox("Display Settings")
-        display_layout = QVBoxLayout()
-        display_label = QLabel("Change the display type")
-        display_label.setObjectName("text-settings")
-
-        #Buttons for display settings
-        self.traffic_light_option = QRadioButton("Traffic Light")
-        self.bar_option = QRadioButton("Bar")
-
-        display_layout.addWidget(display_label)
-        display_layout.addWidget(self.traffic_light_option)
-        display_layout.addWidget(self.bar_option)
-
-        #Grouping buttons so only one can be checked at same time
-        self.display_options = QButtonGroup(self)
-        self.display_options.addButton(self.traffic_light_option)
-        self.display_options.addButton(self.bar_option)
-
-        display_container.setLayout(display_layout)
-
         # Container for Mode Settings
         mode_container = QGroupBox("Mode Settings")
         mode_layout = QVBoxLayout()
@@ -56,21 +35,43 @@ class SettingsWidget(QWidget):
 
         mode_container.setLayout(mode_layout)
 
-        form_layout.addRow(display_container)
         form_layout.addRow(mode_container)
 
-        layout.addLayout(form_layout)
+        # Container for Mode Settings
+        display_container = QGroupBox("Display Settings")
+        display_layout = QVBoxLayout()
+        display_label = QLabel("Real time interpretation as bar, during meeting")
+        display_label.setObjectName("text-settings")
 
-        h_layout = QHBoxLayout()
-        delete_label = QLabel("To clear all previous sessions information:")
-        delete_label.setObjectName("text")
-        delete_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        h_layout.addWidget(delete_label, alignment=Qt.AlignmentFlag.AlignLeft)
+        # Mode settings buttons
+        self.show_option = QRadioButton("Show")
+        self.hide_option = QRadioButton("Hide")
+        display_layout.addWidget(mode_label)
+        display_layout.addWidget(self.show_option)
+        display_layout.addWidget(self.hide_option)
+
+        # Grouping buttons so only one can be checked at same time
+        self.display_option = QButtonGroup(self)
+        self.display_option.addButton(self.light_mode_option)
+        self.display_option.addButton(self.dark_mode_option)
+
+        display_container.setLayout(display_layout)
+
+        form_layout.addRow(display_container)
+
+        del_files_container = QGroupBox("Clear Files")
+        del_files_layout = QHBoxLayout()
+        del_files_label = QLabel("To clear all previous sessions information:")
+        del_files_label.setObjectName("text-settings")
 
         self.clear_all_button = QPushButton("Clear All")
-        self.clear_all_button.setObjectName("settings")
-        h_layout.addWidget(self.clear_all_button)
-        layout.addLayout(h_layout)
+        del_files_layout.addWidget(del_files_label)
+        del_files_layout.addWidget(self.clear_all_button)
+        del_files_container.setLayout(del_files_layout)
+
+        form_layout.addRow(del_files_container)
+
+        layout.addLayout(form_layout)
 
         #Layout for buttons
         horizontal_layout = QHBoxLayout()
@@ -90,28 +91,24 @@ class SettingsWidget(QWidget):
 
     def save_settings(self):
         dic = {}
-        if self.traffic_light_option.isChecked():
-            dic["trafficLight"] = 1
-            dic["bar"] = 0
-        elif self.bar_option.isChecked():
-            dic["trafficLight"] = 0
-            dic["bar"] = 1
         if self.light_mode_option.isChecked():
-            dic["lightMode"] = 1
-            dic["darkMode"] =0
+            dic["isDarkMode"] = False
         elif self.dark_mode_option.isChecked():
-            dic["lightMode"] = 0
-            dic["darkMode"] = 1
+            dic["isDarkMode"] = True
+        if self.show_option.isChecked():
+            dic["showDisplay"] = True
+        elif self.hide_option.isChecked():
+            dic["showDisplay"] = False
         self.new_settings.emit(dic)
 
     def set_settings(self, settings):
         self.settings = settings
-        if self.settings.get("trafficLight") == 1:
-            self.traffic_light_option.setChecked(True)
-        elif self.settings.get("bar") == 1:
-            self.bar_option.setChecked(True)
-        if self.settings.get("lightMode") == 1:
+        if self.settings.get("isDarkMode") == False:
             self.light_mode_option.setChecked(True),
-        elif self.settings.get("darkMode") == 1:
+        elif self.settings.get("isDarkMode") == True:
             self.dark_mode_option.setChecked(True)
+        if self.settings.get("showDisplay") == False:
+            self.hide_option.setChecked(True),
+        elif self.settings.get("showDisplay") == True:
+            self.show_option.setChecked(True)
 

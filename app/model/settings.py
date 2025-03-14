@@ -6,10 +6,8 @@ from .constants import *
 class SettingsModel:
 
     DEFAULT_SETTINGS = {
-        'trafficLight': 1,
-        'bar': 0,
-        'lightMode': 1,
-        'darkMode': 0,
+        'isDarkMode': False,
+        'showDisplay': True,
     }
     def __init__(self):
         self.settings = self.load_settings()
@@ -17,9 +15,13 @@ class SettingsModel:
 
     def load_settings(self):
         """Load settings from the file, or return default settings if file doesn't exist."""
+        settings_exist = False
         folder_path = getAbsPath(FOLDER_PATH_SETTINGS)
         if os.path.exists(folder_path):
             file_path = os.path.join(folder_path, FILE_NAME_SETTINGS)
+            if os.path.exists(file_path):
+                settings_exist = True
+        if settings_exist:
             with open(file_path, 'r') as file:
                 return json.load(file)
         else:

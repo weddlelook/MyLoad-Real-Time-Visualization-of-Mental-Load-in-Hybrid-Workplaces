@@ -58,6 +58,7 @@ class MaxtestPage(Page):
     def start(self, controller):
         controller.start_max()
         controller.TestLogic.startTest() # TODO
+        self.widget.hide_correct_button()
 
 class MaxtestStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
@@ -79,6 +80,7 @@ class JitsiPage(Page):
         self.widget.end_button.clicked.connect(controller.stop_monitoring)
        # controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
+        self.widget.end_button.clicked.connect(self.widget.end_meeting)
         
     def start(self, controller):
         self.widget.load_jitsi_meeting(controller.jitsi_room_name)

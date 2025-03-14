@@ -37,13 +37,16 @@
                         height: "100%",
                         parentNode: document.querySelector("#jitsi-container"),
                         configOverwrite: {
-                        toolbarButtons: [
+                            prejoinPageEnabled: false,
+                            disableThirdPartyRequests: true,
+                            toolbarButtons: [
                             "microphone", "camera", "desktop", "chat", "settings", 
                             "raisehand", "tileview", "fullscreen"
                         ] // "hangup" button removed
                     },
                         interfaceConfigOverwrite: {
-                            SHOW_JITSI_WATERMARK: false
+                            SHOW_JITSI_WATERMARK: false,
+                            SHOW_CHROME_EXTENSION_BANNER: false
                         }
                     };
                     api = new JitsiMeetExternalAPI(domain, options);
@@ -54,7 +57,7 @@
 
             function endMeeting() {
                 if (api) {
-                    api.executeCommand('hangup'); // ✅ Ends the meeting
+                    api.executeCommand('hangup'); 
                 } else {
                     console.error("Jitsi API is not initialized.");
                 }

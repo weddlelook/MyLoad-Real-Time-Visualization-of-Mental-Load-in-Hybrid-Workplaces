@@ -53,10 +53,10 @@ class Controller(QObject):
         self.jitsi_room_name = None
 
     def start_min(self):
-        self.start_min_signal.emit(10000)
+        self.start_min_signal.emit(60000)
 
     def start_max(self):
-        self.start_max_signal.emit(10000)
+        self.start_max_signal.emit(60000)
 
     def start_monitoring(self):
         self.start_monitoring_signal.emit()
