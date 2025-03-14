@@ -92,12 +92,10 @@ class EegWorker(QObject):
         while time > 0:
             QThread.msleep(1000)
             data = self.monitor_cognitive_load()
-            try: 
-                try: 
+            try:
+                print(data['cognitive_load'])
                 if data['cognitive_load'] < minwert:
-                        minwert = data['cognitive_load']
-            except TypeError:
-                faults += 1
+                    minwert = data['cognitive_load']
             except TypeError:
                 faults += 1
             time -= 1000
@@ -121,11 +119,9 @@ class EegWorker(QObject):
             QThread.msleep(1000)
             data = self.monitor_cognitive_load()
             try:
-                try:
+                print(data['cognitive_load'])
                 if data['cognitive_load'] > maxwert:
-                        maxwert = data['cognitive_load']
-            except TypeError:
-                faults += 1
+                    maxwert = data['cognitive_load']
             except TypeError:
                 faults += 1
             time -= 1000
