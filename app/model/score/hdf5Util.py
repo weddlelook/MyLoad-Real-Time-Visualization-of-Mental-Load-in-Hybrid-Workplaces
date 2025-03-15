@@ -83,7 +83,7 @@ class hdf5File:
                         str_dtype = h5py.string_dtype('utf-8')
                         marker_dtype = np.dtype(
                               [('timestamp', 'f8'),
-                               ('description', str_dtype)])  # 'S50' String with max 50 symbols
+                               ('description', str_dtype)])
                         h5_file.create_dataset('markers', shape=(0,), maxshape=(None,), dtype=marker_dtype)
 
 
