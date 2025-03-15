@@ -49,6 +49,11 @@ QLabel#text-settings {
     margin-bottom: 20px;
     background-color: #d5e5f1;
 }
+QLabel#paragraph {
+    font-size: 18px;
+    color: black;
+    margin-bottom: 10px;
+}
 QLineEdit {
     border: 1px solid #237e96;
     border-radius: 5px;

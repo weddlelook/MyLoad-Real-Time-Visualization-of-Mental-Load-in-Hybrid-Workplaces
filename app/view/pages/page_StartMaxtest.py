@@ -11,18 +11,19 @@ class SkipDialog(QDialog):
 
     skipConfirmed = pyqtSignal()
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Skip Confirmation")
-        self.setGeometry(300, 300, 400, 200)
+        self.setFixedSize(600, 250)
 
         layout = QVBoxLayout()
 
-        self.label = QLabel("Are you sure you want to skip the test?"
+        self.label = QLabel("Are you sure you want to skip the test? "
                             "Click skip if only you have already saved a session "
                             "in which your conditions like sleep, time, etc are similar")
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.label)
+        self.label.setObjectName("paragraph")
+        self.label.setWordWrap(True)
+        layout.addWidget(self.label, Qt.AlignmentFlag.AlignCenter)
 
         button_layout = QHBoxLayout()
         self.yes_button = QPushButton("Yes")
@@ -45,7 +46,7 @@ class SkipDialog(QDialog):
 class StartMaxTestPage(QWidget):
     def __init__(self):
         super().__init__()
-        self.dialog = SkipDialog()
+        self.dialog = SkipDialog(self)
         self.initUI()
 
 
