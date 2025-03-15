@@ -2,8 +2,7 @@ import json
 import os
 from .constants import *
 
-
-class SettingsModel:
+class SettingsModel():
 
     DEFAULT_SETTINGS = {
         'isDarkMode': False,
@@ -13,44 +12,35 @@ class SettingsModel:
     def __init__(self):
         self.settings = self.load_settings()
 
-
     def load_settings(self):
-        """Load settings from the file, or return default settings if file doesn't exist."""
-
-        folder_path = getAbsPath(FOLDER_PATH_SETTINGS)
-        file_path = os.path.join(folder_path, FILE_NAME_SETTINGS)
-
-        os.makedirs(folder_path, exist_ok=True)
+        """Load settings from the file, or create default settings if the file doesn't exist."""
+        file_path = os.path.join(getAbsPath(FOLDER_PATH_SETTINGS), FILE_NAME_SETTINGS)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         if not os.path.exists(file_path):
-            self.create_settings()
+            self.save_settings(self.DEFAULT_SETTINGS)
+            return self.DEFAULT_SETTINGS
 
         with open(file_path, 'r') as file:
-            return json.load(file)
+            settings = json.load(file)
+            for key, value in self.DEFAULT_SETTINGS.items():
+                if not (key in settings and isinstance(settings[key], type(value))):
+                    self.save_settings(self.DEFAULT_SETTINGS)
+                    return self.DEFAULT_SETTINGS
+            return settings
 
+    def save_settings(self, settings=None):
+        """Save the settings to the file."""
+        file_path = os.path.join(getAbsPath(FOLDER_PATH_SETTINGS), FILE_NAME_SETTINGS)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-    def save_settings(self):
-        """Save the current settings to the settings file."""
-        folder_path = getAbsPath(FOLDER_PATH_SETTINGS)
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        file_path = os.path.join(folder_path, FILE_NAME_SETTINGS)
         with open(file_path, 'w') as file:
-            json.dump(self.settings, file, indent=4)
+            json.dump(settings or self.settings, file, indent=4)
 
-    def set(self, dic):
-        for key, value in dic.items():
-            self.settings[key] = value
+    def set(self, updates):
+        """Update and save settings."""
+        self.settings.update(updates)
         self.save_settings()
-
-    def create_settings(self):
-        """Creates a new settings file from default settings"""
-        folder_path = getAbsPath(FOLDER_PATH_SETTINGS)
-        file_path = os.path.join(folder_path, FILE_NAME_SETTINGS)
-        default_settings = SettingsModel.DEFAULT_SETTINGS
-
-        with open(file_path, 'w') as file:
-            json.dump(default_settings, file, indent=4)
 
     @staticmethod
     def clear_sessions():
