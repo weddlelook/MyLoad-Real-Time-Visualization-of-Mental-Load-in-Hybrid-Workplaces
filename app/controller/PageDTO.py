@@ -69,6 +69,11 @@ class MaxtestStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
         super().__init__(widget, True)
         widget.startMaxtestButton.clicked.connect(lambda: controller.next_page(next_page))
+        widget.skipMaxtestButton.clicked.connect(self.widget.show_skip_dialog)
+
+        dialog = self.widget.dialog
+        dialog.skipConfirmed.connect(lambda: print('dialogtest')) #TODO set the page after skipping the maxtest here
+
 
 class ResultPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
