@@ -11,9 +11,9 @@ class RootWindow(QMainWindow):
         self.setWindowTitle("MyLoad")
         self.settings = settings
         #Set minimum size for application window
-        self.setMinimumSize(733, 625)
+        self.setMinimumSize(733, 733)
         #Set default window size
-        self.resize(1200, 625)
+        self.resize(1200, 733)
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
         self.apply_font()

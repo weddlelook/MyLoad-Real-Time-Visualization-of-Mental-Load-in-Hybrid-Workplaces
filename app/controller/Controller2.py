@@ -36,13 +36,14 @@ class Controller(QObject):
             "maxtest_start": MaxtestStartPage(widget.StartMaxTestPage(), self, "maxtest"),
             "maxtest": MaxtestPage(widget.MaxtestPage(), self, "result"),
             "result": ResultPage(widget.ResultsPage(), self, "jitsi"),
-            "jitsi": JitsiPage(widget.JitsiWidget(), self, "retrospective"),
+            "jitsi": JitsiPage(widget.JitsiWidget(), self, "retrospective", self.settings_model.settings),
             "retrospective": RetrospectivePage(widget.RetrospectivePage("app/h5_session_files"), self)
         }
         
         for page_name in self.pages.keys():
             if self.pages[page_name] is not None:
                 self.gui.main_window.register_page(self.pages[page_name].widget, page_name)
+
 
     def new_session(self):
         self.next_page("start")
@@ -52,11 +53,12 @@ class Controller(QObject):
         self.session_name = None
         self.jitsi_room_name = None
 
+
     def start_min(self):
-        self.start_min_signal.emit(60000)
+        self.start_min_signal.emit(1000)
 
     def start_max(self):
-        self.start_max_signal.emit(60000)
+        self.start_max_signal.emit(1000)
 
     def start_monitoring(self):
         self.start_monitoring_signal.emit()
@@ -116,6 +118,7 @@ class Controller(QObject):
         self.gui.main_window.settings.new_settings.connect(self.gui.main_window.toggle_settings)
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.toggle_settings)
         self.gui.main_window.settings.clear_all_button.clicked.connect(self.settings_model.clear_sessions)
+        self.gui.main_window.settings.new_settings.connect(self.changer)
 
     start_min_signal = pyqtSignal(int)
     start_max_signal = pyqtSignal(int)
@@ -136,3 +139,6 @@ class Controller(QObject):
             self.next_page("maxtest_start")
         elif phase == Phase.MAX_PHASE.value:
             self.next_page("result")
+
+    def changer(self):
+        self.pages["jitsi"].change_display()

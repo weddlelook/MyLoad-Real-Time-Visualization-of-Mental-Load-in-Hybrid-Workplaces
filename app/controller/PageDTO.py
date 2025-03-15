@@ -79,7 +79,7 @@ class ResultPage(Page):
         self.widget.updateResult(controller.get_maxtest_result())
 
 class JitsiPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str):
+    def __init__(self, widget:QWidget, controller, next_page:str, settings):
         super().__init__(widget, False)
         self.controller = controller
         self.widget.end_button.clicked.connect(lambda: controller.next_page(next_page))
@@ -87,6 +87,9 @@ class JitsiPage(Page):
        # controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
         self.widget.end_button.clicked.connect(self.widget.end_meeting)
+        self.settings = settings
+        self.change_display()
+
         self.widget.comment_sent_button.clicked.connect(self.save_comment)
 
     def start(self, controller):
@@ -103,6 +106,12 @@ class JitsiPage(Page):
         else:
             print("Please provide a comment before saving")
 
+
+    def change_display(self):
+        if self.settings["showDisplay"]:
+            self.widget.show_ClScore()
+        else:
+            self.widget.hide_ClScore()
 
 class RetrospectivePage(Page):
     def __init__(self, widget:QWidget, controller):
