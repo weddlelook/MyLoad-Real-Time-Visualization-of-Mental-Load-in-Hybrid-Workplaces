@@ -69,6 +69,11 @@ class MaxtestStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
         super().__init__(widget, True)
         widget.startMaxtestButton.clicked.connect(lambda: controller.next_page(next_page))
+        widget.skipMaxtestButton.clicked.connect(self.widget.show_skip_dialog)
+
+        dialog = self.widget.dialog
+        dialog.skipConfirmed.connect(lambda: print('dialogtest')) #TODO set the page after skipping the maxtest here
+
 
 class ResultPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
@@ -81,11 +86,11 @@ class ResultPage(Page):
 class JitsiPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str, settings):
         super().__init__(widget, False)
-        # End meeting
-        self.widget.end_button.clicked.connect(lambda: controller.next_page(next_page))
-        self.widget.end_button.clicked.connect(controller.stop_monitoring)
-        self.widget.end_button.clicked.connect(self.widget.end_meeting)
-
+        self.controller = controller
+        self.widget.dialog.exit_button.clicked.connect(lambda : controller.next_page(next_page))
+        self.widget.dialog.exit_button.clicked.connect(controller.stop_monitoring)
+        self.widget.dialog.exit_button.clicked.connect(self.widget.end_meeting)
+        #controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
 
         # Display settings

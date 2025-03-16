@@ -29,6 +29,7 @@ class hdf5File:
 
       def save_marker(self, timestamp, description):
             with h5py.File(self.filename, 'a') as h5_file:
+                  description = str(description)
                   markers = h5_file['markers']
                   new_marker = np.array([(timestamp, description.encode())], dtype=markers.dtype)
                   markers.resize((markers.shape[0] + 1,))
@@ -74,9 +75,10 @@ class hdf5File:
                         h5_file.attrs['max'] = np.nan
 
                         #Dataset for user comments
+                        str_dtype = h5py.string_dtype('utf-8')
                         marker_dtype = np.dtype(
                               [('timestamp', 'f8'),
-                               ('description', 'S50')])  # 'S50' String with max 50 symbols
+                               ('description', str_dtype)])
                         h5_file.create_dataset('markers', shape=(0,), maxshape=(None,), dtype=marker_dtype)
 
                         print(f"HDF5 file created successfully: {HDF5_FILENAME}")
