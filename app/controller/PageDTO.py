@@ -49,6 +49,8 @@ class BaselineStartPage(Page):
 class SkipPage(Page):
     def __init__(self, widget: QWidget, controller, next_page: str, previous_page: str):
         super().__init__(widget, True)
+        self.widget.back_button.clicked.connect(lambda: controller.next_page(previous_page))
+        self.widget.next_button.clicked.connect(lambda:  controller.next_page(next_page))
 
 class BaselinePage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):

@@ -8,13 +8,22 @@ from ..constants import *
 
 
 class SkipPageWidget(QWidget):
-    def __init__(self):
+    def __init__(self, session_folder):
         super().__init__()
+        self.session_folder = session_folder
         self.initUI()
 
     def initUI(self):
         v_layout = QVBoxLayout()
         h_layout = QHBoxLayout()
+
+        label = QLabel("To proceed, choose a session from your previous recorded sessions"
+                       " that has similar conditions, such as sleep, energy, and other"
+                       " factors, to this session."
+                       )
+        label.setWordWrap(True)
+        label.setObjectName("subtitle")
+        v_layout.addWidget(label, Qt.AlignmentFlag.AlignLeft)
 
         self.session_list = QListWidget()
         self.session_list.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
@@ -28,6 +37,7 @@ class SkipPageWidget(QWidget):
         self.next_button.setEnabled(False)
         h_layout.addWidget(self.next_button, Qt.AlignmentFlag.AlignCenter)
         v_layout.addLayout(h_layout)
+        self.load_sessions()
 
         self.setLayout(v_layout)
 

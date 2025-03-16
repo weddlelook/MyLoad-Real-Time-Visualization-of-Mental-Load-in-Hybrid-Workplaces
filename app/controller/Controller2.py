@@ -35,7 +35,7 @@ class Controller(QObject):
         self.pages = {
             "start": StartPage(widget.StartWidget(), self, "baseline_start"),
             "baseline_start": BaselineStartPage(widget.StartBaselinePage(), self, "baseline", "skip"),
-            "skip": SkipPage(widget.SkipPageWidget(), self, "jitsi", "baseline_start"),
+            "skip": SkipPage(widget.SkipPageWidget("app/h5_session_files"), self, "jitsi", "baseline_start"),
             "baseline": BaselinePage(widget.BaselineWidget(), self, "maxtest_start"),
             "maxtest_start": MaxtestStartPage(widget.StartMaxTestPage(), self, "maxtest"),
             "maxtest": MaxtestPage(widget.MaxtestPage(), self, "result"),
