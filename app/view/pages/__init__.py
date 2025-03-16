@@ -8,3 +8,4 @@ from .page_StartMaxtest import StartMaxTestPage
 from .page_Settings import SettingsWidget
 #from .widget_Plot import EEGPlotWidget
 from .widget_Jitsi import JitsiWidget
+from .page_skip import SkipPageWidget

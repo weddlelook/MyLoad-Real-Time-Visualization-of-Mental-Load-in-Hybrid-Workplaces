@@ -59,7 +59,7 @@ class ExitDialog(QDialog):
 
 class JitsiWidget(QWidget):
 
-    commentSignal= pyqtSignal(str)
+    commentSignal = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -98,7 +98,7 @@ class JitsiWidget(QWidget):
 
         right_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignBottom)
 
-        self.end_button.clicked.connect(self.show_exit_confirmation)
+        self.end_button.clicked.connect(self.dialog.exec)
 
         main_layout.addLayout(left_layout, 9)  # 90% of the space
         main_layout.addLayout(right_layout, 1)  # 10% of the space
@@ -136,12 +136,6 @@ class JitsiWidget(QWidget):
 
     def show_ClScore(self):
         self.plot_widget.show()
-
-    def show_exit_confirmation(self):
-        self.dialog.exec()
-
-    def show_exit_confirmation(self):
-        self.dialog.exec()
 
     def emit_user_input(self):
         self.comment = self.comment_input.text().strip()

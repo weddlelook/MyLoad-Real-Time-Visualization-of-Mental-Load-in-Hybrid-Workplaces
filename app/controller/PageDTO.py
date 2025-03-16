@@ -44,6 +44,11 @@ class BaselineStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page_baseline_button:str, next_page_skip_button:str):
         super().__init__(widget, True)
         self.widget.monitor_baseline_button.clicked.connect(lambda: controller.next_page(next_page_baseline_button))
+        self.widget.dialog.yes_button.clicked.connect(lambda: controller.next_page(next_page_skip_button))
+
+class SkipPage(Page):
+    def __init__(self, widget: QWidget, controller, next_page: str, previous_page: str):
+        super().__init__(widget, True)
 
 class BaselinePage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
@@ -69,10 +74,6 @@ class MaxtestStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
         super().__init__(widget, True)
         widget.startMaxtestButton.clicked.connect(lambda: controller.next_page(next_page))
-        widget.skipMaxtestButton.clicked.connect(self.widget.show_skip_dialog)
-
-        dialog = self.widget.dialog
-        dialog.skipConfirmed.connect(lambda: print('dialogtest')) #TODO set the page after skipping the maxtest here
 
 
 class ResultPage(Page):
