@@ -13,20 +13,24 @@ class Controller(QObject):
 
     def __init__(self):
         super().__init__()
+
+        # Model
+        self.settings_model = SettingsModel()
+        self.test_model = testLogic()
         self.recorder = Recorder()
+
+        # View
+        self.gui = RootWindow(self.settings_model.settings)
+
         self.recorder.phase_complete.connect(self.next_page) # TODO
         self.recorder.error.connect(self.handle_error)
 
 
-        self.settings_model = SettingsModel()
-        self.TestLogic = testLogic()
         self.gui = RootWindow(self.settings_model.settings)
         self.gui.retrospective_action.triggered.connect(self.gui.main_window.toggle_retrospective)
 
         self.connect_settings()
         self.connect_recorder()
-
-        self.hdf5_File = None
 
         self.pages = {
             "start": StartPage(widget.StartWidget(), self, "baseline_start"),
@@ -39,7 +43,6 @@ class Controller(QObject):
             "jitsi": JitsiPage(widget.JitsiWidget(), self, "retrospective", self.settings_model.settings),
             "retrospective": RetrospectivePage(widget.RetrospectivePage("app/h5_session_files"), self)
         }
-        
         for page_name in self.pages.keys():
             if self.pages[page_name] is not None:
                 self.gui.main_window.register_page(self.pages[page_name].widget, page_name)
@@ -52,7 +55,6 @@ class Controller(QObject):
                 self.pages[page_name].reset(self)
         self.session_name = None
         self.jitsi_room_name = None
-
 
     def start_min(self):
         self.start_min_signal.emit(1000)
@@ -69,21 +71,20 @@ class Controller(QObject):
     def set_session_variables(self, session_name:str, jitsi_room_name:str):
         self.session_name = session_name
         self.jitsi_room_name = jitsi_room_name
-        self.hdf5_File = hdf5File(session_name)
-        self.recorder.new_session(self.hdf5_File)
+        self.recorder.new_session(self.session_name)
 
     def provide_char(self):
-        return self.TestLogic.provide_char()
+        return self.test_model.provide_char()
     
     def maxtest_correct_button_clicked(self):
-        self.TestLogic.correctButtonClicked()
+        self.test_model.correctButtonClicked()
 
     def maxtest_incorrect_button_clicked(self):
-        self.TestLogic.skipButtonClicked()
+        self.test_model.skipButtonClicked()
 
     def get_maxtest_result(self):
         self.recorder._set_calculateScore()
-        return self.TestLogic.calculateResults()
+        return self.test_model.calculateResults()
 
     def next_page(self, page_name:str, *args):
             #page = self.pages[page_name]
@@ -129,10 +130,6 @@ class Controller(QObject):
         self.start_max_signal.connect(self.recorder.max_phase)
         self.start_monitoring_signal.connect(self.recorder.monitoring_phase)
         self.recorder.phase_complete.connect(self.phase_complete)
-        self.recorder.powers.connect(self.testprint)
-
-    def testprint(self, data):
-        print("test")
 
     def phase_complete(self, phase):
         if phase == Phase.MIN_PHASE.value:

@@ -8,6 +8,7 @@ from PyQt6.QtCore import QThread, QObject
 
 import enum
 import time
+from datetime import datetime
 
 class Phase(enum.Enum):
     MIN_PHASE = enum.auto()
@@ -33,8 +34,8 @@ class Recorder(QObject):
         self.maximum = None
         self.monitoring = False
 
-    def new_session(self, hdf5_File):
-        self.hdf5Session = hdf5_File
+    def new_session(self, session_name):
+        self.hdf5Session = hdf5File(session_name)
         self.minimum = None
         self.maximum = None
         self.monitoring = False
@@ -63,10 +64,10 @@ class Recorder(QObject):
                 data["load_score"] = self.score_calculator.calculatingScore(data)
                 self.hdf5Session.save_eeg_data_as_hdf5(data)
                 self.powers.emit(data)
-                time.sleep(1)
+                QThread.sleep(1)
             except TypeError as e:
                 self.error.emit(str(e))
-                time.sleep(5)
+                QThread.sleep(5)
 
     def stop_monitoring(self):
         self.monitoring = False
@@ -74,3 +75,6 @@ class Recorder(QObject):
     def _set_calculateScore(self):
         I_Base, I_Max = self.minimum, self.maximum
         self.score_calculator = calculateScore(I_Base, I_Max)
+
+    def save_comment(self, comment:str):
+        self.hdf5Session.save_marker(datetime.now().timestamp(), comment)

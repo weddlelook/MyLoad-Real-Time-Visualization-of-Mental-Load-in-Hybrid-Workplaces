@@ -57,12 +57,12 @@ class MaxtestPage(Page):
         super().__init__(widget, False)
         self.widget.correct_button.clicked.connect(controller.maxtest_correct_button_clicked)
         self.widget.skip_button.clicked.connect(controller.maxtest_incorrect_button_clicked)
-        controller.TestLogic.showButton.connect(self.widget.show_correct_button) # TODO
-        controller.TestLogic.charSubmiter.connect(self.widget.updateChar) # TODO
+        controller.test_model.showButton.connect(self.widget.show_correct_button) # TODO
+        controller.test_model.charSubmiter.connect(self.widget.updateChar) # TODO
 
     def start(self, controller):
         controller.start_max()
-        controller.TestLogic.startTest() # TODO
+        controller.test_model.startTest() # TODO
         self.widget.hide_correct_button()
 
 class MaxtestStartPage(Page):
@@ -81,30 +81,22 @@ class ResultPage(Page):
 class JitsiPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str, settings):
         super().__init__(widget, False)
-        self.controller = controller
+        # End meeting
         self.widget.end_button.clicked.connect(lambda: controller.next_page(next_page))
         self.widget.end_button.clicked.connect(controller.stop_monitoring)
-       # controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
-        controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
         self.widget.end_button.clicked.connect(self.widget.end_meeting)
+
+        controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
+
+        # Display settings
         self.settings = settings
         self.change_display()
 
-        self.widget.comment_sent_button.clicked.connect(self.save_comment)
+        self.widget.comment.connect(controller.recorder.save_comment)
 
     def start(self, controller):
         self.widget.load_jitsi_meeting(controller.jitsi_room_name)
         controller.start_monitoring()
-
-    def save_comment(self):
-        comment = self.widget.comment_input.text().strip()
-        print(comment)
-        if comment:
-            current_timestamp = datetime.now().timestamp()  # Aktuellen Zeitstempel holen
-            self.hdf5_marker.save_marker(self.controller.hdf5_File, current_timestamp, comment)
-            self.widget.comment_input.clear()
-        else:
-            print("Please provide a comment before saving")
 
 
     def change_display(self):

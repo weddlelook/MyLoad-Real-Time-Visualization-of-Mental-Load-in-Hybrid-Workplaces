@@ -30,18 +30,13 @@ class hdf5File:
       def save_marker(self, timestamp, description):
             with h5py.File(self.filename, 'a') as h5_file:
                   markers = h5_file['markers']
-                  new_marker = np.array([(timestamp, description)], dtype=markers.dtype)
+                  new_marker = np.array([(timestamp, description.encode())], dtype=markers.dtype)
                   markers.resize((markers.shape[0] + 1,))
                   markers[-1] = new_marker[0]
-
-            with h5py.File(self.filename, 'r') as h5_file:
-                  if 'markers' in h5_file:
-                        markers = h5_file['markers'][:]
-                        print("Alle Marker in der .h5-Datei:")
-                        for marker in markers:
-                              timestamp = marker[0]
-                              description = marker[1].decode()  # Konvertiere den Byte-String in einen normalen String
-                              print(f"Zeitstempel: {timestamp}, Beschreibung: {description}")
+                  # Print all markers directly
+                  print("Alle Marker in der .h5-Datei:")
+                  for marker in markers:
+                        print(f"Zeitstempel: {marker[0]}, Beschreibung: {marker[1].decode()}")
 
       def set_min(self, min_value: float):
             with h5py.File(self.filename, 'a') as h5_file:
@@ -83,8 +78,6 @@ class hdf5File:
                               [('timestamp', 'f8'),
                                ('description', 'S50')])  # 'S50' String with max 50 symbols
                         h5_file.create_dataset('markers', shape=(0,), maxshape=(None,), dtype=marker_dtype)
-
-
 
                         print(f"HDF5 file created successfully: {HDF5_FILENAME}")
             return HDF5_FILENAME

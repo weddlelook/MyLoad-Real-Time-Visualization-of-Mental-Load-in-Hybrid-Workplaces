@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QSpacerItem, QSizePolicy
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEnginePage
-from PyQt6.QtCore import QUrl, QTimer, Qt
+from PyQt6.QtCore import QUrl, QTimer, Qt, pyqtSignal
 import os
 from pathlib import Path
 #from .widget_Plot import EEGPlotWidget
@@ -28,6 +28,9 @@ class CustomWebEnginePage(QWebEnginePage):
 
 
 class JitsiWidget(QWidget):
+
+    comment = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.plot_widget = Indicator()
@@ -47,7 +50,6 @@ class JitsiWidget(QWidget):
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.browser)
 
-
         right_layout = QVBoxLayout()
         right_widget = self.plot_widget
         self.end_button = QPushButton("End Meeting")
@@ -61,12 +63,11 @@ class JitsiWidget(QWidget):
 
         right_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignBottom)
 
-
-
         main_layout.addLayout(left_layout, 9)  # 90% of the space
         main_layout.addLayout(right_layout, 1)  # 10% of the space
 
         self.setLayout(main_layout)
+        self.comment_sent_button.clicked.connect(self.emit_user_input)
 
     def set_settings(self):
         settings = self.browser.settings()
@@ -98,3 +99,9 @@ class JitsiWidget(QWidget):
 
     def show_ClScore(self):
         self.plot_widget.show()
+
+    def emit_user_input(self):
+        comment = self.comment_input.text().strip()
+        if comment:
+            self.comment.emit(comment)
+        self.comment_input.clear()
