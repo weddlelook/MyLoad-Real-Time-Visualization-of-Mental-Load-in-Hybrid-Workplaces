@@ -97,7 +97,7 @@ class JitsiPage(Page):
         self.settings = settings
         self.change_display()
 
-        self.widget.comment.connect(controller.recorder.save_comment)
+        self.widget.commentSignal.connect(lambda: controller.recorder.save_comment(datetime.now().timestamp(), self.widget.comment))
 
     def start(self, controller):
         self.widget.load_jitsi_meeting(controller.jitsi_room_name)

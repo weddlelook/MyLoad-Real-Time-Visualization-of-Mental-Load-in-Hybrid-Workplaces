@@ -59,7 +59,7 @@ class ExitDialog(QDialog):
 
 class JitsiWidget(QWidget):
 
-    comment = pyqtSignal(str)
+    commentSignal= pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -67,6 +67,7 @@ class JitsiWidget(QWidget):
         self.dialog = ExitDialog(self)
         self.initUI()
         self.set_settings()
+        self.comment1 = None
 
     def initUI(self):
         #Layouts
@@ -143,7 +144,7 @@ class JitsiWidget(QWidget):
         self.dialog.exec()
 
     def emit_user_input(self):
-        comment = self.comment_input.text().strip()
-        if comment:
-            self.comment.emit(comment)
+        self.comment = self.comment_input.text().strip()
+        if self.comment:
+            self.commentSignal.emit(self.comment)
         self.comment_input.clear()

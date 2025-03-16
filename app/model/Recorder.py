@@ -76,5 +76,5 @@ class Recorder(QObject):
         I_Base, I_Max = self.minimum, self.maximum
         self.score_calculator = calculateScore(I_Base, I_Max)
 
-    def save_comment(self, comment:str):
-        self.hdf5Session.save_marker(datetime.now().timestamp(), comment)
+    def save_comment(self, timestamp, comment:str):
+        self.hdf5Session.save_marker(timestamp, comment)
