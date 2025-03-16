@@ -42,7 +42,6 @@ class EegWorker(QObject):
     def monitor_cognitive_load(self):
         if not self.session_active:
             self._start_session()
-            QThread.msleep(1000)
 
         try:
             new_data = self.board_shim.get_board_data()
@@ -77,59 +76,6 @@ class EegWorker(QObject):
 
         except Exception as e:
             self.status_callback.emit(f"Error during monitoring: {e}")
-
-    # ------------------ Phases -----------------------
-
-    def record_minimum(self, time:int):
-        if not self.session_active:
-            self._start_session()
-
-        self.status_callback.emit("Recording minimum cognitive load")
-        minwert = 100
-        faults = 0 
-
-        while time > 0:
-            QThread.msleep(1000)
-            data = self.monitor_cognitive_load()
-            try:
-                print(data['cognitive_load'])
-                if data['cognitive_load'] < minwert:
-                    minwert = data['cognitive_load']
-            except TypeError:
-                faults += 1
-            time -= 1000
-    
-        if minwert == 100:
-            raise ValueError("No valid data recorded")
-        
-        self.status_callback.emit(f"Minimum cognitive load: {minwert} with {faults} faults with {faults} faults")
-        return minwert
-    
-    def record_maximum(self, time:int):
-        if not self.session_active:
-            self._start_session()
-
-        self.status_callback.emit("Recording maximum cognitive load")
-        maxwert = 0
-        faults = 0
-        faults = 0
-
-        while time > 0:
-            QThread.msleep(1000)
-            data = self.monitor_cognitive_load()
-            try:
-                print(data['cognitive_load'])
-                if data['cognitive_load'] > maxwert:
-                    maxwert = data['cognitive_load']
-            except TypeError:
-                faults += 1
-            time -= 1000
-
-        if maxwert == 0:
-            raise ValueError("No valid data recorded")
-        
-        self.status_callback.emit(f"Maximum cognitive load: {maxwert} with {faults} faults with {faults} faults")
-        return maxwert    
 
     # --------------- Private methods -----------------
 

@@ -21,12 +21,6 @@ class Controller(QObject):
 
         # View
         self.gui = RootWindow(self.settings_model.settings)
-
-        self.recorder.phase_complete.connect(self.next_page) # TODO
-        self.recorder.error.connect(self.handle_error)
-
-
-        self.gui = RootWindow(self.settings_model.settings)
         self.gui.retrospective_action.triggered.connect(self.gui.main_window.toggle_retrospective)
 
         self.connect_settings()
@@ -57,16 +51,16 @@ class Controller(QObject):
         self.jitsi_room_name = None
 
     def start_min(self):
-        self.start_min_signal.emit(1000)
+        self.start_recording_phase.emit(Phase.MIN.value, 10000)
 
     def start_max(self):
-        self.start_max_signal.emit(1000)
+        self.start_recording_phase.emit(Phase.MAX.value, 10000)
 
     def start_monitoring(self):
-        self.start_monitoring_signal.emit()
+        self.start_recording_phase.emit(Phase.MONITOR.value)
 
     def stop_monitoring(self):
-        self.recorder.stop_monitoring()
+        self.start_recording_phase.emit(Phase.PAUSED.value)
 
     def set_session_variables(self, session_name:str, jitsi_room_name:str):
         self.session_name = session_name
@@ -83,7 +77,6 @@ class Controller(QObject):
         self.test_model.skipButtonClicked()
 
     def get_maxtest_result(self):
-        self.recorder._set_calculateScore()
         return self.test_model.calculateResults()
 
     def next_page(self, page_name:str, *args):
@@ -121,20 +114,18 @@ class Controller(QObject):
         self.gui.main_window.settings.clear_all_button.clicked.connect(self.settings_model.clear_sessions)
         self.gui.main_window.settings.new_settings.connect(self.changer)
 
-    start_min_signal = pyqtSignal(int)
-    start_max_signal = pyqtSignal(int)
-    start_monitoring_signal = pyqtSignal()
+    start_recording_phase = pyqtSignal(int, int)
 
     def connect_recorder(self):
-        self.start_min_signal.connect(self.recorder.min_phase)
-        self.start_max_signal.connect(self.recorder.max_phase)
-        self.start_monitoring_signal.connect(self.recorder.monitoring_phase)
+        self.start_recording_phase.connect(self.recorder.set_phase)
         self.recorder.phase_complete.connect(self.phase_complete)
+        self.recorder.phase_complete.connect(self.next_page) # TODO
+        self.recorder.error.connect(self.handle_error)
 
     def phase_complete(self, phase):
-        if phase == Phase.MIN_PHASE.value:
+        if phase == Phase.MIN.value:
             self.next_page("maxtest_start")
-        elif phase == Phase.MAX_PHASE.value:
+        elif phase == Phase.MAX.value:
             self.next_page("result")
 
     def changer(self):
