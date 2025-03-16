@@ -106,6 +106,8 @@ class MainWidget(QWidget):
             widget.load_sessions()
             widget.back_button.clicked.connect(lambda: self.set_page("start"))
         else:
+            if self.previous_page_name == "jitsi":
+                return
             self.set_page(self.previous_page_name)
 
     def _get_name_of_widget(self, get_widget=None):
