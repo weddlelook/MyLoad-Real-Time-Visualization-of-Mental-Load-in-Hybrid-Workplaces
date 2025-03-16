@@ -107,7 +107,7 @@ class RetrospectivePage(QWidget):
                 with h5py.File(file_path, 'r') as h5_file:
                     eeg_data = h5_file['EEG_data'][:]
                     timestamps = eeg_data['timestamp']
-                    cognitive_load = eeg_data['cognitive_load']
+                    cognitive_load_score = eeg_data['load_score']
 
                     #Falls nur eine Session geplottet wird
                     if show_concrete_time:
@@ -117,7 +117,7 @@ class RetrospectivePage(QWidget):
                         # Konvertiere die Zeitstempel in "Stunde:Minute"
                         time_labels = self._convert_timestamps(start_time, timestamps)
 
-                        ax.plot(time_labels, cognitive_load, label=file)
+                        ax.plot(time_labels, cognitive_load_score, label=file)
 
                         # Lade und plotte Marker
                         if 'markers' in h5_file:
@@ -126,7 +126,7 @@ class RetrospectivePage(QWidget):
                             marker_descriptions = [m[1].decode() for m in markers]
 
                             marker_cl_values = [
-                                cognitive_load[np.argmin(np.abs(timestamps - m[0]))] for m in markers
+                                cognitive_load_score[np.argmin(np.abs(timestamps - m[0]))] for m in markers
                             ]
 
                             scatter = ax.scatter(marker_times, marker_cl_values, color='red', label='Kommentare',
@@ -142,7 +142,7 @@ class RetrospectivePage(QWidget):
                     else:
                         # Setze die Zeitstempel relativ zum Startzeitpunkt
                         timestamps_rel = timestamps - timestamps[0]  # Startzeitpunkt abziehen
-                        ax.plot(timestamps_rel, cognitive_load, label=file)
+                        ax.plot(timestamps_rel, cognitive_load_score, label=file)
             except Exception as e:
                 print(f"Fehler beim Lesen der Datei {file}: {e}")
 
