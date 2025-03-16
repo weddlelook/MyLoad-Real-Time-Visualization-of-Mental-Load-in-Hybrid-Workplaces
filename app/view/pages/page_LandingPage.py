@@ -75,6 +75,14 @@ class StartWidget(QWidget):
             self.label_session.setText("Please provide a label to proceed")
         if not self.jitsi_room_name:
             self.label_jitsi.setText("Please provide a room name to proceed")
+        if len(self.session_name) > 150:
+            self.label_session.setText("Please provide a shorter session name")
+            self.session_input.clear()
+            return
+        if len(self.jitsi_room_name) > 150:
+            self.label_jitsi.setText("Please provide a shorter room name")
+            self.jitsi_input.clear()
+            return
         if self.session_name and self.jitsi_room_name:
             user_input = [self.session_name, self.jitsi_room_name]
             self.user_input_entered.emit(user_input)
