@@ -118,6 +118,7 @@ class RetrospectivePage(QWidget):
                         time_labels = self._convert_timestamps(start_time, timestamps)
 
                         ax.plot(time_labels, cognitive_load_score, label=file)
+                        ax.legend(loc="upper right")
 
                         # Lade und plotte Marker
                         if 'markers' in h5_file:
@@ -136,6 +137,8 @@ class RetrospectivePage(QWidget):
                             @cursor.connect("add")
                             def on_hover(sel):
                                 sel.annotation.set_text(marker_descriptions[sel.index])
+                                sel.annotation.get_bbox_patch().set_facecolor("lightblue")  # Hintergrundfarbe ändern
+                                sel.annotation.get_bbox_patch().set_edgecolor("black")  # Randfarbe ändern
 
 
                             #Falls mehrere Sessions geplottet werden sollen
@@ -148,6 +151,6 @@ class RetrospectivePage(QWidget):
 
         ax.set_xlabel("Zeit (Stunde:Minute)" if len(selected_files) == 1 else "Zeit (s)")
         ax.set_ylabel("Cognitive Load")
-        ax.legend()
+        ax.legend(loc="upper left", bbox_to_anchor=(-0.16, 1.15), borderaxespad=0.)
         ax.grid(True)
         self.canvas.draw()
