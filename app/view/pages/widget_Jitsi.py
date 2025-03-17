@@ -86,10 +86,19 @@ class JitsiWidget(QWidget):
         self.comment_input.setPlaceholderText("Comment...")
         self.comment_sent_button = QPushButton("Comment Sent")
 
+        # Comment confirmation message
+        self.message_label = QLabel()
+        self.message_label.setObjectName("text")
+        self.message_label.setWordWrap(True)
+        # Timer for message
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.clear_message)
+
         left_layout.addWidget(self.browser)
         right_widget = self.plot_widget
 
         right_layout.addWidget(right_widget)
+        right_layout.addWidget(self.message_label, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_input, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_sent_button, alignment=Qt.AlignmentFlag.AlignBottom)
 
@@ -137,8 +146,21 @@ class JitsiWidget(QWidget):
     def show_ClScore(self):
         self.plot_widget.show()
 
+    def clear_message(self):
+        # Clear the message label
+        self.message_label.clear()
+        self.timer.stop()
+
+    def show_message(self, message):
+        self.message_label.setText(message)
+        # Start the timer to clear the message after 1 seconds
+        self.timer.start(1000)  # 1000 ms = 1 seconds
+
     def emit_user_input(self):
         self.comment = self.comment_input.text().strip()
         if self.comment:
             self.commentSignal.emit(self.comment)
+            self.show_message("Comment successfully sent!")
         self.comment_input.clear()
+
+
