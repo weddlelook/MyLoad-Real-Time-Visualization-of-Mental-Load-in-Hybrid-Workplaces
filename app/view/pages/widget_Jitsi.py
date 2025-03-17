@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLin
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEnginePage
 from PyQt6.QtCore import QUrl, QTimer, Qt, pyqtSignal
+from PyQt6.QtGui import QIcon, QPixmap
 import os
 from pathlib import Path
 #from .widget_Plot import EEGPlotWidget
@@ -67,7 +68,7 @@ class JitsiWidget(QWidget):
         self.dialog = ExitDialog(self)
         self.initUI()
         self.set_settings()
-        self.comment1 = None
+        self.comment = None
 
     def initUI(self):
         #Layouts
@@ -81,6 +82,7 @@ class JitsiWidget(QWidget):
 
         #End Meeting Button
         self.end_button = QPushButton("End Meeting")
+
         #User Input for Notes/Highlights
         self.comment_input = QLineEdit()
         self.comment_input.setPlaceholderText("Comment...")
@@ -94,10 +96,13 @@ class JitsiWidget(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.clear_message)
 
-        left_layout.addWidget(self.browser)
-        right_widget = self.plot_widget
+        self.plot_button = QPushButton("Hide Score")
+        self.plot_button.clicked.connect(self.toggle_button)
 
-        right_layout.addWidget(right_widget)
+        left_layout.addWidget(self.browser)
+
+        right_layout.addWidget(self.plot_button, alignment=Qt.AlignmentFlag.AlignTop)
+        right_layout.addWidget(self.plot_widget)
         right_layout.addWidget(self.message_label, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_input, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_sent_button, alignment=Qt.AlignmentFlag.AlignBottom)
@@ -109,8 +114,8 @@ class JitsiWidget(QWidget):
 
         self.end_button.clicked.connect(self.dialog.exec)
 
-        main_layout.addLayout(left_layout, 9)  # 90% of the space
-        main_layout.addLayout(right_layout, 1)  # 10% of the space
+        main_layout.addLayout(left_layout, 84)  # 90% of the space
+        main_layout.addLayout(right_layout, 16)  # 10% of the space
 
         self.setLayout(main_layout)
         self.comment_sent_button.clicked.connect(self.emit_user_input)
@@ -142,9 +147,12 @@ class JitsiWidget(QWidget):
 
     def hide_ClScore(self):
         self.plot_widget.hide()
+        self.plot_button.setText("Show Score")
+
 
     def show_ClScore(self):
         self.plot_widget.show()
+        self.plot_button.setText("Hide Score")
 
     def clear_message(self):
         # Clear the message label
@@ -163,4 +171,8 @@ class JitsiWidget(QWidget):
             self.show_message("Comment successfully sent!")
         self.comment_input.clear()
 
-
+    def toggle_button(self):
+        if self.plot_widget.isVisible():
+            self.hide_ClScore()
+        else:
+            self.show_ClScore()
