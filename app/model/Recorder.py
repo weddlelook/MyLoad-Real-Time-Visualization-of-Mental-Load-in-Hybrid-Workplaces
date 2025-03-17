@@ -30,7 +30,7 @@ class Recorder(QObject):
         self.eegWorker = EegWorker()
         self.thread = QThread()
         self.moveToThread(self.thread)
-        self.thread.started.connect(self.start)
+        self.thread.started.connect(self._start)
         self.thread.start()
 
         self.minimum = None

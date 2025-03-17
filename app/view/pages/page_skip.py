@@ -3,8 +3,10 @@ from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushBut
 from PyQt6.QtCore import Qt, QSize, QDir, pyqtSignal
 from PyQt6.QtGui import QFont, QIcon, QPixmap
 from setuptools.warnings import InformationOnly
+from datetime import datetime, timedelta
 import os
 from ..constants import *
+
 
 
 class SkipPageWidget(QWidget):
@@ -59,6 +61,19 @@ class SkipPageWidget(QWidget):
                 index = file_name.split("__")[0].strip()
                 return int(index)
 
-            files.sort(key=extract_index, reverse=True)
-            for file in files:
+            def extract_date(file_name):
+                # Extract the date part from the filename
+                date_str = file_name.split("__")[2].split("_")[1].split(".")[0].strip()
+                # Convert the date string to a datetime object
+                return datetime.strptime(date_str, "%d-%m-%Y")
+
+            current_date = datetime.now()
+            two_days_ago = current_date - timedelta(days=2)
+
+            # Filter files that are not older than two weeks
+            recent_files = [f for f in files if extract_date(f) >= two_days_ago]
+
+            # Sort the files by index in reverse order
+            recent_files.sort(key=extract_index, reverse=True)
+            for file in recent_files:
                 self.session_list.addItem(file)

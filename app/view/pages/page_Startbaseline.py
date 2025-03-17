@@ -12,6 +12,7 @@ class SkipDialog(QDialog):
         self.userUI()
 
     def userUI(self):
+
         self.setWindowTitle("Skip Confirmation")
         self.setFixedSize(600, 250)
 
@@ -25,18 +26,19 @@ class SkipDialog(QDialog):
         layout.addWidget(self.label, Qt.AlignmentFlag.AlignCenter)
 
         button_layout = QHBoxLayout()
+
         self.no_button = QPushButton("No")
         self.no_button.clicked.connect(self.close)
 
         self.yes_button = QPushButton("Yes")
         self.yes_button.clicked.connect(self.close)
 
-
         button_layout.addWidget(self.no_button)
         button_layout.addWidget(self.yes_button)
 
         layout.addLayout(button_layout)
         self.setLayout(layout)
+
 
 class StartBaselinePage(QWidget):
     def __init__(self):
