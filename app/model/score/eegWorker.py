@@ -7,7 +7,7 @@ from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 from meegkit.asr import ASR
 from brainflow.exit_codes import BrainFlowError
 
-from PyQt6.QtCore import  QThread, QObject, pyqtSignal
+from PyQt6.QtCore import QThread, QObject, pyqtSignal
 
 from .ICAWorker import ICAWorker
 
@@ -27,10 +27,10 @@ class EegWorker(QObject):
         self.session_active = False
         self.databuffer = None
 
-        # NOTE: For threshhold filter
-        self.filter_window= deque(maxlen=self.WINDOW_SIZE)
+        # NOTE: Threshold filter
+        self.filter_window = deque(maxlen=self.WINDOW_SIZE)
 
-        # NOTE: For ICA filter
+        # NOTE: ICA filter
         self.ica_thread = None
         self.ica_worker = None
         self.ica_model = None
@@ -42,10 +42,10 @@ class EegWorker(QObject):
         self.sampling_rate = None
         self.asr = None
         self.data_buffer = None
-        self.update_count = None
+        self.update_count = 0  # Ensuring it's initialized
 
-        self.status_callback.connect(print) 
-        self._start_session()   
+        self.status_callback.connect(print)
+        self._start_session()
 
     def monitor_cognitive_load(self):
         if not self.session_active:
@@ -59,18 +59,21 @@ class EegWorker(QObject):
                     f"Board does not provide enough channels: "
                     f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
 
-            if self.update_count > 0:  # Beginne erst nach dem ersten Update mit der Datenerfassung
+            if self.update_count > 0:
                 transformed_data = new_data[:self.NUM_CHANNELS, :]
-                transformed_data = self.apply_ica(transformed_data)
-                self.data_buffer = np.hstack((self.data_buffer[:, new_data.shape[1]:], transformed_data))
 
-                theta_power, alpha_power, beta_power = self._calculate_powers(self.data_buffer, self.sampling_rate)
+                # Apply ICA only if it's trained
+                transformed_data = self.apply_ica(transformed_data)
+
+                self.data_buffer = np.hstack(
+                    (self.data_buffer[:, new_data.shape[1]:], transformed_data))
+
+                theta_power, alpha_power, beta_power = self._calculate_powers(
+                    self.data_buffer, self.sampling_rate)
 
                 # Data to be emitted
                 timestamp = time.time()
-                cognitive_load = 0
-                if alpha_power != 0:
-                    cognitive_load = theta_power / alpha_power
+                cognitive_load = theta_power / alpha_power if alpha_power != 0 else 0
                 data = {
                     'timestamp': timestamp,
                     'theta_power': theta_power,
@@ -102,6 +105,22 @@ class EegWorker(QObject):
 
         self.status_callback.emit("Connected board")
 
+    def clean_eeg_data(self, data):
+        """Replace NaNs/Infs with zeros and normalize EEG data to avoid ICA failures."""
+        if not np.isfinite(data).all():
+            print("Warning: EEG data contains NaNs or Infs! Replacing with zeros.")
+            data = np.nan_to_num(data)  # Replace NaNs/Infs with zeros
+
+        # Normalize EEG data (zero mean, unit variance)
+        data = (data - np.mean(data)) / (np.std(data) + 1e-6)
+        return data
+
+    def _preprocess_data(self, data, sfreq):
+        for channel in data:
+            DataFilter.perform_bandstop(channel, sfreq, 48.0, 52.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
+            DataFilter.perform_bandpass(channel, sfreq, 3.0, 45.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
+        return data
+
     def _calculate_powers(self, data_buffer, sampling_rate):
         theta_powers_per_channel = []
         alpha_powers_per_channel = []
@@ -130,84 +149,64 @@ class EegWorker(QObject):
 
         return np.mean(np.array(theta_powers_per_channel)), np.mean(np.array(alpha_powers_per_channel)), np.mean(np.array(beta_powers_per_channel))
 
-    def _preprocess_data(self, data, sfreq):
-        for channel in data:
-            DataFilter.perform_bandstop(channel, sfreq, 48.0, 52.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
-            DataFilter.perform_bandpass(channel, sfreq, 3.0, 45.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
-        return data
-
-    def clean_eeg_data(self, data):
-        """Replace NaNs and Infs with zeros to avoid ICA failures."""
-        if not np.isfinite(data).all():
-            print("Warning: EEG data contains NaNs or Infs! Replacing with zeros.")
-            data = np.nan_to_num(data)  # Replace NaNs/Infs with zeros
-        return data
-    
-    def _filter_cl_threshold(self, cl_value):
-        """
-        Replace invalid cognitive load values with mean of prior valid values.
-        :return: Valid value as given, average if invalid or none if the value is invalid and not enough valid values are available in the sliding window.
-        """
-
-        # Append value if valid, otherwise append None
-        if self.THRESHOLD_LOWER <= cl_value <= self.THRESHOLD_UPPER:
-            self.filter_window.append(cl_value) 
-            return cl_value
-        else:
-            self.filter_window.append(None)
-
-        # Filter for valid values
-        valid_values = [v for v in self.filter_window if v is not None]
-
-        if len(valid_values) >= self.MIN_WINDOW_SIZE:
-            return np.mean(valid_values)
-        else:  
-            return None
-        
-    def store_trained_ica(self, trained_ica):
-        """Store the trained ICA model from the worker thread."""
-        self.ica_model = trained_ica
-        print("New ICA model stored!")
 
     def apply_ica(self, new_data):
         """Apply trained ICA to new 1-second EEG chunk."""
         if self.ica_model is None:
-            return new_data  # If ICA isn’t trained yet, return raw EEG
-        new_data = self.clean_eeg_data(new_data)
-        # Apply ICA transformation manually to match shapes
-        transformed = np.dot(self.ica_model.components_, new_data)  # Unmix the sources
-        cleaned_data = np.dot(np.linalg.pinv(self.ica_model.components_), transformed)  # Reconstruct EEG
+            return new_data  # Return raw EEG if ICA isn’t trained yet
 
-        return cleaned_data
+        new_data = self.clean_eeg_data(new_data)
+
+        try:
+            # Apply ICA transformation
+            transformed = np.dot(self.ica_model.components_, new_data)  # Unmix sources
+            cleaned_data = np.dot(np.linalg.pinv(self.ica_model.components_), transformed)  # Reconstruct EEG
+            return cleaned_data
+
+        except Exception as e:
+            self.status_callback.emit(f"Error in ICA application: {e}")
+            return new_data  # Return raw data if ICA fails
 
     def start_ica_training(self):
         """Start ICA training in a separate thread."""
         print("Starting ICA training thread...")
+
+        # Check if enough data is available for training
+        if self.data_buffer is None or self.data_buffer.shape[1] < self.sampling_rate * 10:
+            print("Not enough data for ICA training. Need at least 10 seconds of EEG.")
+            return
+
         self.ica_thread = QThread()
         data = self.clean_eeg_data(self.data_buffer)
-        if np.var(data, axis=1).min() < 1e-6:  # Very low variance
+
+        if np.var(data, axis=1).min() < 1e-6:
             print("Warning: EEG data has very low variance! ICA may fail.")
-        self.ica_worker = ICAWorker(data)  # Pass current buffer (30 sec)
+
+        self.ica_worker = ICAWorker(data)  # Pass cleaned EEG data
         self.ica_worker.moveToThread(self.ica_thread)
 
         # Connect signals
         self.ica_thread.started.connect(self.ica_worker.run)
+        self.ica_worker.finished.connect(self.store_trained_ica)
         self.ica_worker.finished.connect(self.ica_thread.quit)  # Stop thread when training is done
-        self.ica_worker.finished.connect(self.store_trained_ica)  # Store trained ICA model
         self.ica_worker.finished.connect(self.ica_worker.deleteLater)  # Cleanup
         self.ica_thread.finished.connect(self.ica_thread.deleteLater)  # Cleanup
 
         self.ica_thread.start()
 
+    def store_trained_ica(self, trained_ica):
+        """Store the trained ICA model from the worker thread."""
+        self.ica_model = trained_ica
+        print("New ICA model stored!")
+
     def _start_session(self):
         self._connect_board()
         self.board_shim.start_stream()
         self.status_callback.emit("Started session")
+
         self.session_active = True
         buffer_length = 10 * self.sampling_rate
         self.data_buffer = np.zeros((self.NUM_CHANNELS, buffer_length))
         self.update_count = 0
         QThread.msleep(1000)
         self.monitor_cognitive_load()
-
-    
