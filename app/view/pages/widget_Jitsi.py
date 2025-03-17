@@ -80,13 +80,13 @@ class JitsiWidget(QWidget):
         self.browser = QWebEngineView()
         self.browser.setPage(CustomWebEnginePage(self.browser))
 
-        #End Meeting Button
-        self.end_button = QPushButton("End Meeting")
+        left_layout.addWidget(self.browser)
 
-        #User Input for Notes/Highlights
-        self.comment_input = QLineEdit()
-        self.comment_input.setPlaceholderText("Comment...")
-        self.comment_sent_button = QPushButton("Comment Sent")
+        # Plot Button
+        self.plot_button = QPushButton("Hide Score")
+        self.plot_button.clicked.connect(self.toggle_button)
+
+        self.plot_height = self.plot_widget.height()
 
         # Comment confirmation message
         self.message_label = QLabel()
@@ -96,29 +96,32 @@ class JitsiWidget(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.clear_message)
 
-        self.plot_button = QPushButton("Hide Score")
-        self.plot_button.clicked.connect(self.toggle_button)
+        #User Input for Notes/Highlights
+        self.comment_input = QLineEdit()
+        self.comment_sent_button = QPushButton("Comment Sent")
+        self.comment_input.setPlaceholderText("Comment...")
+        self.comment_sent_button.clicked.connect(self.emit_user_input)
 
-        left_layout.addWidget(self.browser)
+        # Spacer to fill the gap between plot widget and rest of the widgets
+        spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        #End Meeting Button
+        self.end_button = QPushButton("End Meeting")
+        self.end_button.clicked.connect(self.dialog.exec)
 
         right_layout.addWidget(self.plot_button, alignment=Qt.AlignmentFlag.AlignTop)
         right_layout.addWidget(self.plot_widget)
+        right_layout.addItem(spacer)
         right_layout.addWidget(self.message_label, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_input, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_sent_button, alignment=Qt.AlignmentFlag.AlignBottom)
-
-        spacer = QSpacerItem(20, 5, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
-        right_layout.addItem(spacer)
-
         right_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignBottom)
 
-        self.end_button.clicked.connect(self.dialog.exec)
 
-        main_layout.addLayout(left_layout, 84)  # 90% of the space
-        main_layout.addLayout(right_layout, 16)  # 10% of the space
+        main_layout.addLayout(left_layout, 90)  # 90% of the space
+        main_layout.addLayout(right_layout, 10)  # 10% of the space
 
         self.setLayout(main_layout)
-        self.comment_sent_button.clicked.connect(self.emit_user_input)
 
     def set_settings(self):
         settings = self.browser.settings()
@@ -146,12 +149,11 @@ class JitsiWidget(QWidget):
         self.browser.page().runJavaScript("endMeeting();")  # ✅ Call the JS function
 
     def hide_ClScore(self):
-        self.plot_widget.hide()
+        self.plot_widget.setFixedHeight(0)
         self.plot_button.setText("Show Score")
 
-
     def show_ClScore(self):
-        self.plot_widget.show()
+        self.plot_widget.setFixedHeight(self.plot_height)
         self.plot_button.setText("Hide Score")
 
     def clear_message(self):
@@ -172,7 +174,7 @@ class JitsiWidget(QWidget):
         self.comment_input.clear()
 
     def toggle_button(self):
-        if self.plot_widget.isVisible():
+        if self.plot_widget.height() > 0:
             self.hide_ClScore()
         else:
             self.show_ClScore()
