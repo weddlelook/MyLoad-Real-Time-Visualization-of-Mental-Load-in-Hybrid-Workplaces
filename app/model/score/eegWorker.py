@@ -62,9 +62,6 @@ class EegWorker(QObject):
             if self.update_count > 0:
                 transformed_data = new_data[:self.NUM_CHANNELS, :]
 
-                # Apply ICA only if it's trained
-                transformed_data = self.apply_ica(transformed_data)
-
                 self.data_buffer = np.hstack(
                     (self.data_buffer[:, new_data.shape[1]:], transformed_data))
 
@@ -104,16 +101,6 @@ class EegWorker(QObject):
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
 
         self.status_callback.emit("Connected board")
-
-    def clean_eeg_data(self, data):
-        """Replace NaNs/Infs with zeros and normalize EEG data to avoid ICA failures."""
-        if not np.isfinite(data).all():
-            print("Warning: EEG data contains NaNs or Infs! Replacing with zeros.")
-            data = np.nan_to_num(data)  # Replace NaNs/Infs with zeros
-
-        # Normalize EEG data (zero mean, unit variance)
-        data = (data - np.mean(data)) / (np.std(data) + 1e-6)
-        return data
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:

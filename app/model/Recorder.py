@@ -86,10 +86,6 @@ class Recorder(QObject):
         self.monitor_timer.timeout.connect(self.monitor)
         self.monitor_timer.start(1000)
 
-        self.train_ica_timer = QTimer()
-        self.train_ica_timer.timeout.connect(self.eegWorker.start_ica_training)
-        self.train_ica_timer.start(30000)
-
     def _max_phase(self, data):
         try:
             if not self.maximum or data['cognitive_load'] > self.maximum:
