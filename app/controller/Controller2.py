@@ -57,10 +57,10 @@ class Controller(QObject):
         self.start_recording_phase.emit(Phase.MAX.value, 10000)
 
     def start_monitoring(self):
-        self.start_recording_phase.emit(Phase.MONITOR.value)
+        self.start_recording_phase.emit(Phase.MONITOR.value, 0)
 
     def stop_monitoring(self):
-        self.start_recording_phase.emit(Phase.PAUSED.value)
+        self.start_recording_phase.emit(Phase.PAUSED.value, 0)
 
     def set_session_variables(self, session_name:str, jitsi_room_name:str):
         self.session_name = session_name
