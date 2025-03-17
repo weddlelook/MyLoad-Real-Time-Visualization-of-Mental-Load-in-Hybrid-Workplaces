@@ -9,6 +9,8 @@ from brainflow.exit_codes import BrainFlowError
 
 from PyQt6.QtCore import  QThread, QObject, pyqtSignal
 
+from .ICAWorker import ICAWorker
+
 
 class EegWorker(QObject):
 
@@ -25,7 +27,13 @@ class EegWorker(QObject):
         self.session_active = False
         self.databuffer = None
 
+        # NOTE: For threshhold filter
         self.filter_window= deque(maxlen=self.WINDOW_SIZE)
+
+        # NOTE: For ICA filter
+        self.ica_thread = None
+        self.ica_worker = None
+        self.ica_model = None
 
         self.board_id = -1
         self.serial_port = "COM3"
@@ -53,6 +61,7 @@ class EegWorker(QObject):
 
             if self.update_count > 0:  # Beginne erst nach dem ersten Update mit der Datenerfassung
                 transformed_data = new_data[:self.NUM_CHANNELS, :]
+                transformed_data = self.apply_ica(transformed_data)
                 self.data_buffer = np.hstack((self.data_buffer[:, new_data.shape[1]:], transformed_data))
 
                 theta_power, alpha_power, beta_power = self._calculate_powers(self.data_buffer, self.sampling_rate)
@@ -67,7 +76,7 @@ class EegWorker(QObject):
                     'theta_power': theta_power,
                     'alpha_power': alpha_power,
                     'beta_power': beta_power,
-                    'cognitive_load': self._filter_cl(cognitive_load)
+                    'cognitive_load': cognitive_load
                 }
                 return data
             else:
@@ -127,10 +136,9 @@ class EegWorker(QObject):
             DataFilter.perform_bandpass(channel, sfreq, 3.0, 45.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
         return data
     
-    def _filter_cl(self, cl_value):
+    def _filter_cl_threshold(self, cl_value):
         """
         Replace invalid cognitive load values with mean of prior valid values.
-        
         :return: Valid value as given, average if invalid or none if the value is invalid and not enough valid values are available in the sliding window.
         """
 
@@ -148,6 +156,38 @@ class EegWorker(QObject):
             return np.mean(valid_values)
         else:  
             return None
+        
+    def store_trained_ica(self, trained_ica):
+        """Store the trained ICA model from the worker thread."""
+        self.ica_model = trained_ica
+        print("New ICA model stored!")
+
+    def apply_ica(self, new_data):
+        """Apply trained ICA to new 1-second EEG chunk."""
+        if self.ica_model is None:
+            return new_data  # If ICA isn’t trained yet, return raw EEG
+
+        # Apply ICA transformation manually to match shapes
+        transformed = np.dot(self.ica_model.components_, new_data)  # Unmix the sources
+        cleaned_data = np.dot(np.linalg.pinv(self.ica_model.components_), transformed)  # Reconstruct EEG
+
+        return cleaned_data
+
+    def start_ica_training(self):
+        """Start ICA training in a separate thread."""
+        print("Starting ICA training thread...")
+        self.ica_thread = QThread()
+        self.ica_worker = ICAWorker(self.data_buffer)  # Pass current buffer (30 sec)
+        self.ica_worker.moveToThread(self.ica_thread)
+
+        # Connect signals
+        self.ica_thread.started.connect(self.ica_worker.run)
+        self.ica_worker.finished.connect(self.ica_thread.quit)  # Stop thread when training is done
+        self.ica_worker.finished.connect(self.store_trained_ica)  # Store trained ICA model
+        self.ica_worker.finished.connect(self.ica_worker.deleteLater)  # Cleanup
+        self.ica_thread.finished.connect(self.ica_thread.deleteLater)  # Cleanup
+
+        self.ica_thread.start()
 
     def _start_session(self):
         self._connect_board()
@@ -159,3 +199,5 @@ class EegWorker(QObject):
         self.update_count = 0
         QThread.msleep(1000)
         self.monitor_cognitive_load()
+
+    
