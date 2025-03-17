@@ -135,6 +135,13 @@ class EegWorker(QObject):
             DataFilter.perform_bandstop(channel, sfreq, 48.0, 52.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
             DataFilter.perform_bandpass(channel, sfreq, 3.0, 45.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
         return data
+
+    def clean_eeg_data(self, data):
+        """Replace NaNs and Infs with zeros to avoid ICA failures."""
+        if not np.isfinite(data).all():
+            print("Warning: EEG data contains NaNs or Infs! Replacing with zeros.")
+            data = np.nan_to_num(data)  # Replace NaNs/Infs with zeros
+        return data
     
     def _filter_cl_threshold(self, cl_value):
         """
@@ -166,7 +173,7 @@ class EegWorker(QObject):
         """Apply trained ICA to new 1-second EEG chunk."""
         if self.ica_model is None:
             return new_data  # If ICA isn’t trained yet, return raw EEG
-
+        new_data = self.clean_eeg_data(new_data)
         # Apply ICA transformation manually to match shapes
         transformed = np.dot(self.ica_model.components_, new_data)  # Unmix the sources
         cleaned_data = np.dot(np.linalg.pinv(self.ica_model.components_), transformed)  # Reconstruct EEG
@@ -177,7 +184,10 @@ class EegWorker(QObject):
         """Start ICA training in a separate thread."""
         print("Starting ICA training thread...")
         self.ica_thread = QThread()
-        self.ica_worker = ICAWorker(self.data_buffer)  # Pass current buffer (30 sec)
+        data = self.clean_eeg_data(self.data_buffer)
+        if np.var(data, axis=1).min() < 1e-6:  # Very low variance
+            print("Warning: EEG data has very low variance! ICA may fail.")
+        self.ica_worker = ICAWorker(data)  # Pass current buffer (30 sec)
         self.ica_worker.moveToThread(self.ica_thread)
 
         # Connect signals
