@@ -137,6 +137,8 @@ class RetrospectivePage(QWidget):
                             @cursor.connect("add")
                             def on_hover(sel):
                                 sel.annotation.set_text(marker_descriptions[sel.index])
+                                sel.annotation.get_bbox_patch().set_facecolor("lightblue")  # Hintergrundfarbe ändern
+                                sel.annotation.get_bbox_patch().set_edgecolor("black")  # Randfarbe ändern
 
 
                             #Falls mehrere Sessions geplottet werden sollen
