@@ -10,6 +10,6 @@ class ICAWorker(QObject):
         self.eeg_data = eeg_data
 
     def run(self):
-        ica = FastICA(n_components=self.eeg_data.shape[0], max_iter=500, tol=0.001)
+        ica = FastICA(n_components=self.eeg_data.shape[0], max_iter=500, tol=0.001, whiten='arbitrary-variance')
         ica.fit(self.eeg_data.T) 
         self.finished.emit(ica)
