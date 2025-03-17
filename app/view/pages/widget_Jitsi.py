@@ -96,8 +96,8 @@ class JitsiWidget(QWidget):
 
         # Plot Icon
         self.plot_icon = ClickableLabel(self)
-        path_icon = getAbsPath(FILE_PATH_EYE_ICON)
-        self.plot_icon.setPixmap(QPixmap(path_icon).scaled(32, 32,
+        path_eye_icon = getAbsPath(FILE_PATH_EYE_ICON)
+        self.plot_icon.setPixmap(QPixmap(path_eye_icon).scaled(32, 32,
                                                            Qt.AspectRatioMode.KeepAspectRatio,
                                                            Qt.TransformationMode.SmoothTransformation))
         self.plot_icon.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -106,6 +106,18 @@ class JitsiWidget(QWidget):
         self.plot_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         self.plot_height = self.plot_widget.height()
+
+        #Info Icon
+        self.info_icon = QLabel(self)
+        path_info_icon = getAbsPath(FILE_PATH_INFO_ICON)
+        self.info_icon.setPixmap(QPixmap(path_info_icon).scaled(26, 26, Qt.AspectRatioMode.KeepAspectRatio,
+                                                                Qt.TransformationMode.SmoothTransformation))
+        self.info_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.info_icon.setToolTip("The score displayed represents your Cognitive Load (CL) score."
+                                  " It is calculated using various values recorded by the headphones"
+                                  " and processed through a formula to standardize it, allowing for"
+                                  " comparison with your previous sessions.")  # Tooltip for new icon
+        self.info_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Comment confirmation message
         self.message_label = QLabel()
@@ -129,6 +141,7 @@ class JitsiWidget(QWidget):
         self.end_button.clicked.connect(self.dialog.exec)
 
         right_layout.addWidget(self.plot_icon, alignment=Qt.AlignmentFlag.AlignTop)
+        right_layout.addWidget(self.info_icon, alignment=Qt.AlignmentFlag.AlignTop)
         right_layout.addWidget(self.plot_widget)
         right_layout.addItem(spacer)
         right_layout.addWidget(self.message_label, alignment=Qt.AlignmentFlag.AlignBottom)
