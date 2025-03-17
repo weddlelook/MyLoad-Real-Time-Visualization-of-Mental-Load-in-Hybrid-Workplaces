@@ -51,10 +51,10 @@ class Controller(QObject):
         self.jitsi_room_name = None
 
     def start_min(self):
-        self.start_recording_phase.emit(Phase.MIN.value, 1000)
+        self.start_recording_phase.emit(Phase.MIN.value, 10000)
 
     def start_max(self):
-        self.start_recording_phase.emit(Phase.MAX.value, 1000)
+        self.start_recording_phase.emit(Phase.MAX.value, 10000)
 
     def start_monitoring(self):
         self.start_recording_phase.emit(Phase.MONITOR.value, 0)
