@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLin
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEnginePage
 from PyQt6.QtCore import QUrl, QTimer, Qt, pyqtSignal
-from PyQt6.QtGui import QIcon, QPixmap, QFont
+from PyQt6.QtGui import QIcon, QPixmap
 import os
 from pathlib import Path
 #from .widget_Plot import EEGPlotWidget
@@ -119,6 +119,9 @@ class JitsiWidget(QWidget):
                                   " comparison with your previous sessions.")  # Tooltip for new icon
         self.info_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
 
+        # Spacer to fill the gap between plot widget and rest of the widgets
+        spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
         # Comment confirmation message
         self.message_label = QLabel()
         self.message_label.setObjectName("text")
@@ -127,14 +130,18 @@ class JitsiWidget(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.clear_message)
 
+
         #User Input for Notes/Highlights
         self.comment_input = QLineEdit()
         self.comment_sent_button = QPushButton("Comment Sent")
         self.comment_input.setPlaceholderText("Comment...")
         self.comment_sent_button.clicked.connect(self.emit_user_input)
 
-        # Spacer to fill the gap between plot widget and rest of the widgets
-        spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        #Break Button
+        self.break_button = QPushButton("Pause")
+        self.break_button.setToolTip("Click to  pause or resume the recording")
+        self.break_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.break_button.clicked.connect(self.manage_break)
 
         #End Meeting Button
         self.end_button = QPushButton("End Meeting")
@@ -147,6 +154,7 @@ class JitsiWidget(QWidget):
         right_layout.addWidget(self.message_label, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_input, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.comment_sent_button, alignment=Qt.AlignmentFlag.AlignBottom)
+        right_layout.addWidget(self.break_button, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignBottom)
 
         main_layout.addLayout(left_layout, 90)  # 90% of the space
@@ -195,6 +203,15 @@ class JitsiWidget(QWidget):
             self.hide_ClScore()
         else:
             self.show_ClScore()
+
+    # TODO: write the method to manage breaks (Pause/Resume)
+    def manage_break(self):
+        if self.break_button.text() == "Pause":
+            self.break_button.setText("Resume")
+            pass
+        else:
+            self.break_button.setText("Pause")
+            pass
 
     def set_settings(self):
         settings = self.browser.settings()
