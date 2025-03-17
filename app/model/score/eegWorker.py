@@ -86,7 +86,19 @@ class EegWorker(QObject):
         except Exception as e:
             self.status_callback.emit(f"Error during monitoring: {e}")
 
-    # --------------- Private methods -----------------
+    # --------------- Set up -----------------
+
+    def _start_session(self):
+        self._connect_board()
+        self.board_shim.start_stream()
+        self.status_callback.emit("Started session")
+
+        self.session_active = True
+        buffer_length = 10 * self.sampling_rate
+        self.data_buffer = np.zeros((self.NUM_CHANNELS, buffer_length))
+        self.update_count = 0
+        QThread.msleep(1000)
+        self.monitor_cognitive_load()
 
     def _connect_board(self):
         BoardShim.enable_dev_board_logger()
@@ -101,6 +113,47 @@ class EegWorker(QObject):
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
 
         self.status_callback.emit("Connected board")
+
+    # -------------- Monitor --------------------
+
+    def monitor_cognitive_load(self):
+        if not self.session_active:
+            self._start_session()
+
+        try:
+            new_data = self.board_shim.get_board_data()
+
+            if new_data.shape[0] < self.NUM_CHANNELS:
+                raise ValueError(
+                    f"Board does not provide enough channels: "
+                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
+
+            if self.update_count > 0:
+                transformed_data = new_data[:self.NUM_CHANNELS, :]
+
+                self.data_buffer = np.hstack(
+                    (self.data_buffer[:, new_data.shape[1]:], transformed_data))
+
+                theta_power, alpha_power, beta_power = self._calculate_powers(
+                    self.data_buffer, self.sampling_rate)
+
+                # Data to be emitted
+                timestamp = time.time()
+                cognitive_load = theta_power / alpha_power if alpha_power != 0 else 0
+                data = {
+                    'timestamp': timestamp,
+                    'theta_power': theta_power,
+                    'alpha_power': alpha_power,
+                    'beta_power': beta_power,
+                    'cognitive_load': cognitive_load
+                }
+                return data
+            else:
+                self.update_count += 1
+                return None
+
+        except Exception as e:
+            self.status_callback.emit(f"Error during monitoring: {e}")
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:
@@ -136,6 +189,7 @@ class EegWorker(QObject):
 
         return np.mean(np.array(theta_powers_per_channel)), np.mean(np.array(alpha_powers_per_channel)), np.mean(np.array(beta_powers_per_channel))
 
+    # ---------------- ICA -----------------
 
     def apply_ica(self, new_data):
         """Apply trained ICA to new 1-second EEG chunk."""
@@ -186,14 +240,25 @@ class EegWorker(QObject):
         self.ica_model = trained_ica
         print("New ICA model stored!")
 
-    def _start_session(self):
-        self._connect_board()
-        self.board_shim.start_stream()
-        self.status_callback.emit("Started session")
+    # ---------------- Threshhold -----------
 
-        self.session_active = True
-        buffer_length = 10 * self.sampling_rate
-        self.data_buffer = np.zeros((self.NUM_CHANNELS, buffer_length))
-        self.update_count = 0
-        QThread.msleep(1000)
-        self.monitor_cognitive_load()
+    def _filter_cl_threshold(self, cl_value):
+        """
+        Replace invalid cognitive load values with mean of prior valid values.
+        :return: Valid value as given, average if invalid or none if the value is invalid and not enough valid values are available in the sliding window.
+        """
+
+        # Append value if valid, otherwise append None
+        if self.THRESHOLD_LOWER <= cl_value <= self.THRESHOLD_UPPER:
+            self.filter_window.append(cl_value) 
+            return cl_value
+        else:
+            self.filter_window.append(None)
+
+        # Filter for valid values
+        valid_values = [v for v in self.filter_window if v is not None]
+
+        if len(valid_values) >= self.MIN_WINDOW_SIZE:
+            return np.mean(valid_values)
+        else:  
+            return None
