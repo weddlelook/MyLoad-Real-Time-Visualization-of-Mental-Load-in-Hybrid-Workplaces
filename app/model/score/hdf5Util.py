@@ -47,6 +47,15 @@ class hdf5File:
             with h5py.File(self.filename, 'a') as h5_file:
                   h5_file.attrs['max'] = max_value  # Store max as an attribute
 
+      def get_min(self) -> float:
+            with h5py.File(self.filename, 'r') as h5_file:
+                  return h5_file.attrs.get('min', None)  # Gibt den Wert von 'min' zurück, oder None, falls nicht vorhanden
+
+      def get_max(self) -> float:
+            with h5py.File(self.filename, 'r') as h5_file:
+                  return h5_file.attrs.get('max', None)
+
+
       def _create_h5_file(self, users_session_name:str):
             # Ordner erstellen, falls er nicht existiert
             folder_path = getAbsPath(HDF5_FOLDER_PATH)
