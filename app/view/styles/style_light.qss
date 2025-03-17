@@ -4,7 +4,6 @@ QWidget {
     font-size: 18px;
     color: #393938;
 }
-
 QPushButton {
     background-color: transparent;
     color: #393938; /* button text color */
@@ -184,4 +183,14 @@ QListWidget::item:selected {
     background-color: #3393df;
     color: white;
     font-weight: bold;
+}
+QToolTip {
+    background-color: #F8F8FF;  /* Light beige background that complements your color palette #E9E7E2*/
+    color: #393938;  /* Dark text color from your primary color */
+    font-family: "Lexend", Arial;
+    font-size: 16px;  /* Slightly smaller than the widget font for readability */
+    padding: 5px;  /* Padding to make the tooltip more spacious */
+    border: 2.5px solid #237e96;  /* Border with your primary button color */
+    border-radius: 0px;  /* Rounded corners for a soft look */
+    text-align: center;  /* Centers the text within the tooltip */
 }

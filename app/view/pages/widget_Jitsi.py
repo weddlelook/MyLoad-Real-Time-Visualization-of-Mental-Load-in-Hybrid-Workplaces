@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QSpacerItem, \
-    QSizePolicy, QMessageBox, QDialog, QLabel
+    QSizePolicy, QMessageBox, QDialog, QLabel, QApplication, QToolTip
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings, QWebEnginePage
 from PyQt6.QtCore import QUrl, QTimer, Qt, pyqtSignal
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtGui import QIcon, QPixmap, QFont
 import os
 from pathlib import Path
 #from .widget_Plot import EEGPlotWidget
@@ -58,6 +58,18 @@ class ExitDialog(QDialog):
         self.setLayout(layout)
 
 
+class ClickableLabel(QLabel):
+    clicked = pyqtSignal()  # Create a signal for the click event
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)  # Make it look clickable
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit()
+
+
 class JitsiWidget(QWidget):
 
     commentSignal = pyqtSignal(str)
@@ -82,9 +94,16 @@ class JitsiWidget(QWidget):
 
         left_layout.addWidget(self.browser)
 
-        # Plot Button
-        self.plot_button = QPushButton("Hide Score")
-        self.plot_button.clicked.connect(self.toggle_button)
+        # Plot Icon
+        self.plot_icon = ClickableLabel(self)
+        path_icon = getAbsPath(FILE_PATH_EYE_ICON)
+        self.plot_icon.setPixmap(QPixmap(path_icon).scaled(32, 32,
+                                                           Qt.AspectRatioMode.KeepAspectRatio,
+                                                           Qt.TransformationMode.SmoothTransformation))
+        self.plot_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.plot_icon.setToolTip("Click to hide/show your CL score")
+        self.plot_icon.clicked.connect(self.toggle_button)
+        self.plot_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         self.plot_height = self.plot_widget.height()
 
@@ -109,7 +128,7 @@ class JitsiWidget(QWidget):
         self.end_button = QPushButton("End Meeting")
         self.end_button.clicked.connect(self.dialog.exec)
 
-        right_layout.addWidget(self.plot_button, alignment=Qt.AlignmentFlag.AlignTop)
+        right_layout.addWidget(self.plot_icon, alignment=Qt.AlignmentFlag.AlignTop)
         right_layout.addWidget(self.plot_widget)
         right_layout.addItem(spacer)
         right_layout.addWidget(self.message_label, alignment=Qt.AlignmentFlag.AlignBottom)
@@ -117,23 +136,10 @@ class JitsiWidget(QWidget):
         right_layout.addWidget(self.comment_sent_button, alignment=Qt.AlignmentFlag.AlignBottom)
         right_layout.addWidget(self.end_button, alignment=Qt.AlignmentFlag.AlignBottom)
 
-
         main_layout.addLayout(left_layout, 90)  # 90% of the space
         main_layout.addLayout(right_layout, 10)  # 10% of the space
 
         self.setLayout(main_layout)
-
-    def set_settings(self):
-        settings = self.browser.settings()
-        settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalStorageEnabled, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.AllowRunningInsecureContent, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.AllowWindowActivationFromJavaScript, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
 
     ''' takes the room_name from controller object in jitsi_page, and makes the browser show the intended html file. '''
     def load_jitsi_meeting(self, room_name):
@@ -150,11 +156,9 @@ class JitsiWidget(QWidget):
 
     def hide_ClScore(self):
         self.plot_widget.setFixedHeight(0)
-        self.plot_button.setText("Show Score")
 
     def show_ClScore(self):
         self.plot_widget.setFixedHeight(self.plot_height)
-        self.plot_button.setText("Hide Score")
 
     def clear_message(self):
         # Clear the message label
@@ -178,3 +182,16 @@ class JitsiWidget(QWidget):
             self.hide_ClScore()
         else:
             self.show_ClScore()
+
+    def set_settings(self):
+        settings = self.browser.settings()
+        settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalStorageEnabled, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.AllowRunningInsecureContent, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.AllowWindowActivationFromJavaScript, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
+
