@@ -117,7 +117,7 @@ class Recorder(QObject):
 
 
     def save_previous_min_max_values(self, fileName):
-        file = hdf5File.get_min(fileName)
+        file = hdf5File.get_h5_file(fileName)
         self.minimum = hdf5File.get_min_value(file)
         self.maximum = hdf5File.get_max_value(file)
         self.hdf5Session.set_min(self.minimum)

@@ -47,7 +47,7 @@ class hdf5File:
             with h5py.File(self.filename, 'a') as h5_file:
                   h5_file.attrs['max'] = max_value  # Store max as an attribute
 
-      def get_min(fileName:str) -> float:
+      def get_h5_file(fileName:str) -> float:
             if not fileName.endswith(".h5"):
                   fileName += ".h5"
 
@@ -81,7 +81,6 @@ class hdf5File:
             try:
                   with h5py.File(file_path, 'r') as h5_file:
                         max_value = h5_file.attrs.get('max', None)
-                        print("TTTTTTT")
                         print(max_value)
                         return max_value
             except FileNotFoundError:
