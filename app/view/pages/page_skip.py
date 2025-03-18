@@ -10,10 +10,13 @@ from ..constants import *
 
 
 class SkipPageWidget(QWidget):
+    sessionSelected = pyqtSignal(str)
+
     def __init__(self, session_folder):
         super().__init__()
         self.session_folder = session_folder
         self.initUI()
+        self.selected_items = None
 
     def initUI(self):
         v_layout = QVBoxLayout()
@@ -37,6 +40,7 @@ class SkipPageWidget(QWidget):
 
         self.next_button = QPushButton("Choose Session")
         self.next_button.setEnabled(False)
+        self.next_button.clicked.connect(self.on_next_button_clicked)
         h_layout.addWidget(self.next_button, Qt.AlignmentFlag.AlignCenter)
         v_layout.addLayout(h_layout)
         self.load_sessions()
@@ -75,5 +79,13 @@ class SkipPageWidget(QWidget):
 
             # Sort the files by index in reverse order
             recent_files.sort(key=extract_index, reverse=True)
+            # Skips the just made session in the listing
+            recent_files = recent_files[1:]
             for file in recent_files:
                 self.session_list.addItem(file)
+
+    def on_next_button_clicked(self):
+        self.selected_items = self.session_list.selectedItems()
+        if self.selected_items:
+            self.selected_file = self.selected_items[0].text()
+            self.sessionSelected.emit(self.selected_file)

@@ -50,7 +50,11 @@ class SkipPage(Page):
     def __init__(self, widget: QWidget, controller, next_page: str, previous_page: str):
         super().__init__(widget, True)
         self.widget.back_button.clicked.connect(lambda: controller.next_page(previous_page))
+        self.widget.sessionSelected.connect(lambda: controller.recorder.save_previous_min_max_values(self.widget.selected_file))
         self.widget.next_button.clicked.connect(lambda:  controller.next_page(next_page))
+
+    def start(self, controller):
+        self.widget.load_sessions()
 
 class BaselinePage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):

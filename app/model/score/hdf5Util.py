@@ -47,13 +47,46 @@ class hdf5File:
             with h5py.File(self.filename, 'a') as h5_file:
                   h5_file.attrs['max'] = max_value  # Store max as an attribute
 
-      def get_min(self) -> float:
-            with h5py.File(self.filename, 'r') as h5_file:
-                  return h5_file.attrs.get('min', None)  # Gibt den Wert von 'min' zurück, oder None, falls nicht vorhanden
+      def get_min(fileName:str) -> float:
+            if not fileName.endswith(".h5"):
+                  fileName += ".h5"
 
-      def get_max(self) -> float:
-            with h5py.File(self.filename, 'r') as h5_file:
-                  return h5_file.attrs.get('max', None)
+            # Lese den Standard-Ordnerpfad aus den Konstanten
+            folder_path = getAbsPath(HDF5_FOLDER_PATH)
+
+            # Überprüfe, ob der Ordner existiert
+            if not os.path.exists(folder_path):
+                  print(f"Ordner {folder_path} existiert nicht.")
+                  return None
+
+            # Durchsuche den Ordner nach der Datei
+            for file in os.listdir(folder_path):
+                  if file == fileName:
+                        return os.path.join(folder_path, file)
+
+            # Datei nicht gefunden
+            print(f"Datei {fileName} nicht gefunden in {folder_path}.")
+            return None
+
+      def get_min_value(file_path):
+            try:
+                  with h5py.File(file_path, 'r') as h5_file:
+                        min_value = h5_file.attrs.get('min', None)
+                        return min_value
+            except FileNotFoundError:
+                  print(f"Fehler beim Lesen der Datei {file_path}: {e}")
+                  return None
+
+      def get_max_value(file_path):
+            try:
+                  with h5py.File(file_path, 'r') as h5_file:
+                        max_value = h5_file.attrs.get('max', None)
+                        print("TTTTTTT")
+                        print(max_value)
+                        return max_value
+            except FileNotFoundError:
+                  print(f"Fehler beim Lesen der Datei {file_path}: {e}")
+                  return None
 
 
       def _create_h5_file(self, users_session_name:str):

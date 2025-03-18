@@ -90,6 +90,7 @@ class Recorder(QObject):
         try:
             if not self.maximum or data['cognitive_load'] > self.maximum:
                 self.maximum = data['cognitive_load']
+                self.hdf5Session.set_max(self.maximum)
             print("max")
         except TypeError as e: # TODO: specify exception
             self.error.emit(str(e))
@@ -98,6 +99,7 @@ class Recorder(QObject):
         try:
             if not self.minimum or data['cognitive_load'] < self.minimum:
                 self.minimum = data['cognitive_load']
+                self.hdf5Session.set_min(self.minimum)
             print("min")
         except TypeError as e: # TODO: specify exception
             self.error.emit(str(e))
@@ -111,3 +113,16 @@ class Recorder(QObject):
             print("monitoring")
         except TypeError as e:
             self.error.emit(str(e))
+
+
+
+    def save_previous_min_max_values(self, fileName):
+        file = hdf5File.get_min(fileName)
+        self.minimum = hdf5File.get_min_value(file)
+        self.maximum = hdf5File.get_max_value(file)
+        self.hdf5Session.set_min(self.minimum)
+        self.hdf5Session.set_max(self.maximum)
+
+        """Could this be solved somehow differnet, eg. in @phase_complete line 61?"""
+        self.score_calculator = calculateScore(self.minimum, self.maximum)
+
