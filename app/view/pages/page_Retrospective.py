@@ -1,5 +1,6 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QPushButton
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QPushButton, QLabel, QHBoxLayout
+from PyQt6.QtGui import QIcon, QPixmap
 import os
 import h5py
 import numpy as np
@@ -8,6 +9,7 @@ from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 import time
 from datetime import datetime, timedelta
+from ..constants import *
 import mplcursors
 
 
@@ -37,10 +39,28 @@ class RetrospectivePage(QWidget):
         self.session_list.setSelectionMode(QListWidget.SelectionMode.MultiSelection)  # Mehrfachauswahl aktivieren
         layout.addWidget(self.session_list)
 
+        h_layout = QHBoxLayout()
+
         # Button zum Plotten
         self.plot_button = QPushButton("Plot Sessions")
         self.plot_button.clicked.connect(self._plot_sessions)
-        layout.addWidget(self.plot_button)
+        h_layout.addWidget(self.plot_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        # Info Icon
+        self.info_icon = QLabel(self)
+        path_info_icon = getAbsPath(FILE_PATH_INFO_ICON)
+        self.info_icon.setPixmap(QPixmap(path_info_icon).scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio,
+                                                                Qt.TransformationMode.SmoothTransformation))
+        self.info_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.info_icon.setToolTip("The score displayed represents your Cognitive Load (CL) score."
+                                  " It is calculated using various values recorded by the headphones"
+                                  " and processed through a formula to standardize it, allowing for"
+                                  " comparison with your previous sessions.")  # Tooltip for new icon
+        self.info_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
+        h_layout.addWidget(self.info_icon, alignment=Qt.AlignmentFlag.AlignRight)
+
+        layout.addLayout(h_layout)
+
 
         # Matplotlib-Canvas für das Plotten
         self.figure = Figure(facecolor="#F8F8FF", edgecolor="#444444")
