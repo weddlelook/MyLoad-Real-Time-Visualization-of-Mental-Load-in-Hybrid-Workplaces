@@ -35,16 +35,14 @@ class RetrospectivePage(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
         self.setLayout(layout)
-
-        self.page_explanation  = QLabel("Plot your past sessions to track cognitive load over time.\n"
-                                        "Choose a single session for precise time values and comments or multiple for normalized times. \n"
-                                        "In single-session plots, hover over the dots to view your comments.")
-        self.page_explanation.setObjectName("title")
-        self.page_explanation.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.page_explanation = QLabel("Plot your past sessions to track cognitive load over time. "
+                                       "Choose a single session for precise time values and comments or "
+                                       "multiple for normalized times. "
+                                       "In single-session plots, hover over the dots to view your comments.")
+        self.page_explanation.setObjectName("text")
+        self.page_explanation.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.page_explanation.setWordWrap(True)
-        self.page_explanation.setStyleSheet("font-size: 16px;")
-        layout.addWidget(self.page_explanation )
-
+        layout.addWidget(self.page_explanation)
 
         # Liste der Sessions
         self.session_list = QListWidget()
@@ -91,7 +89,6 @@ class RetrospectivePage(QWidget):
 
         self.back_button = QPushButton("Back to Homepage")
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignRight)
-
 
     def load_sessions(self):
         """Lade alle .h5-Dateien aus dem Session-Ordner."""
@@ -200,12 +197,14 @@ class RetrospectivePage(QWidget):
         if not selected_files:
             self.show_popup("No sessions selected", "Please select at least one session to delete.")
             return
-
         # Zeige eine Bestätigungspopup
-        confirmation = QMessageBox.question(self, "Confirm Deletion",
-                                            f"Are you sure you want to delete the selected sessions, you can not recover the files afterwards:"
-                                            f" {', '.join(selected_files)}?",
-                                            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirmation = QMessageBox(self)
+        confirmation.setIcon(QMessageBox.Icon.Warning)
+        confirmation.setWindowTitle("Delete Confirmation")
+        confirmation.setText(f"Are you sure you want to delete the selected sessions? You cannot recover the files afterwards: "
+                f"{', '.join(selected_files)}")
+        confirmation.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirmation = confirmation.exec()
 
         if confirmation == QMessageBox.StandardButton.Yes:
             # Lösche die ausgewählten Dateien
