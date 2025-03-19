@@ -1,7 +1,10 @@
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QSizePolicy, QLabel, QLineEdit, \
-    QGroupBox, QFormLayout
+    QGroupBox, QFormLayout, QHBoxLayout
 
 from PyQt6.QtCore import Qt, pyqtSignal
+from ..constants import *
+
 import sys
 
 class StartWidget(QWidget):
@@ -22,15 +25,27 @@ class StartWidget(QWidget):
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
-        #Explanation
+
         text_label = QLabel(
-            "MyLoad provide users the opportunity to monitor their cognitive load during online lectures,"
+            "MyLoad provides users the opportunity to monitor their cognitive load during online lectures,"
             " helping them optimize focus, productivity, and overall performance."
         )
         text_label.setObjectName("text")
         text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         text_label.setWordWrap(True)
         layout.addWidget(text_label)
+
+        # "What is Cognitive Load?" with hover info
+        """Ich habe probiert ein Hover Info Icon über dem Wort "cognitive load" im text_label zu machen, 
+        was nicht funkktioniert hat. Falls jemand eine Lösung hat, wäre das toll, weil die Landing page sieht etwas überfüllt aus (imo)."""
+        cl_info_label = QLabel("What is Cognitive Load?")
+        cl_info_label.setObjectName("link")
+        cl_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        cl_info_label.setToolTip("Cognitive Load (CL) reflects the mental effort required for a task. "
+                                 "Higher CL may indicate increased difficulty or fatigue.")
+        layout.addWidget(cl_info_label)
+        # Add a small spacer between the labels
+        layout.addStretch(0)
 
         #Form layout for user inputs
         form_layout = QFormLayout()
