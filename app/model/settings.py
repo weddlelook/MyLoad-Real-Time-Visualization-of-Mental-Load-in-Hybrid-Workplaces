@@ -21,6 +21,7 @@ class SettingsModel():
             self.save_settings(self.DEFAULT_SETTINGS)
             return self.DEFAULT_SETTINGS
 
+        # Checking for missing keys, or wrong types
         with open(file_path, 'r') as file:
             settings = json.load(file)
             for key, value in self.DEFAULT_SETTINGS.items():
@@ -29,18 +30,14 @@ class SettingsModel():
                     return self.DEFAULT_SETTINGS
             return settings
 
-    def save_settings(self, settings=None):
-        """Save the settings to the file."""
+    def set(self, updates):
+        """Update and save settings."""
+        self.settings.update(updates)
         file_path = os.path.join(getAbsPath(FOLDER_PATH_SETTINGS), FILE_NAME_SETTINGS)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         with open(file_path, 'w') as file:
-            json.dump(settings or self.settings, file, indent=4)
-
-    def set(self, updates):
-        """Update and save settings."""
-        self.settings.update(updates)
-        self.save_settings()
+            json.dump(self.settings, file, indent=4)
 
     @staticmethod
     def clear_sessions():

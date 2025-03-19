@@ -170,17 +170,19 @@ class JitsiWidget(QWidget):
         self.setLayout(main_layout)
 
     ''' takes the room_name from controller object in jitsi_page, and makes the browser show the intended html file. '''
-    def load_jitsi_meeting(self, room_name):
+    def load_jitsi_meeting(self, room_name, user_name):
         html_path = getAbsPath(FILE_PATH_JITSI_HTML)
 
         url = QUrl.fromLocalFile(str(html_path))
         url.setQuery(f"room_name={room_name}")
-
         self.browser.setUrl(url)
 
         self.show_ClScore()
         self.plot_icon.setPixmap(self.open_eye_icon)
         self.plot_icon.setToolTip("Click to hide your cognitive load score")
+
+        if user_name:
+            QTimer.singleShot(2000, lambda: self.browser.page().runJavaScript(f'setDisplayName(\"{user_name}\")'))
 
     def end_meeting(self):
         """ Calls JavaScript function to end the meeting """

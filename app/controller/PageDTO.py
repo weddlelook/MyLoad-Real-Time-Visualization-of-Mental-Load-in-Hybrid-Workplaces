@@ -91,7 +91,7 @@ class ResultPage(Page):
         self.widget.updateResult(controller.get_maxtest_result())
 
 class JitsiPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str, settings):
+    def __init__(self, widget:QWidget, controller, next_page:str):
         super().__init__(widget, False)
         self.controller = controller
         self.widget.dialog.exit_button.clicked.connect(lambda : controller.next_page(next_page))
@@ -101,18 +101,21 @@ class JitsiPage(Page):
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
 
         # Display settings
-        self.settings = settings
-        self.change_display()
+        self.change_display(controller)
 
         self.widget.commentSignal.connect(lambda: controller.recorder.save_comment(datetime.now().timestamp(), self.widget.comment))
 
     def start(self, controller):
-        self.widget.load_jitsi_meeting(controller.jitsi_room_name)
+        try:
+            display_name = controller.settings_model.settings['display_name']
+        except KeyError:
+            display_name = None
+        self.widget.load_jitsi_meeting(controller.jitsi_room_name, display_name) 
         controller.start_monitoring()
 
 
-    def change_display(self):
-        if self.settings["showDisplay"]:
+    def change_display(self, controller):
+        if controller.settings_model.settings["showDisplay"]:
             self.widget.show_ClScore()
         else:
             self.widget.hide_ClScore()

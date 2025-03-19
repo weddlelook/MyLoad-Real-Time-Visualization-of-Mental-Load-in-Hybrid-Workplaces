@@ -2,7 +2,6 @@
     <head>
         <script src="https://meet.jit.si/external_api.js"></script>
         <style>
-            
             html, body {
                 margin: 0;
                 padding: 0;
@@ -11,7 +10,6 @@
                 overflow: hidden;
             }
 
-           
             #jitsi-container {
                 width: 100vw;
                 height: 100vh;
@@ -25,35 +23,35 @@
         <div id="jitsi-container"></div>
         <script>
             var api = null;
+            var pendingDisplayName = null; 
 
             const urlParams = new URLSearchParams(window.location.search);
             const roomName = urlParams.get('room_name') || "defaultRoom";
 
-                if (typeof JitsiMeetExternalAPI !== 'undefined') { // Ensure the API is loaded
-                    var domain = "meet.jit.si";
-                    var options = {
-                        roomName: roomName,
-                        width: "100%",
-                        height: "100%",
-                        parentNode: document.querySelector("#jitsi-container"),
-                        configOverwrite: {
-                            prejoinPageEnabled: false,
-                            disableThirdPartyRequests: true,
-                            toolbarButtons: [
+            if (typeof JitsiMeetExternalAPI !== 'undefined') {
+                var domain = "meet.jit.si";
+                var options = {
+                    roomName: roomName,
+                    width: "100%",
+                    height: "100%",
+                    parentNode: document.querySelector("#jitsi-container"),
+                    configOverwrite: {
+                        prejoinPageEnabled: false,
+                        disableThirdPartyRequests: true,
+                        toolbarButtons: [
                             "microphone", "camera", "desktop", "chat", "settings", 
                             "raisehand", "tileview", "fullscreen"
-                        ] // "hangup" button removed
+                        ]
                     },
-                        interfaceConfigOverwrite: {
-                            SHOW_JITSI_WATERMARK: false,
-                            SHOW_CHROME_EXTENSION_BANNER: false
-                        }
-                    };
-                    api = new JitsiMeetExternalAPI(domain, options);
-                } else {
-                    console.error("JitsiMeetExternalAPI is not defined.");
-                }
-
+                    interfaceConfigOverwrite: {
+                        SHOW_JITSI_WATERMARK: false,
+                        SHOW_CHROME_EXTENSION_BANNER: false
+                    }
+                };
+                api = new JitsiMeetExternalAPI(domain, options);
+            } else {
+                console.error("JitsiMeetExternalAPI is not defined.");
+            }
 
             function endMeeting() {
                 if (api) {
@@ -63,8 +61,13 @@
                 }
             }
 
-            // Expose the start and end functions to PyQt6 or the global window object
-            window.endMeeting = endMeeting;
+            window.setDisplayName = function(name) {
+                    if (api) {
+                        api.executeCommand('displayName', name);
+                    } else {
+                        console.error("Jitsi API is not initialized.");
+                    }
+                };
         </script>
     </body>
 </html>

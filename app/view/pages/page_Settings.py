@@ -21,23 +21,22 @@ class SettingsWidget(QWidget):
         mode_label = QLabel("Change the mode")
         mode_label.setObjectName("text-settings")
 
-        #Mode settings buttons
+        # Mode settings buttons
         self.light_mode_option = QRadioButton("Light Mode")
         self.dark_mode_option = QRadioButton("Dark Mode")
         mode_layout.addWidget(mode_label)
         mode_layout.addWidget(self.light_mode_option)
         mode_layout.addWidget(self.dark_mode_option)
 
-        #Grouping buttons so only one can be checked at same time
+        # Grouping buttons so only one can be checked at same time
         self.mode_option = QButtonGroup(self)
         self.mode_option.addButton(self.light_mode_option)
         self.mode_option.addButton(self.dark_mode_option)
 
         mode_container.setLayout(mode_layout)
-
         form_layout.addRow(mode_container)
 
-        # Container for Mode Settings
+        # Container for Display Settings
         display_container = QGroupBox("Display Settings")
         display_layout = QVBoxLayout()
         display_label = QLabel("Real time interpretation as bar, during meeting")
@@ -52,13 +51,27 @@ class SettingsWidget(QWidget):
 
         # Grouping buttons so only one can be checked at same time
         self.display_option = QButtonGroup(self)
-        self.display_option.addButton(self.light_mode_option)
-        self.display_option.addButton(self.dark_mode_option)
+        self.display_option.addButton(self.show_option)
+        self.display_option.addButton(self.hide_option)
 
         display_container.setLayout(display_layout)
-
         form_layout.addRow(display_container)
 
+        # Container for Display Name Input
+        display_name_container = QGroupBox("Display Name")
+        display_name_layout = QVBoxLayout()
+        display_name_label = QLabel("Enter Display Name")
+        display_name_label.setObjectName("text-settings")
+
+        # Display name input field
+        self.display_name_input = QLineEdit()
+        display_name_layout.addWidget(display_name_label)
+        display_name_layout.addWidget(self.display_name_input)
+
+        display_name_container.setLayout(display_name_layout)
+        form_layout.addRow(display_name_container)
+
+        # Container for Clear Files
         del_files_container = QGroupBox("Clear Files")
         del_files_layout = QHBoxLayout()
         del_files_label = QLabel("To clear all previous sessions information:")
@@ -68,12 +81,11 @@ class SettingsWidget(QWidget):
         del_files_layout.addWidget(del_files_label)
         del_files_layout.addWidget(self.clear_all_button)
         del_files_container.setLayout(del_files_layout)
-
         form_layout.addRow(del_files_container)
 
         layout.addLayout(form_layout)
 
-        #Layout for buttons
+        # Layout for buttons
         horizontal_layout = QHBoxLayout()
         # Back button
         self.back_button = QPushButton('Back')
@@ -99,16 +111,20 @@ class SettingsWidget(QWidget):
             dic["showDisplay"] = True
         elif self.hide_option.isChecked():
             dic["showDisplay"] = False
+        # Adding the display name to the settings dictionary
+        dic["displayName"] = self.display_name_input.text()
         self.new_settings.emit(dic)
 
     def set_settings(self, settings):
         self.settings = settings
         if self.settings.get("isDarkMode") == False:
-            self.light_mode_option.setChecked(True),
+            self.light_mode_option.setChecked(True)
         elif self.settings.get("isDarkMode") == True:
             self.dark_mode_option.setChecked(True)
         if self.settings.get("showDisplay") == False:
-            self.hide_option.setChecked(True),
+            self.hide_option.setChecked(True)
         elif self.settings.get("showDisplay") == True:
             self.show_option.setChecked(True)
-
+        # Set the display name field
+        if self.settings.get("display_name"):
+            self.display_name_input.setText(self.settings["displayName"])

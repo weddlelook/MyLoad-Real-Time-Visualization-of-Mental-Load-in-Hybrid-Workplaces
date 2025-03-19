@@ -34,7 +34,7 @@ class Controller(QObject):
             "maxtest_start": MaxtestStartPage(widget.StartMaxTestPage(), self, "maxtest"),
             "maxtest": MaxtestPage(widget.MaxtestPage(), self, "result"),
             "result": ResultPage(widget.ResultsPage(), self, "jitsi"),
-            "jitsi": JitsiPage(widget.JitsiWidget(), self, "retrospective", self.settings_model.settings),
+            "jitsi": JitsiPage(widget.JitsiWidget(), self, "retrospective"),
             "retrospective": RetrospectivePage(widget.RetrospectivePage("app/h5_session_files"), self)
         }
         for page_name in self.pages.keys():
@@ -51,10 +51,10 @@ class Controller(QObject):
         self.jitsi_room_name = None
 
     def start_min(self):
-        self.start_recording_phase.emit(Phase.MIN.value, 1000)
+        self.start_recording_phase.emit(Phase.MIN.value, 10000)
 
     def start_max(self):
-        self.start_recording_phase.emit(Phase.MAX.value, 1000)
+        self.start_recording_phase.emit(Phase.MAX.value, 10000)
 
     def start_monitoring(self):
         self.start_recording_phase.emit(Phase.MONITOR.value, 0)
@@ -64,7 +64,7 @@ class Controller(QObject):
 
     def set_session_variables(self, session_name:str, jitsi_room_name:str):
         self.session_name = session_name
-        self.jitsi_room_name = jitsi_room_name
+        self.jitsi_room_name = jitsi_room_name  
         self.recorder.new_session(self.session_name)
 
     def provide_char(self):
@@ -129,4 +129,4 @@ class Controller(QObject):
             self.next_page("result")
 
     def changer(self):
-        self.pages["jitsi"].change_display()
+        self.pages["jitsi"].change_display(self)
