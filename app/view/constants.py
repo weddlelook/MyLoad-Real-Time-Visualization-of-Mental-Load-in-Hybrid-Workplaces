@@ -10,7 +10,9 @@ FILE_PATH_INFO_ICON = "styles/images/info.png"
 
 FILE_PATH_JITSI_HTML = "styles/jitsi.html"
 
-FILE_PATH_EYE_ICON = "styles/images/visual.png"
+FILE_PATH_OPEN_EYE_ICON = "styles/images/visual.png"
+
+FILE_PATH_CLOSED_EYE_ICON = "styles/images/hidden_eye.png"
 
 import os
 import sys

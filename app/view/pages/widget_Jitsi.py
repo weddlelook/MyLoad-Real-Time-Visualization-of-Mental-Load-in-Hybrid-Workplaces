@@ -91,17 +91,20 @@ class JitsiWidget(QWidget):
         #Jitsi Browser
         self.browser = QWebEngineView()
         self.browser.setPage(CustomWebEnginePage(self.browser))
-
+        FILE_PATH_CLOSED_EYE_ICON
         left_layout.addWidget(self.browser)
-
         # Plot Icon
         self.plot_icon = ClickableLabel(self)
-        path_eye_icon = getAbsPath(FILE_PATH_EYE_ICON)
-        self.plot_icon.setPixmap(QPixmap(path_eye_icon).scaled(32, 32,
-                                                           Qt.AspectRatioMode.KeepAspectRatio,
-                                                           Qt.TransformationMode.SmoothTransformation))
+        self.open_eye_icon = QPixmap(getAbsPath(FILE_PATH_OPEN_EYE_ICON)).scaled(32, 32,
+                                                                                 Qt.AspectRatioMode.KeepAspectRatio,
+                                                                                 Qt.TransformationMode.SmoothTransformation)
+        self.closed_eye_icon = QPixmap(getAbsPath(FILE_PATH_CLOSED_EYE_ICON)).scaled(32, 32,
+                                                                                     Qt.AspectRatioMode.KeepAspectRatio,
+                                                                                     Qt.TransformationMode.SmoothTransformation)
+
+        self.plot_icon.setPixmap(self.open_eye_icon)
         self.plot_icon.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.plot_icon.setToolTip("Click to hide/show your CL score")
+        self.plot_icon.setToolTip("Click to hide your cognitive load score")
         self.plot_icon.clicked.connect(self.toggle_button)
         self.plot_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
 
@@ -201,8 +204,12 @@ class JitsiWidget(QWidget):
     def toggle_button(self):
         if self.plot_widget.height() > 0:
             self.hide_ClScore()
+            self.plot_icon.setPixmap(self.open_eye_icon)
+            self.plot_icon.setToolTip("Click to hide your cognitive load score")
         else:
             self.show_ClScore()
+            self.plot_icon.setPixmap(self.closed_eye_icon)
+            self.plot_icon.setToolTip("Click to show your cognitive load score")
 
     # TODO: write the method to manage breaks (Pause/Resume)
     def manage_break(self):
