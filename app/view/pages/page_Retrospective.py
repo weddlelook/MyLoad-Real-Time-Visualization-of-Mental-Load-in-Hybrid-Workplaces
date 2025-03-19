@@ -36,8 +36,9 @@ class RetrospectivePage(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.page_explanation  = QLabel("Plot your past sessions to track cognitive load over time. \n"
-                                        " Choose a single session for exact values and to see your comments made in the session or multiple for normalized times.")
+        self.page_explanation  = QLabel("Plot your past sessions to track cognitive load over time.\n"
+                                        "Choose a single session for precise time values and comments or multiple for normalized times. \n"
+                                        "In single-session plots, hover over the dots to view your comments.")
         self.page_explanation.setObjectName("title")
         self.page_explanation.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.page_explanation.setWordWrap(True)
