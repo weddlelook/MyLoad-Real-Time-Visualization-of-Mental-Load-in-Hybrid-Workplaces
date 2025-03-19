@@ -36,10 +36,15 @@ class ExitDialog(QDialog):
 
     def initUI(self):
         self.setWindowTitle("Exit Confirmation")
-        self.setFixedSize(400, 150)
+        self.setFixedSize(500, 350)
         layout = QVBoxLayout()
-        question = QLabel("Are you sure you want to exit?")
+        question = QLabel("Are you sure you want to exit? "
+                          "The recorded session will be saved automatically. "
+                          "You can review it at the previous session page.")
         question.setObjectName("text")
+        question.setStyleSheet("font-size: 16px;")
+        question.setWordWrap(True)
+
         layout.addWidget(question, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.exit_button = QPushButton("Exit")

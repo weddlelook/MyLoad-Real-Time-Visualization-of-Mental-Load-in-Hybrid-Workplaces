@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QPushButton, QLabel, QHBoxLayout, QSpacerItem, \
-    QSizePolicy
+    QSizePolicy, QMessageBox
 from PyQt6.QtGui import QIcon, QPixmap
 import os
 import h5py
@@ -55,9 +55,16 @@ class RetrospectivePage(QWidget):
         # Button zum Plotten
         self.plot_button = QPushButton("Plot Sessions")
         self.plot_button.clicked.connect(self._plot_sessions)
-
         h_layout = QHBoxLayout()
         h_layout.addWidget(self.plot_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        self.delete_button = QPushButton("Delete Selected Sessions")
+        self.delete_button.clicked.connect(self._delete_sessions)
+        h_layout.addWidget(self.delete_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        h_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
+        layout.addLayout(h_layout)
+
         # Info Icon
         self.info_icon = QLabel(self)
         path_info_icon = getAbsPath(FILE_PATH_INFO_ICON)
@@ -125,7 +132,7 @@ class RetrospectivePage(QWidget):
         """
         selected_files = [item.text() for item in self.session_list.selectedItems()]
         if not selected_files:
-            print("Keine Sessions ausgewählt.")
+            self.show_popup("No sessions selected", "Please select at least one session to plot.")
             return
 
         self.figure.clear()
@@ -186,3 +193,41 @@ class RetrospectivePage(QWidget):
         ax.legend(loc="upper left", bbox_to_anchor=(-0.16, 1.15), borderaxespad=0.)
         ax.grid(True)
         self.canvas.draw()
+
+    def _delete_sessions(self):
+        """Löscht die ausgewählten Sessions nach Bestätigung."""
+        selected_files = [item.text() for item in self.session_list.selectedItems()]
+        if not selected_files:
+            self.show_popup("No sessions selected", "Please select at least one session to delete.")
+            return
+
+        # Zeige eine Bestätigungspopup
+        confirmation = QMessageBox.question(self, "Confirm Deletion",
+                                            f"Are you sure you want to delete the selected sessions, you can not recover the files afterwards:"
+                                            f" {', '.join(selected_files)}?",
+                                            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        if confirmation == QMessageBox.StandardButton.Yes:
+            # Lösche die ausgewählten Dateien
+            for file in selected_files:
+                file_path = os.path.join(self.session_folder, file)
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        print(f"Session {file} has been deleted.")
+                    else:
+                        print(f"Session {file} not found.")
+                except Exception as e:
+                    print(f"Error while deleting {file}: {e}")
+
+            # Nach dem Löschen die Liste neu laden
+            self.load_sessions()
+
+    def show_popup(self, title, message):
+        """Zeigt ein Popup mit einer Warnmeldung an."""
+        popup = QMessageBox(self)
+        popup.setWindowTitle(title)
+        popup.setText(message)
+        popup.setIcon(QMessageBox.Icon.Warning)
+        popup.setStandardButtons(QMessageBox.StandardButton.Ok)
+        popup.exec()
