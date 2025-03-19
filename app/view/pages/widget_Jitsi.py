@@ -91,7 +91,6 @@ class JitsiWidget(QWidget):
         #Jitsi Browser
         self.browser = QWebEngineView()
         self.browser.setPage(CustomWebEnginePage(self.browser))
-        FILE_PATH_CLOSED_EYE_ICON
         left_layout.addWidget(self.browser)
         # Plot Icon
         self.plot_icon = ClickableLabel(self)

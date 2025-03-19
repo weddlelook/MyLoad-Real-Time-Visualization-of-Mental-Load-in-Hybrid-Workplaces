@@ -1,5 +1,6 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QPushButton, QLabel, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QPushButton, QLabel, QHBoxLayout, QSpacerItem, \
+    QSizePolicy
 from PyQt6.QtGui import QIcon, QPixmap
 import os
 import h5py
@@ -9,6 +10,7 @@ from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 import time
 from datetime import datetime, timedelta
+
 from ..constants import *
 import mplcursors
 
@@ -34,18 +36,27 @@ class RetrospectivePage(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
+        self.page_explanation  = QLabel("Plot your past sessions to track cognitive load over time. \n"
+                                        " Choose a single session for exact values and to see your comments made in the session or multiple for normalized times.")
+        self.page_explanation.setObjectName("title")
+        self.page_explanation.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.page_explanation.setWordWrap(True)
+        self.page_explanation.setStyleSheet("font-size: 16px;")
+        layout.addWidget(self.page_explanation )
+
+
         # Liste der Sessions
         self.session_list = QListWidget()
         self.session_list.setSelectionMode(QListWidget.SelectionMode.MultiSelection)  # Mehrfachauswahl aktivieren
         layout.addWidget(self.session_list)
 
-        h_layout = QHBoxLayout()
 
         # Button zum Plotten
         self.plot_button = QPushButton("Plot Sessions")
         self.plot_button.clicked.connect(self._plot_sessions)
-        h_layout.addWidget(self.plot_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(self.plot_button, alignment=Qt.AlignmentFlag.AlignLeft)
         # Info Icon
         self.info_icon = QLabel(self)
         path_info_icon = getAbsPath(FILE_PATH_INFO_ICON)
