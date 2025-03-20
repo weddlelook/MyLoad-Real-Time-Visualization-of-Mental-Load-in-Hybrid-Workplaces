@@ -96,7 +96,7 @@ class JitsiPage(Page):
         self.controller = controller
         self.widget.dialog.exit_button.clicked.connect(lambda : controller.next_page(next_page))
         self.widget.dialog.exit_button.clicked.connect(controller.stop_monitoring)
-        self.widget.dialog.exit_button.clicked.connect(self.widget.end_meeting)
+        self.widget.dialog.exit_button.clicked.connect(self.widget.toggle_video) # TODO ersetze toogle_video durch end_meeting nach Evaluation
         #controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
 
@@ -107,7 +107,7 @@ class JitsiPage(Page):
             display_name = controller.settings_model.settings['display_name']
         except KeyError:
             display_name = None
-        self.widget.load_jitsi_meeting(controller.jitsi_room_name, display_name) 
+        #self.widget.load_jitsi_meeting(controller.jitsi_room_name, display_name) TODO for evaluation
         controller.start_monitoring()
 
 

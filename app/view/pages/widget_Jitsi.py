@@ -6,7 +6,6 @@ from PyQt6.QtCore import QUrl, QTimer, Qt, pyqtSignal
 from PyQt6.QtGui import QIcon, QPixmap
 import os
 from pathlib import Path
-#from .widget_Plot import EEGPlotWidget
 from .widget_indicator import Indicator
 from ..constants import *
 
@@ -91,8 +90,52 @@ class JitsiWidget(QWidget):
         right_layout = QVBoxLayout()
 
         #Jitsi Browser
+        ''' 
         self.browser = QWebEngineView()
         self.browser.setPage(CustomWebEnginePage(self.browser))
+        left_layout.addWidget(self.browser)
+        '''
+
+        ''' 
+        ab jetzt youtube api, lösche nach der Evaluation
+        '''
+
+        self.video_id = "9syvZr-9xwk"
+        self.browser = QWebEngineView()
+        self.browser.setHtml(f"""
+                    <html>
+                    <head>
+                <style>
+                    * {{ margin: 0; padding: 0; overflow: hidden; }}
+                    html, body {{ width: 100vw; height: 100vh; }}
+                    iframe {{ width: 100vw; height: 100vh; border: none; }}
+                </style>
+            </head>
+                    <body>
+                        <iframe id="player" src="https://www.youtube.com/embed/{self.video_id}?enablejsapi=1" 
+                        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+                        <script>
+                            var player;
+                            function onYouTubeIframeAPIReady() {{
+                                player = new YT.Player('player');
+                            }}
+
+                            function playPauseVideo() {{
+                                if (player) {{
+                                    var state = player.getPlayerState();
+                                    if (state == 1) {{
+                                        player.pauseVideo();
+                                    }} else {{
+                                        player.playVideo();
+                                    }}
+                                }}
+                            }}
+                        </script>
+                        <script src="https://www.youtube.com/iframe_api"></script>
+                    </body>
+                    </html>
+                """)
         left_layout.addWidget(self.browser)
         # Plot Icon
         self.plot_icon = ClickableLabel(self)
@@ -239,3 +282,10 @@ class JitsiWidget(QWidget):
         settings.setAttribute(QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins, True)
         settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
 
+    ''' 
+    youtube apı method
+    '''
+
+    def toggle_video(self):
+
+        self.browser.page().runJavaScript("playPauseVideo();")
