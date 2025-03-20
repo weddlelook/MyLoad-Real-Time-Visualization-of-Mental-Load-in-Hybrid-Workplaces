@@ -100,9 +100,6 @@ class JitsiPage(Page):
         #controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
 
-        # Display settings
-        self.change_display(controller)
-
         self.widget.commentSignal.connect(lambda: controller.recorder.save_comment(datetime.now().timestamp(), self.widget.comment))
 
     def start(self, controller):
@@ -113,12 +110,6 @@ class JitsiPage(Page):
         self.widget.load_jitsi_meeting(controller.jitsi_room_name, display_name) 
         controller.start_monitoring()
 
-
-    def change_display(self, controller):
-        if controller.settings_model.settings["showDisplay"]:
-            self.widget.show_ClScore()
-        else:
-            self.widget.hide_ClScore()
 
 class RetrospectivePage(Page):
     def __init__(self, widget:QWidget, controller):

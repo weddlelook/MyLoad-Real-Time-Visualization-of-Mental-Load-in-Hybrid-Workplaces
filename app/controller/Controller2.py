@@ -112,7 +112,6 @@ class Controller(QObject):
         self.gui.main_window.settings.new_settings.connect(self.gui.main_window.toggle_settings)
         self.gui.main_window.settings.back_button.clicked.connect(self.gui.main_window.toggle_settings)
         self.gui.main_window.settings.clear_all_button.clicked.connect(self.settings_model.clear_sessions)
-        self.gui.main_window.settings.new_settings.connect(self.changer)
 
     start_recording_phase = pyqtSignal(int, int)
 
@@ -128,5 +127,3 @@ class Controller(QObject):
         elif phase == Phase.MAX.value:
             self.next_page("result")
 
-    def changer(self):
-        self.pages["jitsi"].change_display(self)

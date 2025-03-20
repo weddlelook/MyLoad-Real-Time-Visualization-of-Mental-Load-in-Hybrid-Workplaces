@@ -36,26 +36,7 @@ class SettingsWidget(QWidget):
         mode_container.setLayout(mode_layout)
         form_layout.addRow(mode_container)
 
-        # Container for Display Settings
-        display_container = QGroupBox("Display Settings")
-        display_layout = QVBoxLayout()
-        display_label = QLabel("Real time interpretation as bar, during meeting")
-        display_label.setObjectName("text-settings")
 
-        # Mode settings buttons
-        self.show_option = QRadioButton("Show")
-        self.hide_option = QRadioButton("Hide")
-        display_layout.addWidget(display_label)
-        display_layout.addWidget(self.show_option)
-        display_layout.addWidget(self.hide_option)
-
-        # Grouping buttons so only one can be checked at same time
-        self.display_option = QButtonGroup(self)
-        self.display_option.addButton(self.show_option)
-        self.display_option.addButton(self.hide_option)
-
-        display_container.setLayout(display_layout)
-        form_layout.addRow(display_container)
 
         # Container for Display Name Input
         display_name_container = QGroupBox("Display Name")
@@ -107,10 +88,6 @@ class SettingsWidget(QWidget):
             dic["isDarkMode"] = False
         elif self.dark_mode_option.isChecked():
             dic["isDarkMode"] = True
-        if self.show_option.isChecked():
-            dic["showDisplay"] = True
-        elif self.hide_option.isChecked():
-            dic["showDisplay"] = False
         # Adding the display name to the settings dictionary
         dic["displayName"] = self.display_name_input.text()
         self.new_settings.emit(dic)
@@ -121,10 +98,6 @@ class SettingsWidget(QWidget):
             self.light_mode_option.setChecked(True)
         elif self.settings.get("isDarkMode") == True:
             self.dark_mode_option.setChecked(True)
-        if self.settings.get("showDisplay") == False:
-            self.hide_option.setChecked(True)
-        elif self.settings.get("showDisplay") == True:
-            self.show_option.setChecked(True)
         # Set the display name field
         if self.settings.get("display_name"):
             self.display_name_input.setText(self.settings["displayName"])
