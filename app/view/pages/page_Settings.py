@@ -78,6 +78,7 @@ class SettingsWidget(QWidget):
 
         layout.addLayout(horizontal_layout)
 
+        self.back_button.clicked.connect(self.get_display_name)
         self.save_button.clicked.connect(self.save_settings)
         self.setLayout(layout)
         self.setWindowTitle("Settings")
@@ -99,5 +100,11 @@ class SettingsWidget(QWidget):
         elif self.settings.get("isDarkMode") == True:
             self.dark_mode_option.setChecked(True)
         # Set the display name field
-        if self.settings.get("display_name"):
+        if self.settings.get("displayName"):
             self.display_name_input.setText(self.settings["displayName"])
+
+    def get_display_name(self):
+        if self.settings.get("displayName"):
+            self.display_name_input.setText(self.settings["displayName"])
+        else:
+            self.display_name_input.clear()
