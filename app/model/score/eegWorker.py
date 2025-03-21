@@ -17,8 +17,8 @@ class EegWorker(QObject):
     status_callback = pyqtSignal(str)
 
     NUM_CHANNELS = 8
-    WINDOW_SIZE = 5
-    MIN_WINDOW_SIZE = 3
+    WINDOW_SIZE = 30
+    MIN_WINDOW_SIZE = 20
     THRESHOLD_UPPER = 20
     THRESHOLD_LOWER = 0.1
 
@@ -175,7 +175,7 @@ class EegWorker(QObject):
             theta_start = 4
             theta_end = 8
             alpha_start = 8
-            alpha_end = 13
+            alpha_end = 13 
             beta_start = 13
             beta_end = 30
 
@@ -251,7 +251,6 @@ class EegWorker(QObject):
         # Append value if valid, otherwise append None
         if self.THRESHOLD_LOWER <= cl_value <= self.THRESHOLD_UPPER:
             self.filter_window.append(cl_value) 
-            return cl_value
         else:
             self.filter_window.append(None)
 
