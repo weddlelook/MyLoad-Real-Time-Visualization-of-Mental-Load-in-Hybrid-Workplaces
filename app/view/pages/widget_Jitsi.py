@@ -178,7 +178,7 @@ class JitsiWidget(QWidget):
         self.browser.setUrl(url)
 
         self.show_ClScore()
-        self.plot_icon.setPixmap(self.open_eye_icon)
+        self.plot_icon.setPixmap(self.closed_eye_icon)
         self.plot_icon.setToolTip("Click to hide your cognitive load score")
 
         if user_name:
@@ -214,11 +214,11 @@ class JitsiWidget(QWidget):
     def toggle_button(self):
         if self.plot_widget.height() > 0:
             self.hide_ClScore()
-            self.plot_icon.setPixmap(self.closed_eye_icon)
+            self.plot_icon.setPixmap(self.open_eye_icon)
             self.plot_icon.setToolTip("Click to show your cognitive load score")
         else:
             self.show_ClScore()
-            self.plot_icon.setPixmap(self.open_eye_icon)
+            self.plot_icon.setPixmap(self.closed_eye_icon)
             self.plot_icon.setToolTip("Click to hide your cognitive load score")
 
     # TODO: write the method to manage breaks (Pause/Resume)
