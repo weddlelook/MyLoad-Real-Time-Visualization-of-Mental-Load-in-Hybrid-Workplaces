@@ -33,9 +33,8 @@ class Indicator(QWidget):
 
         # **full cycle** (blue, fills from left to right)
         filled_angle = int((self.value / 100) * 180)  
-        painter.setPen(QPen(QColor("#237e96"), 15, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
-        painter.drawArc(center_x - size//2, center_y, size, size, 180 * 16, -filled_angle * 16)  
-
+        painter.setPen(QPen(QColor("#5FA9C0"), 15, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+        painter.drawArc(center_x - size//2, center_y, size, size, 180 * 16, -filled_angle * 16)
         # place of the score label
         label_width = self.label.sizeHint().width()
         label_height = self.label.sizeHint().height()

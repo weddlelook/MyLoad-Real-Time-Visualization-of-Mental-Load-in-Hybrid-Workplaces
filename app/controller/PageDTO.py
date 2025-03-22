@@ -44,13 +44,14 @@ class BaselineStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page_baseline_button:str, next_page_skip_button:str):
         super().__init__(widget, True)
         self.widget.monitor_baseline_button.clicked.connect(lambda: controller.next_page(next_page_baseline_button))
+        self.widget.monitor_baseline_button.clicked.connect(self.widget.play_bip)
         self.widget.dialog.yes_button.clicked.connect(lambda: controller.next_page(next_page_skip_button))
 
 class SkipPage(Page):
     def __init__(self, widget: QWidget, controller, next_page: str, previous_page: str):
         super().__init__(widget, True)
         self.widget.back_button.clicked.connect(lambda: controller.next_page(previous_page))
-        self.widget.sessionSelected.connect(lambda: controller.recorder.save_previous_min_max_values(self.widget.selected_file))
+        self.widget.sessionSelected.connect(controller.recorder.save_previous_min_max_values)
         self.widget.next_button.clicked.connect(lambda:  controller.next_page(next_page))
 
     def start(self, controller):
