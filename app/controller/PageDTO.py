@@ -44,6 +44,7 @@ class BaselineStartPage(Page):
     def __init__(self, widget:QWidget, controller, next_page_baseline_button:str, next_page_skip_button:str):
         super().__init__(widget, True)
         self.widget.monitor_baseline_button.clicked.connect(lambda: controller.next_page(next_page_baseline_button))
+        self.widget.monitor_baseline_button.clicked.connect(self.widget.play_bip)
         self.widget.dialog.yes_button.clicked.connect(lambda: controller.next_page(next_page_skip_button))
 
 class SkipPage(Page):

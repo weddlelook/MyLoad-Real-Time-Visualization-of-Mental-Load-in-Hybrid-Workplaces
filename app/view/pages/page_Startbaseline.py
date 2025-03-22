@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QLabel,\
     QDialog
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont, QIcon, QPixmap
 import sys
 from ..constants import *
@@ -77,3 +77,7 @@ class StartBaselinePage(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Start Baseline')
 
+    @staticmethod
+    def play_bip():
+        delay_ms = 250
+        QTimer.singleShot(delay_ms, lambda: QApplication.beep())
