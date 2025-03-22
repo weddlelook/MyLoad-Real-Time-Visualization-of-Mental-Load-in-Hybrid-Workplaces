@@ -112,16 +112,13 @@ class RetrospectivePage(QWidget):
         time_str = filename.split("__")[-1].split(".")[0]  # z. B. "07-06-37_28-01-2025"
         return datetime.strptime(time_str, "%H-%M-%S_%d-%m-%Y")
 
-    def _convert_timestamps(self, start_time, timestamps):
-        # Addiere die Sekunden zum Startzeitpunkt. Bsp Startzeitpunkt: 15:00:00, falls die Session 1min = 60s ging,
-        # werden 60 verschiedene timestamps erstellt mit 15:00:00, 15:00:01 etc
-        converted_timestamps = []
-        for seconds in range(len(timestamps)):
-            new_timestamp = start_time + timedelta(seconds=seconds)
-            if new_timestamp not in converted_timestamps:
-
-                converted_timestamps.append(start_time + timedelta(seconds=seconds))
-        return converted_timestamps
+    def _convert_timestamps(self, timestamps, length):
+        if length < 60:
+            return timestamps
+        elif length < 3600:
+            return [datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in timestamps]
+        else:
+            return [datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in timestamps]
 
     def _plot_sessions(self):
         """
@@ -144,7 +141,8 @@ class RetrospectivePage(QWidget):
                 modified_timestamps, modified_load_score, timestamps_marker, y_marker, descriptions = hdf5File.plot_file(file_path)
 
                 if len(selected_files) == 1:
-                    ax.plot(modified_timestamps, modified_load_score, label=file)
+                    ax.plot([datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in modified_timestamps], modified_load_score, label=file)
+                    print (f"modified_timestamps: {modified_timestamps} datetime: {[datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in modified_timestamps]}")
     
                     scatter = ax.scatter(timestamps_marker, y_marker, color='red', label='Kommentare',
                                                     marker='o', s=50)
@@ -158,7 +156,8 @@ class RetrospectivePage(QWidget):
                 else:
                     # Setze die Zeitstempel relativ zum Startzeitpunkt
                     timestamps_rel = modified_timestamps - modified_timestamps[0]
-                    ax.plot(timestamps_rel, modified_load_score, label=file)
+                    print(f"timestamps_rel: {timestamps_rel}")
+                    ax.plot(self._convert_timestamps(timestamps_rel, len(timestamps_rel)), modified_load_score, label=file)
             except Exception as e:
                 print(f"Error while plotting {file}: {e}")
 

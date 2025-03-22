@@ -145,16 +145,14 @@ class hdf5File:
 
                   # Iterate through the timestamps and load scores
                   for idx, (timestamp, score) in enumerate(zip(timestamps, load_score)):
-                        print(f"Timestamp: {timestamp}, Score: {score}")
                         # Check for gap and add missing timestamps
                         if idx > 0 and timestamp > timestamps[idx - 1] + 1:
                               for missing_time in range(timestamps[idx - 1] + 1, timestamp):
-                                    print(f"Timestamp: {timestamp}, Score: {score}")
                                     modified_timestamps.append(missing_time)
                                     modified_load_score.append(np.nan)  # Set NaN for missing load score
                                     
                                     if marker_idx < len(timestamps_marker) and missing_time == timestamps_marker[marker_idx]:
-                                          print(f"Marker at {missing_time}")
+
                                           y_marker[marker_idx] = np.nan
                                           marker_idx += 1
 
