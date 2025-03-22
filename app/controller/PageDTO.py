@@ -112,7 +112,7 @@ class JitsiPage(Page):
 
     def start(self, controller):
         try:
-            display_name = controller.settings_model.settings['display_name']
+            display_name = controller.settings_model.settings['displayName']
         except KeyError:
             display_name = None
         self.widget.load_jitsi_meeting(controller.jitsi_room_name, display_name)
