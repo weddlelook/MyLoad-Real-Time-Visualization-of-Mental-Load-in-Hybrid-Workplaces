@@ -8,10 +8,12 @@ import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 import time
 from datetime import datetime, timedelta
 
 from ..constants import *
+from app.model.score.hdf5Util import hdf5File
 import mplcursors
 
 
@@ -135,61 +137,47 @@ class RetrospectivePage(QWidget):
         self.figure.clear()
         ax = self.figure.add_subplot(111)
 
-        show_concrete_time = len(selected_files) == 1
 
         for file in selected_files:
-            file_path = os.path.join(self.session_folder, file)
             try:
-                with h5py.File(file_path, 'r') as h5_file:
-                    eeg_data = h5_file['EEG_data'][:]
-                    timestamps = eeg_data['timestamp']
-                    cognitive_load_score = eeg_data['load_score']
+                file_path = os.path.join(self.session_folder, file)
+                modified_timestamps, modified_load_score, timestamps_marker, y_marker, descriptions = hdf5File.plot_file(file_path)
 
-                    #Falls nur eine Session geplottet wird
-                    if show_concrete_time:
-                        # Extrahiere den Startzeitpunkt aus dem Dateinamen
-                        start_time = self._extract_start_time(file)
-                        print("start zeit: " + str(start_time))
-                        # Konvertiere die Zeitstempel in "Stunde:Minute"
-                        time_labels = self._convert_timestamps(start_time, timestamps)
+                if len(selected_files) == 1:
+                    ax.plot(modified_timestamps, modified_load_score, label=file)
+    
+                    scatter = ax.scatter(timestamps_marker, y_marker, color='red', label='Kommentare',
+                                                    marker='o', s=50)
+                    cursor = mplcursors.cursor(scatter, hover=True)
 
-                        ax.plot(time_labels, cognitive_load_score, label=file)
-                        ax.legend(loc="upper right")
-
-                        # Lade und plotte Marker
-                        if 'markers' in h5_file:
-                            markers = h5_file['markers'][:]
-                            marker_times = [start_time + timedelta(seconds=int(m[0] - timestamps[0])) for m in markers]
-                            marker_descriptions = [m[1].decode() for m in markers]
-
-                            marker_cl_values = [
-                                cognitive_load_score[np.argmin(np.abs(timestamps - m[0]))] for m in markers
-                            ]
-
-                            scatter = ax.scatter(marker_times, marker_cl_values, color='red', label='Kommentare',
-                                                 marker='o', s=50)
-                            cursor = mplcursors.cursor(scatter, hover=True)
-
-                            @cursor.connect("add")
-                            def on_hover(sel):
-                                sel.annotation.set_text(marker_descriptions[sel.index])
-                                sel.annotation.get_bbox_patch().set_facecolor("lightblue")  # Hintergrundfarbe ändern
-                                sel.annotation.get_bbox_patch().set_edgecolor("black")  # Randfarbe ändern
-
-
-                            #Falls mehrere Sessions geplottet werden sollen
-                    else:
-                        # Setze die Zeitstempel relativ zum Startzeitpunkt
-                        timestamps_rel = timestamps - timestamps[0]  # Startzeitpunkt abziehen
-                        ax.plot(timestamps_rel, cognitive_load_score, label=file)
+                    @cursor.connect("add")
+                    def on_hover(sel):
+                        sel.annotation.set_text(descriptions[sel.index])
+                        sel.annotation.get_bbox_patch().set_facecolor("lightblue")  # Hintergrundfarbe ändern
+                        sel.annotation.get_bbox_patch().set_edgecolor("black")  # Randfarbe ändern
+                else:
+                    # Setze die Zeitstempel relativ zum Startzeitpunkt
+                    timestamps_rel = modified_timestamps - modified_timestamps[0]
+                    ax.plot(timestamps_rel, modified_load_score, label=file)
             except Exception as e:
-                print(f"Fehler beim Lesen der Datei {file}: {e}")
+                print(f"Error while plotting {file}: {e}")
 
         ax.set_xlabel("Zeit (Stunde:Minute)" if len(selected_files) == 1 else "Zeit (s)")
         ax.set_ylabel("Cognitive Load")
         ax.legend(loc="upper left", bbox_to_anchor=(-0.16, 1.15), borderaxespad=0.)
         ax.grid(True)
         self.canvas.draw()
+
+    def format_time(self, x, pos):
+        """Formats seconds into adaptive time units."""
+        if x < 60:
+            return f"{int(x)}s"
+        elif x < 3600:
+            return f"{int(x // 60)}m"
+        else:
+            h = int(x // 3600)
+            m = int((x % 3600) // 60)
+            return f"{h}h {m}m" if m > 0 else f"{h}h"
 
     def _delete_sessions(self):
         """Löscht die ausgewählten Sessions nach Bestätigung."""

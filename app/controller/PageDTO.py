@@ -101,6 +101,13 @@ class JitsiPage(Page):
         controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
 
         self.widget.commentSignal.connect(lambda: controller.recorder.save_comment(datetime.now().timestamp(), self.widget.comment))
+        self.widget.break_button.clicked.connect(self.toggle_monitoring)
+    
+    def toggle_monitoring(self):
+        if self.widget.break_button.text() == "Resume":
+            self.controller.stop_monitoring()
+        else:
+            self.controller.start_monitoring()
 
     def start(self, controller):
         try:

@@ -126,5 +126,44 @@ class hdf5File:
             return HDF5_FILENAME
 
       @staticmethod
-      def plot_file(filename:str):
-            pass
+      def plot_file(filename: str):
+            with h5py.File(filename, 'r') as h5_file:
+                  eeg_data = h5_file['EEG_data']
+                  timestamps = [int(timestamp) for timestamp in eeg_data['timestamp']]
+                  load_score = eeg_data['load_score']
+                  markers = h5_file['markers']
+                  timestamps_marker = [int(timestamp) for timestamp in markers['timestamp']]
+                  y_marker = np.zeros(len(timestamps_marker))
+                  descriptions = markers['description']
+
+                  # Initialize a list to collect the modified timestamps and load scores
+                  modified_timestamps = []
+                  modified_load_score = []
+                  
+                  # Pointer to go through the marker timestamps
+                  marker_idx = 0
+
+                  # Iterate through the timestamps and load scores
+                  for idx, (timestamp, score) in enumerate(zip(timestamps, load_score)):
+                        print(f"Timestamp: {timestamp}, Score: {score}")
+                        # Check for gap and add missing timestamps
+                        if idx > 0 and timestamp > timestamps[idx - 1] + 1:
+                              for missing_time in range(timestamps[idx - 1] + 1, timestamp):
+                                    print(f"Timestamp: {timestamp}, Score: {score}")
+                                    modified_timestamps.append(missing_time)
+                                    modified_load_score.append(np.nan)  # Set NaN for missing load score
+                                    
+                                    if marker_idx < len(timestamps_marker) and missing_time == timestamps_marker[marker_idx]:
+                                          print(f"Marker at {missing_time}")
+                                          y_marker[marker_idx] = np.nan
+                                          marker_idx += 1
+
+                        # Now add the current timestamp and load score
+                        modified_timestamps.append(timestamp)
+                        modified_load_score.append(score)
+                        
+                        if marker_idx < len(timestamps_marker) and timestamp == timestamps_marker[marker_idx]:
+                              y_marker[marker_idx] = score
+                              marker_idx += 1
+
+                  return np.array(modified_timestamps), np.array(modified_load_score), timestamps_marker, y_marker, descriptions
