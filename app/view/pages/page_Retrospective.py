@@ -9,6 +9,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
+import matplotlib
 import time
 from datetime import datetime, timedelta
 
@@ -112,14 +113,6 @@ class RetrospectivePage(QWidget):
         time_str = filename.split("__")[-1].split(".")[0]  # z. B. "07-06-37_28-01-2025"
         return datetime.strptime(time_str, "%H-%M-%S_%d-%m-%Y")
 
-    def _convert_timestamps(self, timestamps, length):
-        if length < 60:
-            return timestamps
-        elif length < 3600:
-            return [datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in timestamps]
-        else:
-            return [datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in timestamps]
-
     def _plot_sessions(self):
         """
         Plottet die ausgewählten Sessions. Wählt man nur eine Session aus, so sieht man auf der x -Achse den
@@ -136,15 +129,16 @@ class RetrospectivePage(QWidget):
 
 
         for file in selected_files:
+            length = 0
             try:
                 file_path = os.path.join(self.session_folder, file)
                 modified_timestamps, modified_load_score, timestamps_marker, y_marker, descriptions = hdf5File.plot_file(file_path)
 
                 if len(selected_files) == 1:
                     ax.plot([datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in modified_timestamps], modified_load_score, label=file)
-                    print (f"modified_timestamps: {modified_timestamps} datetime: {[datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in modified_timestamps]}")
+                    length =len(modified_timestamps)
     
-                    scatter = ax.scatter(timestamps_marker, y_marker, color='red', label='Kommentare',
+                    scatter = ax.scatter([datetime.fromtimestamp(t).strftime("%H:%M:%S") for t in timestamps_marker], y_marker, color='red', label='Kommentare',
                                                     marker='o', s=50)
                     cursor = mplcursors.cursor(scatter, hover=True)
 
@@ -156,12 +150,21 @@ class RetrospectivePage(QWidget):
                 else:
                     # Setze die Zeitstempel relativ zum Startzeitpunkt
                     timestamps_rel = modified_timestamps - modified_timestamps[0]
-                    print(f"timestamps_rel: {timestamps_rel}")
-                    ax.plot(self._convert_timestamps(timestamps_rel, len(timestamps_rel)), modified_load_score, label=file)
+                    length = len(timestamps_rel) if len(timestamps_rel) > length else length
+                    ax.plot([datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S") for t in timestamps_rel], modified_load_score, label=file)
             except Exception as e:
                 print(f"Error while plotting {file}: {e}")
 
+        if len(selected_files) > 1:
+            if length < 60:
+                ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%S'))
+            elif length < 3600:
+                ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%M:%S'))
+            else:
+                ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%H:%M:%S'))
+
         ax.set_xlabel("Zeit (Stunde:Minute)" if len(selected_files) == 1 else "Zeit (s)")
+        ax.xaxis.set_major_locator(ticker.AutoLocator())
         ax.set_ylabel("Cognitive Load")
         ax.legend(loc="upper left", bbox_to_anchor=(-0.16, 1.15), borderaxespad=0.)
         ax.grid(True)
