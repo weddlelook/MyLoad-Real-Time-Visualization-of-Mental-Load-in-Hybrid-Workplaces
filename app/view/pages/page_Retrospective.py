@@ -151,17 +151,10 @@ class RetrospectivePage(QWidget):
                     # Setze die Zeitstempel relativ zum Startzeitpunkt
                     timestamps_rel = modified_timestamps - modified_timestamps[0]
                     length = len(timestamps_rel) if len(timestamps_rel) > length else length
-                    ax.plot([datetime.fromtimestamp(t).strftime("%Y-%m-%d %H:%M:%S") for t in timestamps_rel], modified_load_score, label=file)
+                    formatted_rel_times = [str(timedelta(seconds=int(t))) for t in timestamps_rel]
+                    ax.plot(formatted_rel_times, modified_load_score, label=file)
             except Exception as e:
                 print(f"Error while plotting {file}: {e}")
-
-        if len(selected_files) > 1:
-            if length < 60:
-                ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%S'))
-            elif length < 3600:
-                ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%M:%S'))
-            else:
-                ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%H:%M:%S'))
 
         ax.set_xlabel("Zeit (Stunde:Minute)" if len(selected_files) == 1 else "Zeit (s)")
         ax.xaxis.set_major_locator(ticker.AutoLocator())
