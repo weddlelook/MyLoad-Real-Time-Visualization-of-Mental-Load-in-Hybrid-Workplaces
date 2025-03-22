@@ -36,11 +36,7 @@ class StartWidget(QWidget):
         layout.addWidget(text_label)
 
         # "What is Cognitive Load?" with hover info
-        """Ich habe probiert ein Hover Info Icon über dem Wort "cognitive load" im text_label zu machen, 
-        was nicht funkktioniert hat. Falls jemand eine Lösung hat, wäre das toll, weil die Landing page sieht etwas überfüllt aus (imo)."""
-        "Es sieht schon gut aus, obwohl ich nicht ganz sicher bin, ob die Cl erklärung hier erneut nötig ist, da es zweimal an " \
-        "jitsi und retro page schon erklärt wird -kerem"
-        cl_info_label = QLabel("What is Cognitive Load at all?")
+        cl_info_label = QLabel("What is Cognitive Load at all?  ℹ️")
         cl_info_label.setObjectName("subtitle")
         cl_info_label.setCursor(Qt.CursorShape.PointingHandCursor)
         cl_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

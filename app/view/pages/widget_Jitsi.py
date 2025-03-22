@@ -115,16 +115,16 @@ class JitsiWidget(QWidget):
         self.plot_height = self.plot_widget.height()
 
         #Info Icon
-        self.info_icon = QLabel(self)
         path_info_icon = getAbsPath(FILE_PATH_INFO_ICON)
-        self.info_icon.setPixmap(QPixmap(path_info_icon).scaled(26, 26, Qt.AspectRatioMode.KeepAspectRatio,
+        self.info_icon_cl = QLabel(self)
+        self.info_icon_cl.setPixmap(QPixmap(path_info_icon).scaled(26, 26, Qt.AspectRatioMode.KeepAspectRatio,
                                                                 Qt.TransformationMode.SmoothTransformation))
-        self.info_icon.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.info_icon.setToolTip("The score displayed represents your Cognitive Load (CL) score."
+        self.info_icon_cl.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.info_icon_cl.setToolTip("The score displayed represents your Cognitive Load (CL) score."
                                   " It is calculated using various values recorded by the headphones"
                                   " and processed through a formula to standardize it, allowing for"
                                   " comparison with your previous sessions.")  # Tooltip for new icon
-        self.info_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.info_icon_cl.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Spacer to fill the gap between plot widget and rest of the widgets
         spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -143,6 +143,9 @@ class JitsiWidget(QWidget):
         self.comment_sent_button = QPushButton("Comment Sent")
         self.comment_input.setPlaceholderText("Comment...")
         self.comment_sent_button.clicked.connect(self.emit_user_input)
+        self.comment_sent_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.comment_sent_button.setToolTip("Comment to leave a mark on graph")
+
 
         #Break Button
         self.break_button = QPushButton("Pause")
@@ -155,7 +158,7 @@ class JitsiWidget(QWidget):
         self.end_button.clicked.connect(self.dialog.exec)
 
         right_layout.addWidget(self.plot_icon, alignment=Qt.AlignmentFlag.AlignTop)
-        right_layout.addWidget(self.info_icon, alignment=Qt.AlignmentFlag.AlignTop)
+        right_layout.addWidget(self.info_icon_cl, alignment=Qt.AlignmentFlag.AlignTop)
         right_layout.addWidget(self.plot_widget)
         right_layout.addItem(spacer)
         right_layout.addWidget(self.message_label, alignment=Qt.AlignmentFlag.AlignBottom)
