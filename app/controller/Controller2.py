@@ -5,7 +5,7 @@ from app.view.rootWindow import RootWindow
 from app.model.score.calculateScore import calculateScore
 from PyQt6.QtCore import pyqtSignal, QObject
 from app.model.score.hdf5Util import hdf5File
-
+from app.model.constants import *
 
 import app.view.pages as widget
 
@@ -41,6 +41,8 @@ class Controller(QObject):
             if self.pages[page_name] is not None:
                 self.gui.main_window.register_page(self.pages[page_name].widget, page_name)
 
+        self.check_last_session()
+
 
     def new_session(self):
         self.next_page("start")
@@ -51,10 +53,10 @@ class Controller(QObject):
         self.jitsi_room_name = None
 
     def start_min(self):
-        self.start_recording_phase.emit(Phase.MIN.value, 10000)
+        self.start_recording_phase.emit(Phase.MIN.value, 1000)
 
     def start_max(self):
-        self.start_recording_phase.emit(Phase.MAX.value, 10000)
+        self.start_recording_phase.emit(Phase.MAX.value, 1000)
 
     def start_monitoring(self):
         self.start_recording_phase.emit(Phase.MONITOR.value, 0)
@@ -127,3 +129,11 @@ class Controller(QObject):
         elif phase == Phase.MAX.value:
             self.next_page("result")
 
+    def check_last_session(self):
+        h5_directory = "app/h5_session_files"
+        files = [f for f in os.listdir(h5_directory) if f.endswith(".h5")]
+        num_files = len(files)
+        matching_files = [f for f in files if f.startswith(f"{num_files}_")]
+        if matching_files:
+            last_file = matching_files[0]
+            self.recorder.check_empty_session(h5_directory, last_file)

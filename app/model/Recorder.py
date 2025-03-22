@@ -8,6 +8,8 @@ from PyQt6.QtCore import QThread, QObject, QObject, QTimer
 
 import enum
 import time
+import math
+import os
 from datetime import datetime
 
 class Phase(enum.Enum):
@@ -125,4 +127,12 @@ class Recorder(QObject):
 
         """Could this be solved somehow differnet, eg. in @phase_complete line 61?"""
         self.score_calculator = calculateScore(self.minimum, self.maximum)
+
+    def check_empty_session(self, file_path, fileName):
+        file = hdf5File.get_h5_file(fileName)
+        minimum = hdf5File.get_min_value(file)
+        maximum = hdf5File.get_max_value(file)
+        if math.isnan(minimum) or math.isnan(maximum):
+            if os.path.exists(file_path):
+                os.remove(os.path.join(file_path, fileName))
 
