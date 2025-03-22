@@ -69,8 +69,6 @@ class StartBaselinePage(QWidget):
 
         # Skip Button
         self.skipMaxtestButton = QPushButton("Skip")
-        info_icon_path = getAbsPath(FILE_PATH_INFO_ICON)
-        self.skipMaxtestButton.setIcon(QIcon(info_icon_path))
         layout.addWidget(self.skipMaxtestButton, alignment=Qt.AlignmentFlag.AlignCenter)
         self.skipMaxtestButton.clicked.connect(self.dialog.exec)
 
