@@ -22,7 +22,7 @@ class SkipPageWidget(QWidget):
         v_layout = QVBoxLayout()
         h_layout = QHBoxLayout()
 
-        label = QLabel("To proceed, choose a session from your previous recorded sessions"
+        label = QLabel("To proceed, choose a session from your recorded sessions of the last two days"
                        " that has similar conditions, such as sleep, energy, and other"
                        " factors, to this session."
                        )
