@@ -41,12 +41,14 @@ class JitsiPage(QWidget):
 
         # Plot Icon
         self.plot_icon = self.ClickableLabel(self)
+        self.plot_icon.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.open_eye_icon, self.closed_eye_icon = self._load_icons()
         self.toggle_plot_icon(is_open=True)
         self.plot_icon.clicked.connect(self.toggle_plot_widget)
 
         # Info Icon
         self.info_icon_cl = self._create_icon_label(FILE_PATH_INFO_ICON, tooltip=(JITSI_PAGE_INFO))
+        self.info_icon_cl.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # Message label
         self.message_label = QLabel(objectName="text", wordWrap=True)
