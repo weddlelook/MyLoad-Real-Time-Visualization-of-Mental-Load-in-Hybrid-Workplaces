@@ -108,11 +108,6 @@ class RetrospectivePage(QWidget):
             for file in files:
                 self.session_list.addItem(file)
 
-    def _extract_start_time(self, filename):
-        # Extrahiere den Zeitstempel aus dem Dateinamen
-        time_str = filename.split("__")[-1].split(".")[0]  # z. B. "07-06-37_28-01-2025"
-        return datetime.strptime(time_str, "%H-%M-%S_%d-%m-%Y")
-
     def _plot_sessions(self):
         """
         Plottet die ausgewählten Sessions. Wählt man nur eine Session aus, so sieht man auf der x -Achse den
@@ -162,17 +157,6 @@ class RetrospectivePage(QWidget):
         ax.legend(loc="upper left", bbox_to_anchor=(-0.16, 1.15), borderaxespad=0.)
         ax.grid(True)
         self.canvas.draw()
-
-    def format_time(self, x, pos):
-        """Formats seconds into adaptive time units."""
-        if x < 60:
-            return f"{int(x)}s"
-        elif x < 3600:
-            return f"{int(x // 60)}m"
-        else:
-            h = int(x // 3600)
-            m = int((x % 3600) // 60)
-            return f"{h}h {m}m" if m > 0 else f"{h}h"
 
     def _delete_sessions(self):
         """Löscht die ausgewählten Sessions nach Bestätigung."""

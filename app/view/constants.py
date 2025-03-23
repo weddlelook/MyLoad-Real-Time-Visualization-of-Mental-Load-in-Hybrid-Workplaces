@@ -1,3 +1,6 @@
+import os
+import sys
+
 FILE_PATH_CSS_LIGHTMODE = "styles/style_light.qss"
 
 FILE_PATH_CSS_DARKMODE = "styles/style_dark.qss"
@@ -14,8 +17,10 @@ FILE_PATH_OPEN_EYE_ICON = "styles/images/visual.png"
 
 FILE_PATH_CLOSED_EYE_ICON = "styles/images/hidden_eye.png"
 
-import os
-import sys
+JITSI_PAGE_INFO = f"""The score displayed represents your Cognitive Load (CL) score. {os.linesep}
+            It is calculated using various values recorded by the headphones {os.linesep}
+            and processed through a formula to standardize it, allowing for {os.linesep}
+            comparison with your previous sessions."""
 
 def getAbsPath(relative_path):
     bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))

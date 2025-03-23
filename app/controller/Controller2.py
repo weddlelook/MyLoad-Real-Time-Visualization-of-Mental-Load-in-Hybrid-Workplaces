@@ -34,7 +34,7 @@ class Controller(QObject):
             "maxtest_start": MaxtestStartPage(widget.StartMaxTestPage(), self, "maxtest"),
             "maxtest": MaxtestPage(widget.MaxtestPage(), self, "result"),
             "result": ResultPage(widget.ResultsPage(), self, "jitsi"),
-            "jitsi": JitsiPage(widget.JitsiWidget(), self, "retrospective"),
+            "jitsi": JitsiPage(widget.JitsiPage(), self, "retrospective"),
             "retrospective": RetrospectivePage(widget.RetrospectivePage("app/h5_session_files"), self)
         }
         for page_name in self.pages.keys():
@@ -137,3 +137,6 @@ class Controller(QObject):
         if matching_files:
             last_file = matching_files[0]
             self.recorder.check_empty_session(h5_directory, last_file)
+            
+    def monitoring_break(self):
+        self.start_recording_phase.emit(Phase.PAUSED.value, 0)
