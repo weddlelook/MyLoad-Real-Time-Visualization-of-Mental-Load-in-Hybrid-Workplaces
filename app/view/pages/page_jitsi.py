@@ -85,7 +85,7 @@ class JitsiPage(QWidget):
     def toggle_plot_icon(self, is_open):
         """ Update plot icon state """
         self.plot_icon.setPixmap(self.open_eye_icon if is_open else self.closed_eye_icon)
-        self.plot_icon.setToolTip("Click to show your cognitive load score" if is_open else "Click to hide your cognitive load score")
+        self.plot_icon.setToolTip("Click to hide your cognitive load score" if is_open else "Click to show your cognitive load score")
 
     def toggle_plot_widget(self):
         """ Toggle plot widget visibility """
@@ -113,8 +113,6 @@ class JitsiPage(QWidget):
         self.browser.setUrl(url)
 
         self.plot_widget.setFixedHeight(self.plot_height)
-        self.plot_icon.setPixmap(self.closed_eye_icon)
-        self.plot_icon.setToolTip("Click to hide your cognitive load score")
 
         if user_name:
             QTimer.singleShot(2000, lambda: self.browser.page().runJavaScript(f'setDisplayName(\"{user_name}\")'))
@@ -213,7 +211,7 @@ class JitsiPage(QWidget):
 
     class ClickableLabel(QLabel):
         """ Custom QLabel that emits a signal when clicked """
-        
+
         clicked = pyqtSignal()
 
         def __init__(self, parent=None):
