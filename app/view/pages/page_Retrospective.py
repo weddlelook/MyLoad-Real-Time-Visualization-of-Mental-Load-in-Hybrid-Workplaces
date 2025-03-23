@@ -151,11 +151,19 @@ class RetrospectivePage(QWidget):
             except Exception as e:
                 print(f"Error while plotting {file}: {e}")
 
-        ax.set_xlabel("Zeit (Stunde:Minute)" if len(selected_files) == 1 else "Zeit (s)")
+        if len(selected_files) == 1:
+            session_name = file.split("__")[1]
+            date = file.split("__")[2].split("_")[1].split(".")[0]
+            ax.set_title(f"Session: {session_name} on {date}", fontsize=12, fontweight='semibold', pad=10)
+
+        ax.set_xlabel("Time (HH:MM:SS)" if len(selected_files) == 1 else "Session Duration (HH:MM:SS)",
+                      fontsize=12, fontweight='bold', labelpad=7.5)
         ax.xaxis.set_major_locator(ticker.AutoLocator())
-        ax.set_ylabel("Cognitive Load")
+        ax.set_ylabel("Cognitive Load", fontsize=12, fontweight='bold', labelpad=15)
+        ax.tick_params(axis='both', labelsize=10)
         ax.legend(loc="upper left", bbox_to_anchor=(-0.16, 1.15), borderaxespad=0.)
-        ax.grid(True)
+        ax.grid(True, linestyle='--', color='gray', linewidth=1, alpha=0.75)
+
         self.canvas.draw()
 
     def _delete_sessions(self):
