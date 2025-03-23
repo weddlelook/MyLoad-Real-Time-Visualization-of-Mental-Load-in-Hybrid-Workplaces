@@ -58,7 +58,7 @@ class JitsiPage(QWidget):
         # Input & Buttons
         self.comment_input = QLineEdit(placeholderText="Comment...")
         self.comment_sent_button = self._create_button("Comment Sent", self.emit_user_input, tooltip="Comment to leave a mark on graph")
-        self.break_button = self._create_button("Pause", self.toggle_monitoring, tooltip="Click to pause or resume the recording")
+        self.break_button = self._create_button("Pause", self.toggle_monitoring, tooltip="Click to pause the monitoring")
         self.end_button = self._create_button("End Meeting", self.dialog.exec)
 
         # Right Layout Organization
@@ -79,8 +79,10 @@ class JitsiPage(QWidget):
     def toggle_monitoring(self):
         if self.break_button.text() == "Pause":
             self.break_button.setText("Resume")
+            self.break_button.setToolTip("Click to resume the monitoring")
         else:
             self.break_button.setText("Pause")
+            self.break_button.setToolTip("Click to pause the monitoring")
 
     def toggle_plot_icon(self, is_open):
         """ Update plot icon state """
@@ -98,7 +100,10 @@ class JitsiPage(QWidget):
         self.comment = self.comment_input.text().strip()
         if self.comment:
             self.commentSignal.emit(self.comment)
-            self._show_sent_message("Comment successfully sent!")
+            if self.break_button.text() == "Pause":
+                self._show_sent_message("Comment successfully sent!")
+            else:
+                self._show_sent_message("Comments on break won't be saved!")
         self.comment_input.clear()
 
     def end_meeting(self):
