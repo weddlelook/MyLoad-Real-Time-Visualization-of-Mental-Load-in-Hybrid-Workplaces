@@ -90,8 +90,8 @@ class Recorder(QObject):
 
     def _max_phase(self, data):
         try:
-            if not self.maximum or data['cognitive_load'] > self.maximum:
-                self.maximum = data['cognitive_load']
+            if not self.maximum or data['raw_cognitive_load'] > self.maximum:
+                self.maximum = data['raw_cognitive_load']
                 self.hdf5Session.set_max(self.maximum)
             print("max")
         except TypeError as e: # TODO: specify exception
@@ -99,8 +99,8 @@ class Recorder(QObject):
 
     def _min_phase(self, data):
         try:
-            if not self.minimum or data['cognitive_load'] < self.minimum:
-                self.minimum = data['cognitive_load']
+            if not self.minimum or data['raw_cognitive_load'] < self.minimum:
+                self.minimum = data['raw_cognitive_load']
                 self.hdf5Session.set_min(self.minimum)
             print("min")
         except TypeError as e: # TODO: specify exception

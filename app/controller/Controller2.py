@@ -1,11 +1,9 @@
 from app.controller.PageDTO import *
-from app.model import *
-from app.model.Recorder import Phase
+import app.model as model
 from app.view.rootWindow import RootWindow
-from app.model.score.calculateScore import calculateScore
 from PyQt6.QtCore import pyqtSignal, QObject
-from app.model.score.hdf5Util import hdf5File
-from app.model.constants import *
+import os
+import app.model as model
 
 import app.view.pages as widget
 
@@ -15,9 +13,9 @@ class Controller(QObject):
         super().__init__()
 
         # Model
-        self.settings_model = SettingsModel()
-        self.test_model = testLogic()
-        self.recorder = Recorder()
+        self.settings_model = model.SettingsModel()
+        self.test_model = model.testLogic()
+        self.recorder = model.Recorder()
 
         # View
         self.gui = RootWindow(self.settings_model.settings)
@@ -52,17 +50,8 @@ class Controller(QObject):
         self.session_name = None
         self.jitsi_room_name = None
 
-    def start_min(self):
-        self.start_recording_phase.emit(Phase.MIN.value, 1000)
-
-    def start_max(self):
-        self.start_recording_phase.emit(Phase.MAX.value, 1000)
-
-    def start_monitoring(self):
-        self.start_recording_phase.emit(Phase.MONITOR.value, 0)
-
-    def stop_monitoring(self):
-        self.start_recording_phase.emit(Phase.PAUSED.value, 0)
+    def phase_change(self, phase:int, time:int=0):
+        self.start_recording_phase.emit(phase, time)
 
     def set_session_variables(self, session_name:str, jitsi_room_name:str):
         self.session_name = session_name

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-import h5py
 from PyQt6.QtWidgets import QWidget
+
+from app.model import Phase
 from app.model.score.hdf5Util import hdf5File
 
 class Page(ABC):
@@ -62,7 +63,7 @@ class BaselinePage(Page):
         super().__init__(widget, False)
 
     def start(self, controller):
-        controller.start_min()
+        controller.phase_change(Phase.MIN.value, 60000)
 
 class MaxtestPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
@@ -73,7 +74,7 @@ class MaxtestPage(Page):
         controller.test_model.charSubmiter.connect(self.widget.updateChar) # TODO
 
     def start(self, controller):
-        controller.start_max()
+        controller.phase_change(Phase.MAX.value, 90000)
         controller.test_model.startTest() # TODO
         self.widget.hide_correct_button()
 
@@ -94,21 +95,21 @@ class ResultPage(Page):
 class JitsiPage(Page):
     def __init__(self, widget:QWidget, controller, next_page:str):
         super().__init__(widget, False)
-        self.controller = controller
         self.widget.dialog.exit_button.clicked.connect(lambda : controller.next_page(next_page))
-        self.widget.dialog.exit_button.clicked.connect(controller.stop_monitoring)
-        self.widget.dialog.exit_button.clicked.connect(self.widget.end_meeting) # TODO ersetze toogle_video durch end_meeting nach Evaluation
-        #controller.recorder.powers.connect(self.widget.plot_widget.update_plot) # TODO
-        controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
+        self.widget.dialog.exit_button.clicked.connect(lambda : controller.phase_change(Phase.PAUSED.value))
+        self.widget.dialog.exit_button.clicked.connect(self.widget.end_meeting)
 
         self.widget.commentSignal.connect(lambda: controller.recorder.save_comment(datetime.now().timestamp(), self.widget.comment))
-        self.widget.break_button.clicked.connect(self.toggle_monitoring)
+        self.widget.break_button.clicked.connect(lambda: self.toggle_monitoring(controller))
+
+        # Observer view > model
+        controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
     
-    def toggle_monitoring(self):
+    def toggle_monitoring(self, controller):
         if self.widget.break_button.text() == "Resume":
-            self.controller.stop_monitoring()
+            controller.phase_change(Phase.PAUSED.value)
         else:
-            self.controller.start_monitoring()
+            controller.phase_change(Phase.MONITOR.value)
 
     def start(self, controller):
         try:
@@ -116,7 +117,7 @@ class JitsiPage(Page):
         except KeyError:
             display_name = None
         self.widget.load_jitsi_meeting(controller.jitsi_room_name, display_name)
-        controller.start_monitoring()
+        controller.phase_change(Phase.MONITOR.value)
 
 
 class RetrospectivePage(Page):
