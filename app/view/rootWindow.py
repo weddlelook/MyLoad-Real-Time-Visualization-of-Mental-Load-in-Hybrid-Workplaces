@@ -68,13 +68,16 @@ class RootWindow(QMainWindow):
         - If the user selects "No", the closing action is canceled.
         This prevents accidental exits and allows the user to confirm their decision.
         """
-        reply = QMessageBox.question(
-            self, "Close MyLoad", "Are you sure you want to close MyLoad?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Close MyLoad")
+        msg_box.setText("Are you sure you want to close MyLoad?")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+        msg_box.setIcon(QMessageBox.Icon.NoIcon)  # Entfernt das "i"-Symbol
+
+        reply = msg_box.exec()
 
         if reply == QMessageBox.StandardButton.Yes:
-            event.accept()  # Close myLoad application
+            event.accept()
         else:
             event.ignore()
