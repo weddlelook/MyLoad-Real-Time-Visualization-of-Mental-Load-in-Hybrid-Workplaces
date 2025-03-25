@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar, QLineEdit
+from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar, QLineEdit, QMessageBox
 from PyQt6.QtGui import QFontDatabase, QFont, QAction, QIcon
 from .mainWidget import MainWidget
 from .constants import *
@@ -59,3 +59,22 @@ class RootWindow(QMainWindow):
                 else:
                     print("⚠ ERROR: No font families were found.")
 
+
+    def closeEvent(self, event):
+        """
+        This method is automatically triggered when the user attempts to close the window.
+        It displays a confirmation dialog asking if they really want to exit the application.
+        - If the user selects "Yes", the window will close.
+        - If the user selects "No", the closing action is canceled.
+        This prevents accidental exits and allows the user to confirm their decision.
+        """
+        reply = QMessageBox.question(
+            self, "Close MyLoad", "Are you sure you want to close MyLoad?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            event.accept()  # Close myLoad application
+        else:
+            event.ignore()

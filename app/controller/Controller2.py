@@ -130,7 +130,14 @@ class Controller(QObject):
             self.next_page("result")
 
     def check_last_session(self):
-        h5_directory = "app/h5_session_files"
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # Ordner, in dem die Datei liegt
+        h5_directory = os.path.join(base_dir, "..", "..", "h5_session_files")
+
+        # Falls der Ordner nicht existiert, erstelle ihn
+        if not os.path.exists(h5_directory):
+            os.makedirs(h5_directory)
+
+        #h5_directory = "app/h5_session_files"
         files = [f for f in os.listdir(h5_directory) if f.endswith(".h5")]
         num_files = len(files)
         matching_files = [f for f in files if f.startswith(f"{num_files}_")]
