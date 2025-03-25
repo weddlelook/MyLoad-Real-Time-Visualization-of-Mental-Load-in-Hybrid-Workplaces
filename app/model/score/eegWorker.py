@@ -1,6 +1,7 @@
 import numpy as np
 import time
 from collections import deque
+import argparse
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
@@ -17,10 +18,8 @@ class EegWorker(QObject):
     status_callback = pyqtSignal(str)
 
     NUM_CHANNELS = 8
-    WINDOW_SIZE = 30
-    MIN_WINDOW_SIZE = 20
-    THRESHOLD_UPPER = 20
-    THRESHOLD_LOWER = 0.1
+    WINDOW_SIZE = 15
+    THRESHOLD_UPPER = 7.47
 
     def __init__(self):
         super().__init__()
@@ -35,8 +34,13 @@ class EegWorker(QObject):
         self.ica_worker = None
         self.ica_model = None
 
-        self.board_id = -1
-        self.serial_port = "COM3"
+        parser = argparse.ArgumentParser(description="Example argparse")
+        parser.add_argument('--port', type=str, help="Name of the bluetooth port the board receiver is connected to", default="COM3")
+        parser.add_argument('--board_id', type=int, help="Id of the Board connected, -1 for synthetic", default=-1)
+        args = parser.parse_args()
+
+        self.board_id = args.board_id
+        self.serial_port = args.port
 
         self.board_shim = None
         self.sampling_rate = None
@@ -145,7 +149,8 @@ class EegWorker(QObject):
                     'theta_power': theta_power,
                     'alpha_power': alpha_power,
                     'beta_power': beta_power,
-                    'cognitive_load': cognitive_load
+                    'cognitive_load': self._moving_average(cognitive_load),
+                    'raw_cognitive_load': self._threshold_filter(cognitive_load)
                 }
                 return data
             else:
@@ -242,22 +247,27 @@ class EegWorker(QObject):
 
     # ---------------- Threshhold -----------
 
-    def _filter_cl_threshold(self, cl_value):
+    def _moving_average(self, cl_value):
         """
         Replace invalid cognitive load values with mean of prior valid values.
         :return: Valid value as given, average if invalid or none if the value is invalid and not enough valid values are available in the sliding window.
         """
 
         # Append value if valid, otherwise append None
-        if self.THRESHOLD_LOWER <= cl_value <= self.THRESHOLD_UPPER:
-            self.filter_window.append(cl_value) 
-        else:
-            self.filter_window.append(None)
+        self._threshold_filter(cl_value)
 
         # Filter for valid values
         valid_values = [v for v in self.filter_window if v is not None]
 
-        if len(valid_values) >= self.MIN_WINDOW_SIZE:
+        if len(valid_values) >= 1:
             return np.mean(valid_values)
         else:  
+            return cl_value if cl_value <= self.THRESHOLD_UPPER else self.THRESHOLD_UPPER
+    
+    def _threshold_filter(self, cl_value):
+        if cl_value <= self.THRESHOLD_UPPER:
+            self.filter_window.append(cl_value)
+            return cl_value
+        else:
+            self.filter_window.append(None)
             return None
