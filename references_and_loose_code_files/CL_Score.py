@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-'''
+"""
 We want to build a function for normalization of CLI values. Let name the function S. S should have the following features: 
 S: I --> (0,100)
 I = (0, ∞)
@@ -14,7 +14,8 @@ S is degressiv (? not decided on yet)
 
 In the following there is the function logistic function, which fulfills the required features
 
-'''
+"""
+
 
 class CognitiveLoadNormalizer:
     def __init__(self, I_base, I_max):
@@ -30,7 +31,7 @@ class CognitiveLoadNormalizer:
         self.k, self.I_0 = self._solve_parameters()
 
     def _solve_parameters(self):
-        """ Solves for logistic function parameters k and I_0. """
+        """Solves for logistic function parameters k and I_0."""
         S_base, S_max = 10, 90  # Desired output mappings
         logit_base = np.log(S_base / (100 - S_base))
         logit_max = np.log(S_max / (100 - S_max))
@@ -67,7 +68,7 @@ class CognitiveLoadNormalizer:
         S_values = [self.compute_score(I) for I in I_values]
 
         plt.figure(figsize=(8, 5))
-        plt.plot(I_values, S_values, label="Cognitive Load Score (S(I))", color='blue')
+        plt.plot(I_values, S_values, label="Cognitive Load Score (S(I))", color="blue")
         plt.axhline(y=10, linestyle="--", color="gray", label="S(I_base) ≈ 10")
         plt.axhline(y=90, linestyle="--", color="red", label="S(I_max) ≈ 90")
         plt.axvline(x=self.I_base, linestyle="--", color="gray")
@@ -79,6 +80,7 @@ class CognitiveLoadNormalizer:
         plt.grid()
         plt.show()
 
+
 if __name__ == "__main__":
     I_base_example = 1.5  # Example base CLI value
     I_max_example = 4.5  # Example max CLI value
@@ -88,7 +90,9 @@ if __name__ == "__main__":
 
     # Compute score for a test value
     I_test = 4.2
-    print(f"Cognitive Load Score for I={I_test}: {normalizer.compute_score(I_test):.2f}")
+    print(
+        f"Cognitive Load Score for I={I_test}: {normalizer.compute_score(I_test):.2f}"
+    )
 
     # Visualize the function
     normalizer.visualize()

@@ -18,6 +18,7 @@ import keyboard
 
 HDF5_FILENAME = None
 
+
 class EEGMonitoring:
     NUM_CHANNELS = 8
 
@@ -31,10 +32,19 @@ class EEGMonitoring:
     def connect_board(self):
         BoardShim.enable_dev_board_logger()
         parser = argparse.ArgumentParser()
-        parser.add_argument('--serial-port', type=str, help='serial port', required=False, default='')
-        parser.add_argument('--board-id', type=int, help='board id, check docs to get a list of supported boards',
-                            required=False, default=BoardIds.SYNTHETIC_BOARD)
-        args = parser.parse_args(['--serial-port', 'COM3', '--board-id', '-1']) # Set board to -1 for synthetic data; 2 for cyton+daisy
+        parser.add_argument(
+            "--serial-port", type=str, help="serial port", required=False, default=""
+        )
+        parser.add_argument(
+            "--board-id",
+            type=int,
+            help="board id, check docs to get a list of supported boards",
+            required=False,
+            default=BoardIds.SYNTHETIC_BOARD,
+        )
+        args = parser.parse_args(
+            ["--serial-port", "COM3", "--board-id", "-1"]
+        )  # Set board to -1 for synthetic data; 2 for cyton+daisy
 
         params = BrainFlowInputParams()
         params.serial_port = args.serial_port
@@ -54,8 +64,24 @@ class EEGMonitoring:
 
     def preprocess_data(self, data, sfreq):
         for channel in data:
-            DataFilter.perform_bandstop(channel, sfreq, 48.0, 52.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
-            DataFilter.perform_bandpass(channel, sfreq, 3.0, 45.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
+            DataFilter.perform_bandstop(
+                channel,
+                sfreq,
+                48.0,
+                52.0,
+                2,
+                FilterTypes.BUTTERWORTH_ZERO_PHASE.value,
+                0,
+            )
+            DataFilter.perform_bandpass(
+                channel,
+                sfreq,
+                3.0,
+                45.0,
+                2,
+                FilterTypes.BUTTERWORTH_ZERO_PHASE.value,
+                0,
+            )
         return data
 
     def train_asr_filter(self, baseline_data, sfreq=250):
@@ -67,7 +93,8 @@ class EEGMonitoring:
             win_overlap=0.66,
             max_dropout_fraction=0.1,
             min_clean_fraction=0.25,
-            method='euclid')
+            method="euclid",
+        )
         self.asr.fit(baseline_data)
 
     def apply_asr_filter(self, data):
@@ -82,8 +109,13 @@ class EEGMonitoring:
 
         for eeg_channel in range(self.NUM_CHANNELS):
             nfft = DataFilter.get_nearest_power_of_two(sampling_rate)
-            psd = DataFilter.get_psd_welch(filtered_data_buffer[eeg_channel], nfft, nfft // 2,
-                                           sampling_rate, WindowOperations.BLACKMAN_HARRIS.value)
+            psd = DataFilter.get_psd_welch(
+                filtered_data_buffer[eeg_channel],
+                nfft,
+                nfft // 2,
+                sampling_rate,
+                WindowOperations.BLACKMAN_HARRIS.value,
+            )
 
             theta_start = 4
             theta_end = 8
@@ -100,14 +132,20 @@ class EEGMonitoring:
             alpha_powers_per_channel.append(band_power_alpha)
             beta_powers_per_channel.append(band_power_beta)
 
-        return np.mean(np.array(theta_powers_per_channel)), np.mean(np.array(alpha_powers_per_channel)), np.mean(np.array(beta_powers_per_channel))
+        return (
+            np.mean(np.array(theta_powers_per_channel)),
+            np.mean(np.array(alpha_powers_per_channel)),
+            np.mean(np.array(beta_powers_per_channel)),
+        )
 
     async def record_asr_baseline(self):
         self.status_callback("Starting ASR Baseline recording for 60 seconds!")
         try:
             # Start streaming session
             self.board_shim.start_stream()  # Startet die EEG-Aufnahme
-            await asyncio.sleep(60)  # Asynchrone Wartezeit, um die GUI und den WebSocket-Client nicht zu blockieren
+            await asyncio.sleep(
+                60
+            )  # Asynchrone Wartezeit, um die GUI und den WebSocket-Client nicht zu blockieren
 
             # Stop streaming session and get data
             baseline_data = self.board_shim.get_board_data()
@@ -120,7 +158,6 @@ class EEGMonitoring:
 
         except BrainFlowError as e:
             self.status_callback(f"BrainFlowError occurred: {e}")
-
 
     async def monitor_cognitive_load(self, client):
         self.status_callback("Starting EEG recording for video meetings!")
@@ -142,19 +179,36 @@ class EEGMonitoring:
                     if new_data.shape[0] < self.NUM_CHANNELS:
                         raise ValueError(
                             f"Board does not provide enough channels: "
-                            f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
+                            f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}"
+                        )
 
-                    if update_count > 0:  # Beginne erst nach dem ersten Update mit der Datenerfassung
-                        transformed_data = self.apply_asr_filter(new_data[:self.NUM_CHANNELS, :])
-                        data_buffer = np.hstack((data_buffer[:, new_data.shape[1]:], transformed_data))
+                    if (
+                        update_count > 0
+                    ):  # Beginne erst nach dem ersten Update mit der Datenerfassung
+                        transformed_data = self.apply_asr_filter(
+                            new_data[: self.NUM_CHANNELS, :]
+                        )
+                        data_buffer = np.hstack(
+                            (data_buffer[:, new_data.shape[1] :], transformed_data)
+                        )
 
-                        theta_power, alpha_power, beta_power = self.calculate_powers(data_buffer, self.sampling_rate)
+                        theta_power, alpha_power, beta_power = self.calculate_powers(
+                            data_buffer, self.sampling_rate
+                        )
 
-                        print(f"Theta Power: {theta_power:.2f}, Alpha Power: {alpha_power:.2f}, Beta Power: {beta_power:.2f}")
+                        print(
+                            f"Theta Power: {theta_power:.2f}, Alpha Power: {alpha_power:.2f}, Beta Power: {beta_power:.2f}"
+                        )
                         timestamp = time.time()
 
                         # Speichere die berechneten Werte und den Zeitstempel direkt in die HDF5-Datei
-                        self.save_eeg_data_as_hdf5(HDF5_FILENAME, timestamp, theta_power, alpha_power, beta_power)
+                        self.save_eeg_data_as_hdf5(
+                            HDF5_FILENAME,
+                            timestamp,
+                            theta_power,
+                            alpha_power,
+                            beta_power,
+                        )
 
                     update_count += 1
 
@@ -177,13 +231,15 @@ class EEGMonitoring:
             except BrainFlowError as e:
                 self.status_callback(f"Error stopping stream: {e}")
 
-    def save_eeg_data_as_hdf5(self, filename, timestamp, theta_power, alpha_power, beta_power):
+    def save_eeg_data_as_hdf5(
+        self, filename, timestamp, theta_power, alpha_power, beta_power
+    ):
         """
         Speichert die EEG-Daten als HDF5-Datei.
         """
         # Neue Daten hinzufügen
-        with h5py.File(filename, 'a') as h5_file:
-            eeg_dataset = h5_file['EEG_data']
+        with h5py.File(filename, "a") as h5_file:
+            eeg_dataset = h5_file["EEG_data"]
             new_index = eeg_dataset.shape[0]
 
             eeg_dataset.resize((new_index + 1,))
@@ -191,9 +247,12 @@ class EEGMonitoring:
 
         self.status_callback(f"EEG Data saved to {filename}")
 
+
 async def process_messages(eeg_mon: EEGMonitoring, status_callback):
     while True:
-        message = await client.message_queue.get()  # Nachricht aus der Warteschlange holen
+        message = (
+            await client.message_queue.get()
+        )  # Nachricht aus der Warteschlange holen
         if message is None:
             break
         status_callback(f"Processing message: {message}")
@@ -209,14 +268,17 @@ async def process_messages(eeg_mon: EEGMonitoring, status_callback):
             await asyncio.gather(
                 hr_mon.monitor_heart_rate(),
                 eeg_mon.monitor_cognitive_load(client),
-                app.keyboard_listener()  # Startet den Keyboard Listener als Teil der Aufzeichnung
+                app.keyboard_listener(),  # Startet den Keyboard Listener als Teil der Aufzeichnung
             )
         elif action == "stop_recording":
             # Stop both HR and EEG monitoring
-            eeg_mon.session_active = False  # Beende die while-Schleife in monitor_cognitive_load
+            eeg_mon.session_active = (
+                False  # Beende die while-Schleife in monitor_cognitive_load
+            )
             await hr_mon.release_hr_device()
             eeg_mon.release_board()
             status_callback("Stopped HR and EEG Monitoring")
+
 
 class MonitoringApp:
     def __init__(self, root):
@@ -248,10 +310,14 @@ class MonitoringApp:
 
         # Buttons for connection
 
-        self.connect_eeg_button = ttk.Button(root, text="Connect EEG", command=self.connect_eeg)
+        self.connect_eeg_button = ttk.Button(
+            root, text="Connect EEG", command=self.connect_eeg
+        )
         self.connect_eeg_button.grid(column=0, row=4, columnspan=2, padx=10, pady=10)
 
-        self.create_h5_button = ttk.Button(root, text="Create HDF5 File", command=self.create_h5_file)
+        self.create_h5_button = ttk.Button(
+            root, text="Create HDF5 File", command=self.create_h5_file
+        )
         self.create_h5_button.grid(column=0, row=6, columnspan=2, padx=10, pady=10)
 
         # Labels for connection status (witch checkmark)
@@ -268,16 +334,23 @@ class MonitoringApp:
         self.data_status_icon.grid(column=1, row=6, padx=10, pady=10)
 
         # Add Buttons for Actions
-        self.start_baseline_button = ttk.Button(root, text="Start Baseline Recording", command=lambda: asyncio.run(self.start_baseline()))
+        self.start_baseline_button = ttk.Button(
+            root,
+            text="Start Baseline Recording",
+            command=lambda: asyncio.run(self.start_baseline()),
+        )
 
         self.start_baseline_button.grid(column=0, row=7, columnspan=2, padx=10, pady=5)
 
-        self.start_recording_button = ttk.Button(root, text="Start Recording", command=self.start_recording)
+        self.start_recording_button = ttk.Button(
+            root, text="Start Recording", command=self.start_recording
+        )
         self.start_recording_button.grid(column=0, row=8, columnspan=2, padx=10, pady=5)
 
-        self.stop_recording_button = ttk.Button(root, text="Stop Recording", command=self.stop_recording)
+        self.stop_recording_button = ttk.Button(
+            root, text="Stop Recording", command=self.stop_recording
+        )
         self.stop_recording_button.grid(column=0, row=9, columnspan=2, padx=10, pady=5)
-
 
         # Monitoring attributes
         self.eeg_monitor = None
@@ -294,13 +367,14 @@ class MonitoringApp:
         await eeg_mon.record_asr_baseline()
         status_callback("Finished ASR recording and training.")
 
-
     async def start_recording(self):
         """Start the recording process."""
         if self.eeg_monitor:
             await asyncio.gather(
-                self.eeg_monitor.monitor_cognitive_load(None),  # Replace None with your client if necessary
-                self.keyboard_listener()
+                self.eeg_monitor.monitor_cognitive_load(
+                    None
+                ),  # Replace None with your client if necessary
+                self.keyboard_listener(),
             )
         else:
             self.update_status("HR or EEG Monitor is not connected.")
@@ -320,17 +394,22 @@ class MonitoringApp:
         """
 
         def key_handler(event):
-            if event.name == 'space':
+            if event.name == "space":
                 timestamp = time.time()
-                with h5py.File(HDF5_FILENAME, 'a') as h5_file:
-                    keypress_dataset = h5_file['Keypress_data']
+                with h5py.File(HDF5_FILENAME, "a") as h5_file:
+                    keypress_dataset = h5_file["Keypress_data"]
                     new_index = keypress_dataset.shape[0]
                     keypress_dataset.resize((new_index + 1,))
-                    keypress_dataset[new_index] = (timestamp, event.name.encode('utf-8'))
+                    keypress_dataset[new_index] = (
+                        timestamp,
+                        event.name.encode("utf-8"),
+                    )
                 self.update_status(f"Keypress recorded: {event.name} at {timestamp}")
 
         keyboard.on_press(key_handler)
-        self.update_status("Keyboard listener started. Press the button to log a keypress.")
+        self.update_status(
+            "Keyboard listener started. Press the button to log a keypress."
+        )
 
         try:
             while True:
@@ -344,10 +423,11 @@ class MonitoringApp:
         try:
             self.eeg_monitor.connect_board()
             self.update_status("EEG Board connected successfully")
-            self.root.after(0, self.eeg_status_icon.config, {"text": "✓", "fg": "green"})
+            self.root.after(
+                0, self.eeg_status_icon.config, {"text": "✓", "fg": "green"}
+            )
         except Exception as e:
             self.update_status(f"EEG Board connection failed: {e}")
-
 
     def create_h5_file(self):
         participant_id = self.participant_id_entry.get()
@@ -358,13 +438,24 @@ class MonitoringApp:
         global HDF5_FILENAME
         HDF5_FILENAME = f"data_{participant_id}.h5"
         if not os.path.exists(HDF5_FILENAME):
-            with h5py.File(HDF5_FILENAME, 'w') as h5_file:
-                eeg_dtype = np.dtype([('timestamp', 'f8'), ('theta', 'f8'), ('alpha', 'f8'), ('beta', 'f8')])
-                h5_file.create_dataset('EEG_data', shape=(0,), maxshape=(None,), dtype=eeg_dtype)
+            with h5py.File(HDF5_FILENAME, "w") as h5_file:
+                eeg_dtype = np.dtype(
+                    [
+                        ("timestamp", "f8"),
+                        ("theta", "f8"),
+                        ("alpha", "f8"),
+                        ("beta", "f8"),
+                    ]
+                )
+                h5_file.create_dataset(
+                    "EEG_data", shape=(0,), maxshape=(None,), dtype=eeg_dtype
+                )
             print("HDF5 file created successfully")
         else:
             self.update_status("HDF5 file already exists")
-            self.root.after(0, self.data_status_icon.config, {"text": "✓", "fg": "green"})
+            self.root.after(
+                0, self.data_status_icon.config, {"text": "✓", "fg": "green"}
+            )
 
     def update_status(self, message):
         self.root.after(0, self.status_label.config, {"text": message})
@@ -412,7 +503,6 @@ class MonitoringApp:
         self.loop.run_forever()
         self.root.after(100, self._run_asyncio_loop)
 
-    
 
 if __name__ == "__main__":
     root = tk.Tk()

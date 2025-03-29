@@ -1,5 +1,13 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QLabel,\
-    QDialog
+from PyQt6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QSizePolicy,
+    QLabel,
+    QDialog,
+)
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont, QIcon, QPixmap
 import sys
@@ -18,9 +26,11 @@ class SkipDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        self.label = QLabel("Are you sure you want to skip the test? "
-                            "Click skip if only you have already saved a session "
-                            "in which your conditions like sleep, time, etc are similar")
+        self.label = QLabel(
+            "Are you sure you want to skip the test? "
+            "Click skip if only you have already saved a session "
+            "in which your conditions like sleep, time, etc are similar"
+        )
         self.label.setObjectName("paragraph")
         self.label.setWordWrap(True)
         layout.addWidget(self.label, Qt.AlignmentFlag.AlignCenter)
@@ -49,14 +59,14 @@ class StartBaselinePage(QWidget):
     def initUI(self):
         layout = QVBoxLayout()
 
-        title_label = QLabel('Before starting first...')
+        title_label = QLabel("Before starting first...")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
 
         explanation_label = QLabel(
-            'Before starting monitoring your cognitive load we have to determine the your baseline. '
-            'Close your eyes for a minute until you hear the bip and relax yourself. '
+            "Before starting monitoring your cognitive load we have to determine the your baseline. "
+            "Close your eyes for a minute until you hear the bip and relax yourself. "
             'Please press "Start Measuring Baseline" to proceed. '
         )
         explanation_label.setObjectName("text")
@@ -64,8 +74,10 @@ class StartBaselinePage(QWidget):
         explanation_label.setWordWrap(True)
         layout.addWidget(explanation_label)
 
-        self.monitor_baseline_button = QPushButton('Start Measuring Baseline', self)
-        layout.addWidget(self.monitor_baseline_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.monitor_baseline_button = QPushButton("Start Measuring Baseline", self)
+        layout.addWidget(
+            self.monitor_baseline_button, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         # Skip Button
         self.skipMaxtestButton = QPushButton("Skip")
@@ -73,7 +85,7 @@ class StartBaselinePage(QWidget):
         self.skipMaxtestButton.clicked.connect(self.dialog.exec)
 
         self.setLayout(layout)
-        self.setWindowTitle('Start Baseline')
+        self.setWindowTitle("Start Baseline")
 
     @staticmethod
     def play_bip():

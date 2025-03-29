@@ -35,8 +35,18 @@ class EegWorker(QObject):
         self.ica_model = None
 
         parser = argparse.ArgumentParser(description="Example argparse")
-        parser.add_argument('--port', type=str, help="Name of the bluetooth port the board receiver is connected to", default="COM3")
-        parser.add_argument('--board_id', type=int, help="Id of the Board connected, -1 for synthetic", default=-1)
+        parser.add_argument(
+            "--port",
+            type=str,
+            help="Name of the bluetooth port the board receiver is connected to",
+            default="COM3",
+        )
+        parser.add_argument(
+            "--board_id",
+            type=int,
+            help="Id of the Board connected, -1 for synthetic",
+            default=-1,
+        )
         args = parser.parse_args()
 
         self.board_id = args.board_id
@@ -61,26 +71,29 @@ class EegWorker(QObject):
             if new_data.shape[0] < self.NUM_CHANNELS:
                 raise ValueError(
                     f"Board does not provide enough channels: "
-                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
+                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}"
+                )
 
             if self.update_count > 0:
-                transformed_data = new_data[:self.NUM_CHANNELS, :]
+                transformed_data = new_data[: self.NUM_CHANNELS, :]
 
                 self.data_buffer = np.hstack(
-                    (self.data_buffer[:, new_data.shape[1]:], transformed_data))
+                    (self.data_buffer[:, new_data.shape[1] :], transformed_data)
+                )
 
                 theta_power, alpha_power, beta_power = self._calculate_powers(
-                    self.data_buffer, self.sampling_rate)
+                    self.data_buffer, self.sampling_rate
+                )
 
                 # Data to be emitted
                 timestamp = time.time()
                 cognitive_load = theta_power / alpha_power if alpha_power != 0 else 0
                 data = {
-                    'timestamp': timestamp,
-                    'theta_power': theta_power,
-                    'alpha_power': alpha_power,
-                    'beta_power': beta_power,
-                    'cognitive_load': cognitive_load
+                    "timestamp": timestamp,
+                    "theta_power": theta_power,
+                    "alpha_power": alpha_power,
+                    "beta_power": beta_power,
+                    "cognitive_load": cognitive_load,
                 }
                 return data
             else:
@@ -130,27 +143,30 @@ class EegWorker(QObject):
             if new_data.shape[0] < self.NUM_CHANNELS:
                 raise ValueError(
                     f"Board does not provide enough channels: "
-                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}")
+                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}"
+                )
 
             if self.update_count > 0:
-                transformed_data = new_data[:self.NUM_CHANNELS, :]
+                transformed_data = new_data[: self.NUM_CHANNELS, :]
 
                 self.data_buffer = np.hstack(
-                    (self.data_buffer[:, new_data.shape[1]:], transformed_data))
+                    (self.data_buffer[:, new_data.shape[1] :], transformed_data)
+                )
 
                 theta_power, alpha_power, beta_power = self._calculate_powers(
-                    self.data_buffer, self.sampling_rate)
+                    self.data_buffer, self.sampling_rate
+                )
 
                 # Data to be emitted
                 timestamp = time.time()
                 cognitive_load = theta_power / alpha_power if alpha_power != 0 else 0
                 data = {
-                    'timestamp': timestamp,
-                    'theta_power': theta_power,
-                    'alpha_power': alpha_power,
-                    'beta_power': beta_power,
-                    'cognitive_load': self._moving_average(cognitive_load),
-                    'raw_cognitive_load': self._threshold_filter(cognitive_load)
+                    "timestamp": timestamp,
+                    "theta_power": theta_power,
+                    "alpha_power": alpha_power,
+                    "beta_power": beta_power,
+                    "cognitive_load": self._moving_average(cognitive_load),
+                    "raw_cognitive_load": self._threshold_filter(cognitive_load),
                 }
                 return data
             else:
@@ -162,8 +178,24 @@ class EegWorker(QObject):
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:
-            DataFilter.perform_bandstop(channel, sfreq, 48.0, 52.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
-            DataFilter.perform_bandpass(channel, sfreq, 3.0, 45.0, 2, FilterTypes.BUTTERWORTH_ZERO_PHASE.value, 0)
+            DataFilter.perform_bandstop(
+                channel,
+                sfreq,
+                48.0,
+                52.0,
+                2,
+                FilterTypes.BUTTERWORTH_ZERO_PHASE.value,
+                0,
+            )
+            DataFilter.perform_bandpass(
+                channel,
+                sfreq,
+                3.0,
+                45.0,
+                2,
+                FilterTypes.BUTTERWORTH_ZERO_PHASE.value,
+                0,
+            )
         return data
 
     def _calculate_powers(self, data_buffer, sampling_rate):
@@ -174,13 +206,18 @@ class EegWorker(QObject):
 
         for eeg_channel in range(self.NUM_CHANNELS):
             nfft = DataFilter.get_nearest_power_of_two(sampling_rate)
-            psd = DataFilter.get_psd_welch(filtered_data_buffer[eeg_channel], nfft, nfft // 2,
-                                           sampling_rate, WindowOperations.BLACKMAN_HARRIS.value)
+            psd = DataFilter.get_psd_welch(
+                filtered_data_buffer[eeg_channel],
+                nfft,
+                nfft // 2,
+                sampling_rate,
+                WindowOperations.BLACKMAN_HARRIS.value,
+            )
 
             theta_start = 4
             theta_end = 8
             alpha_start = 8
-            alpha_end = 13 
+            alpha_end = 13
             beta_start = 13
             beta_end = 30
 
@@ -192,7 +229,11 @@ class EegWorker(QObject):
             alpha_powers_per_channel.append(band_power_alpha)
             beta_powers_per_channel.append(band_power_beta)
 
-        return np.mean(np.array(theta_powers_per_channel)), np.mean(np.array(alpha_powers_per_channel)), np.mean(np.array(beta_powers_per_channel))
+        return (
+            np.mean(np.array(theta_powers_per_channel)),
+            np.mean(np.array(alpha_powers_per_channel)),
+            np.mean(np.array(beta_powers_per_channel)),
+        )
 
     # ---------------- ICA -----------------
 
@@ -206,7 +247,9 @@ class EegWorker(QObject):
         try:
             # Apply ICA transformation
             transformed = np.dot(self.ica_model.components_, new_data)  # Unmix sources
-            cleaned_data = np.dot(np.linalg.pinv(self.ica_model.components_), transformed)  # Reconstruct EEG
+            cleaned_data = np.dot(
+                np.linalg.pinv(self.ica_model.components_), transformed
+            )  # Reconstruct EEG
             return cleaned_data
 
         except Exception as e:
@@ -218,7 +261,10 @@ class EegWorker(QObject):
         print("Starting ICA training thread...")
 
         # Check if enough data is available for training
-        if self.data_buffer is None or self.data_buffer.shape[1] < self.sampling_rate * 10:
+        if (
+            self.data_buffer is None
+            or self.data_buffer.shape[1] < self.sampling_rate * 10
+        ):
             print("Not enough data for ICA training. Need at least 10 seconds of EEG.")
             return
 
@@ -234,7 +280,9 @@ class EegWorker(QObject):
         # Connect signals
         self.ica_thread.started.connect(self.ica_worker.run)
         self.ica_worker.finished.connect(self.store_trained_ica)
-        self.ica_worker.finished.connect(self.ica_thread.quit)  # Stop thread when training is done
+        self.ica_worker.finished.connect(
+            self.ica_thread.quit
+        )  # Stop thread when training is done
         self.ica_worker.finished.connect(self.ica_worker.deleteLater)  # Cleanup
         self.ica_thread.finished.connect(self.ica_thread.deleteLater)  # Cleanup
 
@@ -261,9 +309,11 @@ class EegWorker(QObject):
 
         if len(valid_values) >= 1:
             return np.mean(valid_values)
-        else:  
-            return cl_value if cl_value <= self.THRESHOLD_UPPER else self.THRESHOLD_UPPER
-    
+        else:
+            return (
+                cl_value if cl_value <= self.THRESHOLD_UPPER else self.THRESHOLD_UPPER
+            )
+
     def _threshold_filter(self, cl_value):
         if cl_value <= self.THRESHOLD_UPPER:
             self.filter_window.append(cl_value)

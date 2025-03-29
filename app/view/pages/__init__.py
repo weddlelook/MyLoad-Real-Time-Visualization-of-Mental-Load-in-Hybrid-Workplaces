@@ -6,6 +6,7 @@ from .page_Retrospective import RetrospectivePage
 from .page_Startbaseline import StartBaselinePage
 from .page_StartMaxtest import StartMaxTestPage
 from .page_Settings import SettingsWidget
-#from .widget_Plot import EEGPlotWidget
+
+# from .widget_Plot import EEGPlotWidget
 from .page_jitsi import JitsiPage
 from .page_skip import SkipPageWidget

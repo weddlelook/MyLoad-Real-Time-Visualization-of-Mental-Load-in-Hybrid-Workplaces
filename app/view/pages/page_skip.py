@@ -1,12 +1,21 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushButton, \
-    QMessageBox, QVBoxLayout, QHBoxLayout, QDialog, QListWidget
+from PyQt6.QtWidgets import (
+    QWidget,
+    QGridLayout,
+    QLabel,
+    QApplication,
+    QPushButton,
+    QMessageBox,
+    QVBoxLayout,
+    QHBoxLayout,
+    QDialog,
+    QListWidget,
+)
 from PyQt6.QtCore import Qt, QSize, QDir, pyqtSignal
 from PyQt6.QtGui import QFont, QIcon, QPixmap
 from setuptools.warnings import InformationOnly
 from datetime import datetime, timedelta
 import os
 from ..constants import *
-
 
 
 class SkipPageWidget(QWidget):
@@ -22,10 +31,11 @@ class SkipPageWidget(QWidget):
         v_layout = QVBoxLayout()
         h_layout = QHBoxLayout()
 
-        label = QLabel("To proceed, choose a session from your recorded sessions of the last two days"
-                       " that has similar conditions, such as sleep, energy, and other"
-                       " factors, to this session."
-                       )
+        label = QLabel(
+            "To proceed, choose a session from your recorded sessions of the last two days"
+            " that has similar conditions, such as sleep, energy, and other"
+            " factors, to this session."
+        )
         label.setWordWrap(True)
         label.setObjectName("subtitle")
         v_layout.addWidget(label, Qt.AlignmentFlag.AlignLeft)

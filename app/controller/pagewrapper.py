@@ -6,8 +6,9 @@ from PyQt6.QtWidgets import QWidget
 from app.model import Phase
 from app.model.score.hdf5Util import hdf5File
 
+
 class Page(ABC):
-    def __init__(self, widget:QWidget, toolbar_shown:bool):
+    def __init__(self, widget: QWidget, toolbar_shown: bool):
         self.widget = widget
         self.toolbar_shown = toolbar_shown
         self.hdf5_marker = hdf5File
@@ -27,10 +28,15 @@ class Page(ABC):
         """
         pass
 
+
 class StartPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str):
+    def __init__(self, widget: QWidget, controller, next_page: str):
         super().__init__(widget, True)
-        self.widget.user_input_entered.connect(lambda: controller.set_session_variables(self.widget.session_name, self.widget.jitsi_room_name))
+        self.widget.user_input_entered.connect(
+            lambda: controller.set_session_variables(
+                self.widget.session_name, self.widget.jitsi_room_name
+            )
+        )
         self.widget.user_input_entered.connect(lambda: controller.next_page(next_page))
 
     def start(self, controller):
@@ -41,70 +47,110 @@ class StartPage(Page):
         self.widget.session_input.clear()
         self.widget.jitsi_input.clear()
 
+
 class BaselineStartPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page_baseline_button:str, next_page_skip_button:str):
+    def __init__(
+        self,
+        widget: QWidget,
+        controller,
+        next_page_baseline_button: str,
+        next_page_skip_button: str,
+    ):
         super().__init__(widget, True)
-        self.widget.monitor_baseline_button.clicked.connect(lambda: controller.next_page(next_page_baseline_button))
+        self.widget.monitor_baseline_button.clicked.connect(
+            lambda: controller.next_page(next_page_baseline_button)
+        )
         self.widget.monitor_baseline_button.clicked.connect(self.widget.play_bip)
-        self.widget.dialog.yes_button.clicked.connect(lambda: controller.next_page(next_page_skip_button))
+        self.widget.dialog.yes_button.clicked.connect(
+            lambda: controller.next_page(next_page_skip_button)
+        )
+
 
 class SkipPage(Page):
     def __init__(self, widget: QWidget, controller, next_page: str, previous_page: str):
         super().__init__(widget, True)
-        self.widget.back_button.clicked.connect(lambda: controller.next_page(previous_page))
-        self.widget.sessionSelected.connect(controller.recorder.save_previous_min_max_values)
-        self.widget.next_button.clicked.connect(lambda:  controller.next_page(next_page))
+        self.widget.back_button.clicked.connect(
+            lambda: controller.next_page(previous_page)
+        )
+        self.widget.sessionSelected.connect(
+            controller.recorder.save_previous_min_max_values
+        )
+        self.widget.next_button.clicked.connect(lambda: controller.next_page(next_page))
 
     def start(self, controller):
         self.widget.load_sessions()
 
+
 class BaselinePage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str):
+    def __init__(self, widget: QWidget, controller, next_page: str):
         super().__init__(widget, False)
 
     def start(self, controller):
         controller.phase_change(Phase.MIN.value, 60000)
 
+
 class MaxtestPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str):
+    def __init__(self, widget: QWidget, controller, next_page: str):
         super().__init__(widget, False)
-        self.widget.correct_button.clicked.connect(controller.maxtest_correct_button_clicked)
-        self.widget.skip_button.clicked.connect(controller.maxtest_incorrect_button_clicked)
-        controller.test_model.showButton.connect(self.widget.show_correct_button) # TODO
-        controller.test_model.charSubmiter.connect(self.widget.updateChar) # TODO
+        self.widget.correct_button.clicked.connect(
+            controller.maxtest_correct_button_clicked
+        )
+        self.widget.skip_button.clicked.connect(
+            controller.maxtest_incorrect_button_clicked
+        )
+        controller.test_model.showButton.connect(
+            self.widget.show_correct_button
+        )  # TODO
+        controller.test_model.charSubmiter.connect(self.widget.updateChar)  # TODO
 
     def start(self, controller):
         controller.phase_change(Phase.MAX.value, 90000)
-        controller.test_model.startTest() # TODO
+        controller.test_model.startTest()  # TODO
         self.widget.hide_correct_button()
 
+
 class MaxtestStartPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str):
+    def __init__(self, widget: QWidget, controller, next_page: str):
         super().__init__(widget, True)
-        widget.startMaxtestButton.clicked.connect(lambda: controller.next_page(next_page))
+        widget.startMaxtestButton.clicked.connect(
+            lambda: controller.next_page(next_page)
+        )
 
 
 class ResultPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str):
+    def __init__(self, widget: QWidget, controller, next_page: str):
         super().__init__(widget, False)
         widget.next_button.clicked.connect(lambda: controller.next_page(next_page))
 
     def start(self, controller):
         self.widget.updateResult(controller.get_maxtest_result())
 
+
 class JitsiPage(Page):
-    def __init__(self, widget:QWidget, controller, next_page:str):
+    def __init__(self, widget: QWidget, controller, next_page: str):
         super().__init__(widget, False)
-        self.widget.dialog.exit_button.clicked.connect(lambda : controller.next_page(next_page))
-        self.widget.dialog.exit_button.clicked.connect(lambda : controller.phase_change(Phase.PAUSED.value))
+        self.widget.dialog.exit_button.clicked.connect(
+            lambda: controller.next_page(next_page)
+        )
+        self.widget.dialog.exit_button.clicked.connect(
+            lambda: controller.phase_change(Phase.PAUSED.value)
+        )
         self.widget.dialog.exit_button.clicked.connect(self.widget.end_meeting)
 
-        self.widget.commentSignal.connect(lambda: controller.recorder.save_comment(datetime.now().timestamp(), self.widget.comment))
-        self.widget.break_button.clicked.connect(lambda: self.toggle_monitoring(controller))
+        self.widget.commentSignal.connect(
+            lambda: controller.recorder.save_comment(
+                datetime.now().timestamp(), self.widget.comment
+            )
+        )
+        self.widget.break_button.clicked.connect(
+            lambda: self.toggle_monitoring(controller)
+        )
 
         # Observer view > model
-        controller.recorder.powers.connect(lambda powers: self.widget.plot_widget.updateScore(powers["load_score"]))
-    
+        controller.recorder.powers.connect(
+            lambda powers: self.widget.plot_widget.updateScore(powers["load_score"])
+        )
+
     def toggle_monitoring(self, controller):
         if self.widget.break_button.text() == "Resume":
             controller.phase_change(Phase.PAUSED.value)
@@ -113,7 +159,7 @@ class JitsiPage(Page):
 
     def start(self, controller):
         try:
-            display_name = controller.settings_model.settings['displayName']
+            display_name = controller.settings_model.settings["displayName"]
         except KeyError:
             display_name = None
         self.widget.load_jitsi_meeting(controller.jitsi_room_name, display_name)
@@ -121,7 +167,7 @@ class JitsiPage(Page):
 
 
 class RetrospectivePage(Page):
-    def __init__(self, widget:QWidget, controller):
+    def __init__(self, widget: QWidget, controller):
         super().__init__(widget, True)
         widget.back_button.clicked.connect(controller.new_session)
 

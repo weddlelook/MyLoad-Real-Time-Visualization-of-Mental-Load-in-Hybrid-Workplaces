@@ -12,11 +12,13 @@ import math
 import os
 from datetime import datetime
 
+
 class Phase(enum.Enum):
     MIN = enum.auto()
     MAX = enum.auto()
     PAUSED = enum.auto()
     MONITOR = enum.auto()
+
 
 class Recorder(QObject):
 
@@ -45,10 +47,10 @@ class Recorder(QObject):
         self.maximum = None
         self.phase_flag = Phase.PAUSED.value
 
-    def save_comment(self, timestamp, comment:str):
+    def save_comment(self, timestamp, comment: str):
         self.hdf5Session.save_marker(timestamp, comment)
 
-    def set_phase(self, phase:int, duration:int=None):
+    def set_phase(self, phase: int, duration: int = None):
         if phase in [e.value for e in Phase]:
             self.phase_flag = phase
             if phase in (Phase.MAX.value, Phase.MIN.value):
@@ -60,12 +62,12 @@ class Recorder(QObject):
             # Emit error if phase is not valid
             self.error.emit("Invalid phase value provided.")
 
-        def phase_complete(phase:int):
+        def phase_complete(phase: int):
             self.set_phase(Phase.PAUSED.value, 0)
             if self.minimum and self.maximum:
-                 print(self.maximum)
-                 print(self.minimum)
-                 self.score_calculator = calculateScore(self.minimum, self.maximum)
+                print(self.maximum)
+                print(self.minimum)
+                self.score_calculator = calculateScore(self.minimum, self.maximum)
             self.phase_complete.emit(phase)
 
     def monitor(self):
@@ -90,20 +92,20 @@ class Recorder(QObject):
 
     def _max_phase(self, data):
         try:
-            if not self.maximum or data['raw_cognitive_load'] > self.maximum:
-                self.maximum = data['raw_cognitive_load']
+            if not self.maximum or data["raw_cognitive_load"] > self.maximum:
+                self.maximum = data["raw_cognitive_load"]
                 self.hdf5Session.set_max(self.maximum)
             print("max")
-        except TypeError as e: # TODO: specify exception
+        except TypeError as e:  # TODO: specify exception
             self.error.emit(str(e))
 
     def _min_phase(self, data):
         try:
-            if not self.minimum or data['raw_cognitive_load'] < self.minimum:
-                self.minimum = data['raw_cognitive_load']
+            if not self.minimum or data["raw_cognitive_load"] < self.minimum:
+                self.minimum = data["raw_cognitive_load"]
                 self.hdf5Session.set_min(self.minimum)
             print("min")
-        except TypeError as e: # TODO: specify exception
+        except TypeError as e:  # TODO: specify exception
             self.error.emit(str(e))
 
     def _monitoring_phase(self, data):
@@ -115,8 +117,6 @@ class Recorder(QObject):
             print("monitoring")
         except TypeError as e:
             self.error.emit(str(e))
-
-
 
     def save_previous_min_max_values(self, fileName):
         file = hdf5File.get_h5_file(fileName)
@@ -135,4 +135,3 @@ class Recorder(QObject):
         if math.isnan(minimum) or math.isnan(maximum):
             if os.path.exists(file_path):
                 os.remove(os.path.join(file_path, fileName))
-

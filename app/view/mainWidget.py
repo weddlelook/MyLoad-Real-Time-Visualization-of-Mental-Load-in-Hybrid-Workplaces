@@ -1,11 +1,18 @@
-from PyQt6.QtWidgets import QStackedLayout, QVBoxLayout, QWidget, QSizePolicy, QPushButton, QLabel, \
-    QLineEdit
+from PyQt6.QtWidgets import (
+    QStackedLayout,
+    QVBoxLayout,
+    QWidget,
+    QSizePolicy,
+    QPushButton,
+    QLabel,
+    QLineEdit,
+)
 
 # Custom pages import
 import app.view.pages as p
 
-class MainWidget(QWidget):
 
+class MainWidget(QWidget):
     """
     This class represents the main Window of this application.
     It holds two child-Widgets:
@@ -19,7 +26,7 @@ class MainWidget(QWidget):
 
         # Main layout container
         self.main_layout = QVBoxLayout()
-        self.main_layout.setContentsMargins(20, 10, 20, 10) #left top right bottom
+        self.main_layout.setContentsMargins(20, 10, 20, 10)  # left top right bottom
         self.setLayout(self.main_layout)
 
         # Setting up Settings
@@ -36,7 +43,7 @@ class MainWidget(QWidget):
 
         # Dict for all registered pages
         self.pages = {}
-        #Previous page in stack
+        # Previous page in stack
         self.previous_page_name = None
         self.settings.hide()
 
@@ -50,7 +57,9 @@ class MainWidget(QWidget):
         """Recursively applies the size policy to all widgets in the page."""
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         for child in widget.findChildren(QWidget):
-            child.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            child.setSizePolicy(
+                QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+            )
             if isinstance(child, QPushButton):
                 child.setMinimumSize(100, 50)
             elif isinstance(child, QLabel):

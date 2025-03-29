@@ -1,8 +1,17 @@
-from PyQt6.QtWidgets import QStackedLayout, QMainWindow, QVBoxLayout, QWidget, QToolBar, QLineEdit, QMessageBox
+from PyQt6.QtWidgets import (
+    QStackedLayout,
+    QMainWindow,
+    QVBoxLayout,
+    QWidget,
+    QToolBar,
+    QLineEdit,
+    QMessageBox,
+)
 from PyQt6.QtGui import QFontDatabase, QFont, QAction, QIcon
 from .mainWidget import MainWidget
 from .constants import *
 import os
+
 
 class RootWindow(QMainWindow):
     def __init__(self, settings):
@@ -10,9 +19,9 @@ class RootWindow(QMainWindow):
 
         self.setWindowTitle("MyLoad")
         self.settings = settings
-        #Set minimum size for application window
+        # Set minimum size for application window
         self.setMinimumSize(733, 733)
-        #Set default window size
+        # Set default window size
         self.resize(1200, 733)
         self.main_window = MainWidget()
         self.setCentralWidget(self.main_window)
@@ -33,10 +42,12 @@ class RootWindow(QMainWindow):
             print(f"Error: Stylesheet '{file_path}' not found.")
 
     def create_toolbar(self):
-        toolbar = self.addToolBar('Main Toolbar')
+        toolbar = self.addToolBar("Main Toolbar")
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
-        self.settings_action = QAction(QIcon(getAbsPath(FILE_PATH_SETTINGS_ICON)), 'Settings', self)
+        self.settings_action = QAction(
+            QIcon(getAbsPath(FILE_PATH_SETTINGS_ICON)), "Settings", self
+        )
         self.retrospective_action = QAction("Previous Sessions", self)
         toolbar.addAction(self.settings_action)
         toolbar.addAction(self.retrospective_action)
@@ -59,7 +70,6 @@ class RootWindow(QMainWindow):
                 else:
                     print("⚠ ERROR: No font families were found.")
 
-
     def closeEvent(self, event):
         """
         This method is automatically triggered when the user attempts to close the window.
@@ -71,7 +81,9 @@ class RootWindow(QMainWindow):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("Close MyLoad")
         msg_box.setText("Are you sure you want to close MyLoad?")
-        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
         msg_box.setDefaultButton(QMessageBox.StandardButton.No)
         msg_box.setIcon(QMessageBox.Icon.NoIcon)  # Entfernt das "i"-Symbol
 

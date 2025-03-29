@@ -4,6 +4,7 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEngineSettings
 from PyQt6.QtCore import QUrl
 
+
 class JitsiApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -14,14 +15,18 @@ class JitsiApp(QMainWindow):
         settings = self.browser.settings()
         settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
         settings.setAttribute(QWebEngineSettings.WebAttribute.LocalStorageEnabled, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins, True)
+        settings.setAttribute(
+            QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins, True
+        )
 
         profile = QWebEngineProfile.defaultProfile()
         profile.setHttpUserAgent(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
         )
 
-        self.browser.setUrl(QUrl("https://meet.jit.si/ThisIsATestMeeting")) # Hier Meetinglink einfügen
+        self.browser.setUrl(
+            QUrl("https://meet.jit.si/ThisIsATestMeeting")
+        )  # Hier Meetinglink einfügen
 
         self.setGeometry(100, 100, 1280, 720)
         self.setWindowTitle("Jitsi in PyQt6")

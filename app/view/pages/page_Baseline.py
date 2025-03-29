@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 import sys
 
+
 class BaselineWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -20,4 +21,4 @@ class BaselineWidget(QWidget):
         layout.addWidget(title_label)
 
         self.setLayout(layout)
-        self.setWindowTitle('Baseline Widget')
+        self.setWindowTitle("Baseline Widget")

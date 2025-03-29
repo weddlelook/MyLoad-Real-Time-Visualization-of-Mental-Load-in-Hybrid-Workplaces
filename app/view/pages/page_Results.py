@@ -1,13 +1,20 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel, QApplication, QPushButton, QVBoxLayout
+from PyQt6.QtWidgets import (
+    QWidget,
+    QGridLayout,
+    QLabel,
+    QApplication,
+    QPushButton,
+    QVBoxLayout,
+)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+
 
 class ResultsPage(QWidget):
     def __init__(self):
         super().__init__()
 
         self.initUI()
-
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -27,13 +34,20 @@ class ResultsPage(QWidget):
         layout.addWidget(self.resultDisplay)
 
         # Button um zur nächsten Seite zu kommen
-        self.next_button = QPushButton('Next Page')
-        layout.addWidget(self.next_button, alignment=Qt.AlignmentFlag.AlignCenter)  # Button ausrichten und einfügen
+        self.next_button = QPushButton("Next Page")
+        layout.addWidget(
+            self.next_button, alignment=Qt.AlignmentFlag.AlignCenter
+        )  # Button ausrichten und einfügen
 
         self.setLayout(layout)
-        self.setWindowTitle('Results Widget')
+        self.setWindowTitle("Results Widget")
 
     # Diese Funktion updatet das Display des Ergebnisses und schreibt dort hin wie viel im Maxtest richtig gemacht wurde
     # Diese Funktion wird im Controller benutzt nachdem der Test fertig ist
     def updateResult(self, results):
-        self.resultDisplay.setText("You did " + str(results[0]) + " correct out of " + str(results[1] + results[0]))
+        self.resultDisplay.setText(
+            "You did "
+            + str(results[0])
+            + " correct out of "
+            + str(results[1] + results[0])
+        )
