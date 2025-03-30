@@ -75,5 +75,7 @@ class NBackTest(QObject):
             self.callback.Level.DEBUG,
             f"Results calculated: {correct_answers} correct out of {len(self.generated) - const.N_BACKTEST} total questions.",
         )
-        self.generated, self.answer = None
-        return (correct_answers, len(self.generated) - const.N_BACKTEST)
+        length = len(self.generated) - const.N_BACKTEST
+        self.generated = None
+        self.answer = None
+        return (correct_answers, length)
