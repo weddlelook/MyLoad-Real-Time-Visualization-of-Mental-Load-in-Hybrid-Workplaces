@@ -104,9 +104,6 @@ class Controller(QObject):
 
     def connect_settings(self):
         self.gui.main_window.settings.new_settings.connect(self.settings_model.set)
-        self.gui.main_window.settings.clear_all_button.clicked.connect(
-            self.settings_model.clear_sessions
-        )
         self.gui.main_window.settings.set_settings(self.settings_model.settings)
 
     def connect_recorder(self):
