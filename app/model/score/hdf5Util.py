@@ -1,4 +1,5 @@
 from ..constants import *
+from app.util import Callback
 import os
 import h5py
 from datetime import datetime
@@ -7,15 +8,13 @@ import numpy as np
 
 class hdf5File:
 
-    def __init__(self, users_session_name: str):
+    def __init__(self, users_session_name: str, callback: Callback):
         self.filename = self._create_h5_file(users_session_name)
+        self.callback = callback
 
     def save_eeg_data_as_hdf5(self, powers):
-        timestamp, theta_power, alpha_power, beta_power, cognitive_load, load_score = (
+        timestamp, cognitive_load, load_score = (
             powers["timestamp"],
-            powers["theta_power"],
-            powers["alpha_power"],
-            powers["beta_power"],
             powers["cognitive_load"],
             powers["load_score"],
         )
@@ -28,9 +27,6 @@ class hdf5File:
             eeg_dataset.resize((new_index + 1,))
             eeg_dataset[new_index] = (
                 timestamp,
-                theta_power,
-                alpha_power,
-                beta_power,
                 cognitive_load,
                 load_score,
             )
@@ -78,32 +74,13 @@ class hdf5File:
         print(f"Datei {fileName} nicht gefunden in {folder_path}.")
         return None
 
-    def get_min_value(file_path):
-        try:
-            with h5py.File(file_path, "r") as h5_file:
-                min_value = h5_file.attrs.get("min", None)
-                return min_value
-        except FileNotFoundError:
-            print(f"Fehler beim Lesen der Datei {file_path}: {e}")
-            return None
-
-    def get_max_value(file_path):
-        try:
-            with h5py.File(file_path, "r") as h5_file:
-                max_value = h5_file.attrs.get("max", None)
-                print(max_value)
-                return max_value
-        except FileNotFoundError:
-            print(f"Fehler beim Lesen der Datei {file_path}: {e}")
-            return None
-
     def _create_h5_file(self, users_session_name: str):
-        # Ordner erstellen, falls er nicht existiert
+        # Create a directory if it does not exist
         folder_path = getAbsPath(HDF5_FOLDER_PATH)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        # Variable welche den Sessions noch eine Nummer gibt, damit diese nummeriert bleiben
+        # Numbering the sessions
         count_of_sessions = (
             len(
                 [
@@ -120,16 +97,13 @@ class hdf5File:
             folder_path, f"{count_of_sessions}__{users_session_name}__{timestamp}.h5"
         )
 
-        # Datei erstellen, falls sie nicht existiert
+        # Create the file if it does not exist
         if not os.path.exists(HDF5_FILENAME):
             with h5py.File(HDF5_FILENAME, "w") as h5_file:
                 # Dataset for eeg data
                 eeg_dtype = np.dtype(
                     [
                         ("timestamp", "f8"),
-                        ("theta", "f8"),
-                        ("alpha", "f8"),
-                        ("beta", "f8"),
                         ("cognitive_load", "f8"),
                         ("load_score", "f8"),
                     ]
@@ -153,6 +127,25 @@ class hdf5File:
         return HDF5_FILENAME
 
     @staticmethod
+    def get_min_value(file_path):
+        try:
+            with h5py.File(file_path, "r") as h5_file:
+                min_value = h5_file.attrs.get("min", None)
+                return min_value
+        except FileNotFoundError:
+            return None
+
+    @staticmethod
+    def get_max_value(file_path):
+        try:
+            with h5py.File(file_path, "r") as h5_file:
+                max_value = h5_file.attrs.get("max", None)
+                print(max_value)
+                return max_value
+        except FileNotFoundError:
+            return None
+
+    @staticmethod
     def plot_file(filename: str):
         with h5py.File(filename, "r") as h5_file:
             eeg_data = h5_file["EEG_data"]
@@ -173,7 +166,7 @@ class hdf5File:
             # Iterate through the timestamps and load scores
             for idx, (timestamp, score) in enumerate(zip(timestamps, load_score)):
                 # Check for gap and add missing timestamps
-                if idx > 0 and timestamp > timestamps[idx - 1] + 1:
+                if idx > 0 and timestamp > timestamps[idx - 1] + 2:
                     for missing_time in range(timestamps[idx - 1] + 1, timestamp):
                         modified_timestamps.append(missing_time)
                         modified_load_score.append(
@@ -187,6 +180,20 @@ class hdf5File:
 
                             y_marker[marker_idx] = np.nan
                             marker_idx += 1
+                # If the gap is 1s, fill with mean instead
+                elif idx > 0 and timestamp > timestamps[idx - 1] + 1:
+                    missing_time = timestamp - 1
+                    modified_timestamps.append(missing_time)
+                    modified_load_score.append(
+                        np.mean([timestamps[idx - 1], timestamps[idx]])
+                    )
+
+                    if (
+                        marker_idx < len(timestamps_marker)
+                        and missing_time == timestamps_marker[marker_idx]
+                    ):
+                        y_marker[marker_idx] = np.nan
+                        marker_idx += 1
 
                 # Now add the current timestamp and load score
                 modified_timestamps.append(timestamp)
@@ -206,3 +213,12 @@ class hdf5File:
                 y_marker,
                 descriptions,
             )
+
+    @staticmethod
+    def check_empty_session(self, file_path, file_name):
+        file = hdf5File.get_h5_file(file_name)
+        minimum = hdf5File.get_min_value(file)
+        maximum = hdf5File.get_max_value(file)
+        if math.isnan(minimum) or math.isnan(maximum):
+            if os.path.exists(file_path):
+                os.remove(os.path.join(file_path, file_name))

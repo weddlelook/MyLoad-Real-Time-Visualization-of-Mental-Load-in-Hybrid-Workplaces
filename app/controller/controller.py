@@ -6,17 +6,26 @@ import os
 import app.model as model
 
 import app.view.pages as widget
+from app.util import Callback
 
 
 class Controller(QObject):
 
+    start_recording_phase = pyqtSignal(
+        int, int
+    )  # Signal for threadsafe communication with the recorder, to change recording phase (max/min/paused/monitoring)
+
     def __init__(self):
         super().__init__()
+        self.call = Callback(
+            Callback.Level.DEBUG
+        )  # Set the callback level to DEBUG for detailed logging
+        print(type(self.call))
 
         # Model
-        self.settings_model = model.SettingsModel()
-        self.test_model = model.testLogic()
-        self.recorder = model.Recorder()
+        self.settings_model = model.SettingsModel(self.call)
+        self.test_model = model.NBackTest(self.call)
+        self.recorder = model.Recorder(self.call)
 
         # View
         self.gui = RootWindow(self.settings_model.settings)
@@ -66,6 +75,10 @@ class Controller(QObject):
         self.jitsi_room_name = None
 
     def phase_change(self, phase: int, time: int = 0):
+        """Emit the phase change signal to the recorder thread.
+        :param phase: The value of phase to change to (e.g., MIN, MAX, MONITORING), see Phase class in model.recorder.
+        :param time: The time in milliseconds for the phase to last. Only relevant for MIN and MAX phases.
+        """
         self.start_recording_phase.emit(phase, time)
 
     def set_session_variables(self, session_name: str, jitsi_room_name: str):
@@ -77,23 +90,15 @@ class Controller(QObject):
         return self.test_model.provide_char()
 
     def maxtest_correct_button_clicked(self):
-        self.test_model.correctButtonClicked()
+        self.test_model.correctButtonClicked(True)
 
     def maxtest_incorrect_button_clicked(self):
-        self.test_model.skipButtonClicked()
+        self.test_model.skipButtonClicked(False)
 
     def get_maxtest_result(self):
         return self.test_model.calculateResults()
 
     def next_page(self, page_name: str, *args):
-        # page = self.pages[page_name]
-        # print(f"Changing to page {page_name}")
-        # self.gui.show_toolbar(page.toolbar_shown)
-        # self.gui.main_window.set_page(page_name)
-        # page.start(self, *args)
-        print(
-            f"[DEBUG] next_page called with page_name: {page_name} (type: {type(page_name)})"
-        )  # Debug-Ausgabe
         if not isinstance(page_name, str):
             print(
                 f"[ERROR] Invalid page_name: {page_name}. Expected a string."
@@ -101,14 +106,10 @@ class Controller(QObject):
             return
         try:
             page = self.pages[page_name]
-            print(f"[DEBUG] Changing to page {page_name}")  # Debug-Ausgabe
             self.gui.show_toolbar(page.toolbar_shown)
             self.gui.main_window.set_page(page_name)
             page.start(self, *args)
         except KeyError:
-            print(
-                f"[ERROR] Invalid page_name: {page_name}. Valid keys are: {list(self.pages.keys())}"
-            )  # Debug-Ausgabe
             raise  # Wirft den Fehler erneut, um das Programm zu stoppen
 
     def handle_error(self, e):
@@ -130,15 +131,13 @@ class Controller(QObject):
             self.settings_model.clear_sessions
         )
 
-    start_recording_phase = pyqtSignal(int, int)
-
     def connect_recorder(self):
         self.start_recording_phase.connect(self.recorder.set_phase)
-        self.recorder.phase_complete.connect(self.phase_complete)
-        self.recorder.phase_complete.connect(self.next_page)  # TODO
+        self.recorder.phase_complete.connect(self._phase_complete)
         self.recorder.error.connect(self.handle_error)
 
-    def phase_complete(self, phase):
+    def _phase_complete(self, phase):
+        """Slot connected to the recorder's phase_complete signal. Facilitates page changes that are dependent on recorder phases. Rather than view signals."""
         if phase == Phase.MIN.value:
             self.next_page("maxtest_start")
         elif phase == Phase.MAX.value:
@@ -161,6 +160,3 @@ class Controller(QObject):
         if matching_files:
             last_file = matching_files[0]
             self.recorder.check_empty_session(h5_directory, last_file)
-
-    def monitoring_break(self):
-        self.start_recording_phase.emit(Phase.PAUSED.value, 0)

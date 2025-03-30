@@ -1,4 +1,4 @@
 from .constants import *
-from .Recorder import Recorder, Phase
+from .recorder import Recorder, Phase
 from .settings import SettingsModel
-from .testLogic import testLogic
+from .nbacktest import NBackTest

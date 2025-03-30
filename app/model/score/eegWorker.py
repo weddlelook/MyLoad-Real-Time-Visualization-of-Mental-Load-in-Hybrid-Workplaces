@@ -5,12 +5,11 @@ import argparse
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
-from meegkit.asr import ASR
 from brainflow.exit_codes import BrainFlowError
 
 from PyQt6.QtCore import QThread, QObject, pyqtSignal
 
-from .ICAWorker import ICAWorker
+from app.util import Callback
 
 
 class EegWorker(QObject):
@@ -21,20 +20,14 @@ class EegWorker(QObject):
     WINDOW_SIZE = 15
     THRESHOLD_UPPER = 7.47
 
-    def __init__(self):
+    def __init__(self, callback: Callback, error: pyqtSignal):
         super().__init__()
         self.session_active = False
-        self.databuffer = None
+        self.sliding_window = None
 
-        # NOTE: Threshold filter
         self.filter_window = deque(maxlen=self.WINDOW_SIZE)
 
-        # NOTE: ICA filter
-        self.ica_thread = None
-        self.ica_worker = None
-        self.ica_model = None
-
-        parser = argparse.ArgumentParser(description="Example argparse")
+        parser = argparse.ArgumentParser(description="board parameters")
         parser.add_argument(
             "--port",
             type=str,
@@ -54,61 +47,21 @@ class EegWorker(QObject):
 
         self.board_shim = None
         self.sampling_rate = None
-        self.asr = None
         self.data_buffer = None
-        self.update_count = 0  # Ensuring it's initialized
+        self.update_count = 0
 
-        self.status_callback.connect(print)
+        self.callback = callback
+        self.error = error
+
         self._start_session()
-
-    def monitor_cognitive_load(self):
-        if not self.session_active:
-            self._start_session()
-
-        try:
-            new_data = self.board_shim.get_board_data()
-
-            if new_data.shape[0] < self.NUM_CHANNELS:
-                raise ValueError(
-                    f"Board does not provide enough channels: "
-                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}"
-                )
-
-            if self.update_count > 0:
-                transformed_data = new_data[: self.NUM_CHANNELS, :]
-
-                self.data_buffer = np.hstack(
-                    (self.data_buffer[:, new_data.shape[1] :], transformed_data)
-                )
-
-                theta_power, alpha_power, beta_power = self._calculate_powers(
-                    self.data_buffer, self.sampling_rate
-                )
-
-                # Data to be emitted
-                timestamp = time.time()
-                cognitive_load = theta_power / alpha_power if alpha_power != 0 else 0
-                data = {
-                    "timestamp": timestamp,
-                    "theta_power": theta_power,
-                    "alpha_power": alpha_power,
-                    "beta_power": beta_power,
-                    "cognitive_load": cognitive_load,
-                }
-                return data
-            else:
-                self.update_count += 1
-                return None
-
-        except Exception as e:
-            self.status_callback.emit(f"Error during monitoring: {e}")
 
     # --------------- Set up -----------------
 
     def _start_session(self):
         self._connect_board()
         self.board_shim.start_stream()
-        self.status_callback.emit("Started session")
+        self.callback.message.emit(Callback.Level.DEBUG, "Started monitoring session")
+        self.sliding_window = deque(maxlen=self.WINDOW_SIZE)
 
         self.session_active = True
         buffer_length = 10 * self.sampling_rate
@@ -118,18 +71,25 @@ class EegWorker(QObject):
         self.monitor_cognitive_load()
 
     def _connect_board(self):
-        BoardShim.enable_dev_board_logger()
+        if self.callback.level == Callback.Level.DEBUG:
+            BoardShim.enable_dev_board_logger()
 
         # Connect to the board
         params = BrainFlowInputParams()
         params.serial_port = self.serial_port
-        self.board_shim = BoardShim(self.board_id, params)
-        self.board_shim.prepare_session()
+        try:
+            self.board_shim = BoardShim(self.board_id, params)
+            self.board_shim.prepare_session()
+        except BrainFlowError as e:
+            self.error.emit(f"An error has occurred while connecting the board: {e}")
 
         # Set the sampling rate after the board is connected
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
 
-        self.status_callback.emit("Connected board")
+        self.callback.message.emit(
+            Callback.Level.DEBUG,
+            f"Board is connected with USB-port {self.serial_port} and board-id {self.board_id}",
+        )
 
     # -------------- Monitor --------------------
 
@@ -162,19 +122,21 @@ class EegWorker(QObject):
                 cognitive_load = theta_power / alpha_power if alpha_power != 0 else 0
                 data = {
                     "timestamp": timestamp,
-                    "theta_power": theta_power,
-                    "alpha_power": alpha_power,
-                    "beta_power": beta_power,
-                    "cognitive_load": self._moving_average(cognitive_load),
                     "raw_cognitive_load": self._threshold_filter(cognitive_load),
+                    "cognitive_load": self._moving_average(),
                 }
+                self.callback.message.emit(
+                    Callback.Level.INFO,
+                    f"Monitored CL: {data['cognitive_load']}, without moving average {data['raw_cognitive_load']}",
+                )
+                self.update_count += 1
                 return data
             else:
                 self.update_count += 1
                 return None
 
         except Exception as e:
-            self.status_callback.emit(f"Error during monitoring: {e}")
+            self.error.emit(f"Error during monitoring: {e}")
 
     def _preprocess_data(self, data, sfreq):
         for channel in data:
@@ -235,89 +197,14 @@ class EegWorker(QObject):
             np.mean(np.array(beta_powers_per_channel)),
         )
 
-    # ---------------- ICA -----------------
-
-    def apply_ica(self, new_data):
-        """Apply trained ICA to new 1-second EEG chunk."""
-        if self.ica_model is None:
-            return new_data  # Return raw EEG if ICA isn’t trained yet
-
-        new_data = self.clean_eeg_data(new_data)
-
-        try:
-            # Apply ICA transformation
-            transformed = np.dot(self.ica_model.components_, new_data)  # Unmix sources
-            cleaned_data = np.dot(
-                np.linalg.pinv(self.ica_model.components_), transformed
-            )  # Reconstruct EEG
-            return cleaned_data
-
-        except Exception as e:
-            self.status_callback.emit(f"Error in ICA application: {e}")
-            return new_data  # Return raw data if ICA fails
-
-    def start_ica_training(self):
-        """Start ICA training in a separate thread."""
-        print("Starting ICA training thread...")
-
-        # Check if enough data is available for training
-        if (
-            self.data_buffer is None
-            or self.data_buffer.shape[1] < self.sampling_rate * 10
-        ):
-            print("Not enough data for ICA training. Need at least 10 seconds of EEG.")
-            return
-
-        self.ica_thread = QThread()
-        data = self.clean_eeg_data(self.data_buffer)
-
-        if np.var(data, axis=1).min() < 1e-6:
-            print("Warning: EEG data has very low variance! ICA may fail.")
-
-        self.ica_worker = ICAWorker(data)  # Pass cleaned EEG data
-        self.ica_worker.moveToThread(self.ica_thread)
-
-        # Connect signals
-        self.ica_thread.started.connect(self.ica_worker.run)
-        self.ica_worker.finished.connect(self.store_trained_ica)
-        self.ica_worker.finished.connect(
-            self.ica_thread.quit
-        )  # Stop thread when training is done
-        self.ica_worker.finished.connect(self.ica_worker.deleteLater)  # Cleanup
-        self.ica_thread.finished.connect(self.ica_thread.deleteLater)  # Cleanup
-
-        self.ica_thread.start()
-
-    def store_trained_ica(self, trained_ica):
-        """Store the trained ICA model from the worker thread."""
-        self.ica_model = trained_ica
-        print("New ICA model stored!")
-
-    # ---------------- Threshhold -----------
-
-    def _moving_average(self, cl_value):
-        """
-        Replace invalid cognitive load values with mean of prior valid values.
-        :return: Valid value as given, average if invalid or none if the value is invalid and not enough valid values are available in the sliding window.
-        """
-
-        # Append value if valid, otherwise append None
-        self._threshold_filter(cl_value)
-
-        # Filter for valid values
-        valid_values = [v for v in self.filter_window if v is not None]
-
-        if len(valid_values) >= 1:
-            return np.mean(valid_values)
-        else:
-            return (
-                cl_value if cl_value <= self.THRESHOLD_UPPER else self.THRESHOLD_UPPER
-            )
-
     def _threshold_filter(self, cl_value):
-        if cl_value <= self.THRESHOLD_UPPER:
-            self.filter_window.append(cl_value)
+        if cl_value <= 7.47:
+            self.sliding_window.append(cl_value)
             return cl_value
         else:
-            self.filter_window.append(None)
+            self.sliding_window.append(None)
             return None
+
+    def _moving_average(self):
+        valid_values = [v for v in self.sliding_window if v is not None]
+        return np.mean(valid_values) if valid_values else None

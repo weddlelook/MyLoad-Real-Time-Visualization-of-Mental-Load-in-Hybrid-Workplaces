@@ -72,9 +72,7 @@ class SkipPage(Page):
         self.widget.back_button.clicked.connect(
             lambda: controller.next_page(previous_page)
         )
-        self.widget.sessionSelected.connect(
-            controller.recorder.save_previous_min_max_values
-        )
+        self.widget.sessionSelected.connect(controller.recorder.skip_min_max_phases)
         self.widget.next_button.clicked.connect(lambda: controller.next_page(next_page))
 
     def start(self, controller):
@@ -86,26 +84,26 @@ class BaselinePage(Page):
         super().__init__(widget, False)
 
     def start(self, controller):
-        controller.phase_change(Phase.MIN.value, 60000)
+        controller.phase_change(Phase.MIN.value, 1000)
 
 
 class MaxtestPage(Page):
     def __init__(self, widget: QWidget, controller, next_page: str):
         super().__init__(widget, False)
         self.widget.correct_button.clicked.connect(
-            controller.maxtest_correct_button_clicked
+            lambda: controller.test_model.submit_answer(True)
         )
         self.widget.skip_button.clicked.connect(
-            controller.maxtest_incorrect_button_clicked
+            lambda: controller.test_model.submit_answer(False)
         )
-        controller.test_model.showButton.connect(
+        controller.test_model.show_correct_button.connect(
             self.widget.show_correct_button
         )  # TODO
-        controller.test_model.charSubmiter.connect(self.widget.updateChar)  # TODO
+        controller.test_model.generated_char.connect(self.widget.updateChar)  # TODO
 
     def start(self, controller):
-        controller.phase_change(Phase.MAX.value, 90000)
-        controller.test_model.startTest()  # TODO
+        controller.phase_change(Phase.MAX.value, 1000)
+        controller.test_model.start_test()
         self.widget.hide_correct_button()
 
 
@@ -123,7 +121,7 @@ class ResultPage(Page):
         widget.next_button.clicked.connect(lambda: controller.next_page(next_page))
 
     def start(self, controller):
-        self.widget.updateResult(controller.get_maxtest_result())
+        self.widget.updateResult(controller.test_model.calculate_result())
 
 
 class JitsiPage(Page):
@@ -148,7 +146,7 @@ class JitsiPage(Page):
 
         # Observer view > model
         controller.recorder.powers.connect(
-            lambda powers: self.widget.plot_widget.updateScore(powers["load_score"])
+            lambda powers: self.widget.plot_widget.update_score(powers["load_score"])
         )
 
     def toggle_monitoring(self, controller):

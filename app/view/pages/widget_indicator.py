@@ -13,7 +13,7 @@ class Indicator(QWidget):
         self.label.setObjectName("title")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    def updateScore(self, score):
+    def update_score(self, score):
         self.value = score
         self.label.setText(str(score))
         self.update()

@@ -46,8 +46,5 @@ class ResultsPage(QWidget):
     # Diese Funktion wird im Controller benutzt nachdem der Test fertig ist
     def updateResult(self, results):
         self.resultDisplay.setText(
-            "You did "
-            + str(results[0])
-            + " correct out of "
-            + str(results[1] + results[0])
+            "You did " + str(results[0]) + " correct out of " + str(results[1])
         )
