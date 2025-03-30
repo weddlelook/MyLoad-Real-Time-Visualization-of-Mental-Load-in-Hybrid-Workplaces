@@ -60,18 +60,6 @@ class SettingsWidget(QWidget):
         display_name_container.setLayout(display_name_layout)
         form_layout.addRow(display_name_container)
 
-        # Container for Clear Files
-        del_files_container = QGroupBox("Clear Files")
-        del_files_layout = QHBoxLayout()
-        del_files_label = QLabel("To clear all previous sessions information:")
-        del_files_label.setObjectName("text-settings")
-
-        self.clear_all_button = QPushButton("Clear All")
-        del_files_layout.addWidget(del_files_label)
-        del_files_layout.addWidget(self.clear_all_button)
-        del_files_container.setLayout(del_files_layout)
-        form_layout.addRow(del_files_container)
-
         layout.addLayout(form_layout)
 
         # Layout for buttons
