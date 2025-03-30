@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from app.util import FOLDER_PATH_SETTINGS, FILE_NAME_SETTINGS, HDF5_FOLDER_PATH, getAbsPath
-from app.util import Callback
+from app.util import Logger
 
 
 class SettingsModel:
@@ -10,8 +10,8 @@ class SettingsModel:
         "isDarkMode": False,
     }
 
-    def __init__(self, callback: Callback):
-        self.callback = callback
+    def __init__(self, logger: Logger):
+        self.logger = logger
         self.settings = self.load_settings()
 
     def load_settings(self):
@@ -23,8 +23,8 @@ class SettingsModel:
 
         if not file_path.exists():
             self.set(self.DEFAULT_SETTINGS)
-            self.callback.message.emit(
-                self.callback.Level.DEBUG, "Loading default settings"
+            self.logger.message.emit(
+                self.logger.Level.DEBUG, "Loading default settings"
             )
             return self.DEFAULT_SETTINGS
 
@@ -33,8 +33,8 @@ class SettingsModel:
             settings = json.load(file)
             for key, value in self.DEFAULT_SETTINGS.items():
                 if not (key in settings and isinstance(settings[key], type(value))):
-                    self.callback.message.emit(
-                        self.callback.Level.DEBUG,
+                    self.logger.message.emit(
+                        self.logger.Level.DEBUG,
                         f"Faulty key in settings: {key}, restoring to default",
                     )
                     self.save_settings(self.DEFAULT_SETTINGS)
@@ -51,7 +51,7 @@ class SettingsModel:
         with file_path.open("w") as file:
             json.dump(updates, file, indent=4)
 
-        self.callback.message.emit(self.callback.Level.DEBUG, "Saved Settings")
+        self.logger.message.emit(self.logger.Level.DEBUG, "Saved Settings")
 
     @staticmethod
     def clear_sessions():

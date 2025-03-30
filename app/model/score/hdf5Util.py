@@ -1,15 +1,16 @@
-from app.util import Callback, HDF5_FOLDER_PATH
+from app.util import Logger, HDF5_FOLDER_PATH, getAbsPath
 import os
 import h5py
 from datetime import datetime
 import numpy as np
+import math
 
 
 class hdf5File:
 
-    def __init__(self, users_session_name: str, callback: Callback):
+    def __init__(self, users_session_name: str, logger: Logger):
         self.filename = self._create_h5_file(users_session_name)
-        self.callback = callback
+        self.logger = logger
 
     def save_eeg_data_as_hdf5(self, powers):
         timestamp, cognitive_load, load_score = (
@@ -215,9 +216,4 @@ class hdf5File:
 
     @staticmethod
     def check_empty_session(self, file_path, file_name):
-        file = hdf5File.get_h5_file(file_name)
-        minimum = hdf5File.get_min_value(file)
-        maximum = hdf5File.get_max_value(file)
-        if math.isnan(minimum) or math.isnan(maximum):
-            if os.path.exists(file_path):
-                os.remove(os.path.join(file_path, file_name))
+        pass

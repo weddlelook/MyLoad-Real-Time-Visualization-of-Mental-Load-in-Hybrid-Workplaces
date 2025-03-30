@@ -170,4 +170,5 @@ class RetrospectivePage(Page):
         widget.back_button.clicked.connect(controller.new_session)
 
     def start(self, controller):
+        controller.check_last_session()
         self.widget.load_sessions()

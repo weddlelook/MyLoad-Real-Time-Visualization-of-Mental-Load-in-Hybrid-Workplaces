@@ -1,16 +1,45 @@
-# -*- mode: python ; coding: utf-8 -*-
+import os
+import sys
+from pathlib import Path
+import subprocess
+from PyInstaller import __main__ as pyinstaller
 
+def get_project_root():
+    return Path(sys.argv[0]).parent.resolve()
 
+def get_poetry_venv_path():
+    """Get the Poetry virtual environment path dynamically."""
+    try:
+        venv_path = subprocess.check_output(["poetry", "env", "info", "--path"], text=True).strip()
+        return Path(venv_path)
+    except subprocess.CalledProcessError:
+        print("Error: Could not determine Poetry virtual environment path.")
+        sys.exit(1)
+
+# Get paths
+poetry_venv_dir = get_poetry_venv_path()
+project_root = get_project_root()
+brainflow_lib_dir = poetry_venv_dir / "lib/python3.13/site-packages/brainflow/lib"  # Adjust for your Python version
+
+# Add BrainFlow dynamic libraries
+brainflow_libs = [
+    str(brainflow_lib_dir / "libBoardController.so"),
+    str(brainflow_lib_dir / "libDataHandler.so"),  # Make sure to include libDataHandler.so
+]
+
+# Collect all binaries to include in PyInstaller package
+binaries = [(lib, "brainflow/lib/") for lib in brainflow_libs]
+
+# Create the PyInstaller analysis object
 a = Analysis(
-    ['app\\__main__.py'],
-    pathex=['C:\\Users\\Clara\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\playground-pv6Vx99u-py3.13\\Lib\\site-packages'],
-    binaries=[
-        ('C:\\Users\\Clara\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\playground-pv6Vx99u-py3.13\\Lib\\site-packages\\brainflow\\lib', 'brainflow/lib'),
-    ],
+    [str(project_root / 'app' / '__main__.py')],
+    pathex=[str(project_root), str(poetry_venv_dir)],
+    binaries=binaries,  # Include BrainFlow shared libraries dynamically
     datas=[
-        ('app/view/styles','styles'),
-        ('app/Settings Files', 'Settings Files'),
-        ('app/h5_session_files', 'h5_session_files')
+        (str(project_root / 'app'), 'app'),
+        ('app/view/styles', 'styles'),
+        ('app/setting_files', 'setting_files'),
+        ('app/h5_session_files', 'h5_session_files'),
     ],
     hiddenimports=['PyQt6', 'numpy', 'matplotlib', 'pyqtgraph', 'brainflow'],
     hookspath=[],
@@ -20,6 +49,8 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
+# Generate the PyInstaller .exe file
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -35,7 +66,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

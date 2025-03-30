@@ -2,7 +2,7 @@ import enum
 from PyQt6.QtCore import pyqtSignal, QObject
 
 
-class Callback(QObject):
+class Logger(QObject):
 
     class Level(enum.Enum):
         INFO = 2

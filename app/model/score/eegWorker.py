@@ -9,23 +9,14 @@ from brainflow.exit_codes import BrainFlowError
 
 from PyQt6.QtCore import QThread, QObject, pyqtSignal
 
-from app.util import Callback
-
+from app.util import Logger, WINDOW_SIZE, THRESHOLD_UPPER, NUM_CHANNELS
 
 class EegWorker(QObject):
 
-    status_callback = pyqtSignal(str)
-
-    NUM_CHANNELS = 8
-    WINDOW_SIZE = 15
-    THRESHOLD_UPPER = 7.47
-
-    def __init__(self, callback: Callback, error: pyqtSignal):
+    def __init__(self, logger: Logger, error: pyqtSignal):
         super().__init__()
         self.session_active = False
-        self.sliding_window = None
-
-        self.filter_window = deque(maxlen=self.WINDOW_SIZE)
+        self.sliding_window = None # deque for the moving average
 
         parser = argparse.ArgumentParser(description="board parameters")
         parser.add_argument(
@@ -41,7 +32,6 @@ class EegWorker(QObject):
             default=-1,
         )
         args = parser.parse_args()
-
         self.board_id = args.board_id
         self.serial_port = args.port
 
@@ -50,7 +40,7 @@ class EegWorker(QObject):
         self.data_buffer = None
         self.update_count = 0
 
-        self.callback = callback
+        self.logger = logger
         self.error = error
 
         self._start_session()
@@ -60,18 +50,18 @@ class EegWorker(QObject):
     def _start_session(self):
         self._connect_board()
         self.board_shim.start_stream()
-        self.callback.message.emit(Callback.Level.DEBUG, "Started monitoring session")
-        self.sliding_window = deque(maxlen=self.WINDOW_SIZE)
+        self.logger.message.emit(Logger.Level.DEBUG, "Started monitoring session")
+        self.sliding_window = deque(maxlen=WINDOW_SIZE)
 
         self.session_active = True
         buffer_length = 10 * self.sampling_rate
-        self.data_buffer = np.zeros((self.NUM_CHANNELS, buffer_length))
+        self.data_buffer = np.zeros((NUM_CHANNELS, buffer_length))
         self.update_count = 0
         QThread.msleep(1000)
         self.monitor_cognitive_load()
 
     def _connect_board(self):
-        if self.callback.level == Callback.Level.DEBUG:
+        if self.logger.level == Logger.Level.DEBUG:
             BoardShim.enable_dev_board_logger()
 
         # Connect to the board
@@ -86,28 +76,38 @@ class EegWorker(QObject):
         # Set the sampling rate after the board is connected
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
 
-        self.callback.message.emit(
-            Callback.Level.DEBUG,
+        self.logger.message.emit(
+            Logger.Level.DEBUG,
             f"Board is connected with USB-port {self.serial_port} and board-id {self.board_id}",
         )
 
     # -------------- Monitor --------------------
 
-    def monitor_cognitive_load(self):
+    def monitor_cognitive_load(self) -> dict:
+        """Fetches data from the board, calculates the load_index
+        :returns: A dictionary containing the keys 
+            > timestamp: The unix epoch-second the load was calculated at
+            > raw_cognitive_load: The calculated load, processed through a threshhold filter
+            > cognitive_load: The moving average over the raw_cognitive_load
+            with str values
+            IF an error occurs or the board produces unreliable data for an extended amount of time, 
+            the value of the last two keys will be None,
+            The first update after starting a session will always return None instead of a dict
+        """
         if not self.session_active:
             self._start_session()
 
         try:
             new_data = self.board_shim.get_board_data()
 
-            if new_data.shape[0] < self.NUM_CHANNELS:
+            if new_data.shape[0] < NUM_CHANNELS:
                 raise ValueError(
                     f"Board does not provide enough channels: "
-                    f"required {self.NUM_CHANNELS}, got {new_data.shape[0]}"
+                    f"required {NUM_CHANNELS}, got {new_data.shape[0]}"
                 )
 
             if self.update_count > 0:
-                transformed_data = new_data[: self.NUM_CHANNELS, :]
+                transformed_data = new_data[: NUM_CHANNELS, :]
 
                 self.data_buffer = np.hstack(
                     (self.data_buffer[:, new_data.shape[1] :], transformed_data)
@@ -125,8 +125,8 @@ class EegWorker(QObject):
                     "raw_cognitive_load": self._threshold_filter(cognitive_load),
                     "cognitive_load": self._moving_average(),
                 }
-                self.callback.message.emit(
-                    Callback.Level.INFO,
+                self.logger.message.emit(
+                    Logger.Level.DEBUG,
                     f"Monitored CL: {data['cognitive_load']}, without moving average {data['raw_cognitive_load']}",
                 )
                 self.update_count += 1
@@ -166,7 +166,7 @@ class EegWorker(QObject):
         beta_powers_per_channel = []
         filtered_data_buffer = self._preprocess_data(data_buffer.copy(), sampling_rate)
 
-        for eeg_channel in range(self.NUM_CHANNELS):
+        for eeg_channel in range(NUM_CHANNELS):
             nfft = DataFilter.get_nearest_power_of_two(sampling_rate)
             psd = DataFilter.get_psd_welch(
                 filtered_data_buffer[eeg_channel],
@@ -198,7 +198,7 @@ class EegWorker(QObject):
         )
 
     def _threshold_filter(self, cl_value):
-        if cl_value <= 7.47:
+        if cl_value <= THRESHOLD_UPPER:
             self.sliding_window.append(cl_value)
             return cl_value
         else:
