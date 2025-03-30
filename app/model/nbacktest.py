@@ -2,7 +2,7 @@ import random
 import string
 
 from PyQt6.QtCore import pyqtSignal, QObject
-import app.model.constants as const
+import app.util as const
 
 
 class NBackTest(QObject):

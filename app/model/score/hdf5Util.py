@@ -1,5 +1,4 @@
-from ..constants import *
-from app.util import Callback
+from app.util import Callback, HDF5_FOLDER_PATH
 import os
 import h5py
 from datetime import datetime

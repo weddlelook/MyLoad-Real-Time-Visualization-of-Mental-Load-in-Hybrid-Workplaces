@@ -5,13 +5,13 @@ from PyQt6.QtCore import pyqtSignal, QObject
 class Callback(QObject):
 
     class Level(enum.Enum):
-        INFO = 1
-        DEBUG = 2
+        INFO = 2
+        DEBUG = 1
         ERROR = 4
 
     message = pyqtSignal(Level, str)
 
-    def __init__(self, level: Level = Level.DEBUG):
+    def __init__(self, level: Level = Level.INFO):
         super().__init__()
         self.level = level
         self.message.connect(self._message)

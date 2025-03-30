@@ -1,6 +1,7 @@
 import json
-import os
-from .constants import *
+from pathlib import Path
+from app.util import FOLDER_PATH_SETTINGS, FILE_NAME_SETTINGS, HDF5_FOLDER_PATH, getAbsPath
+from app.util import Callback
 
 
 class SettingsModel:
@@ -9,24 +10,26 @@ class SettingsModel:
         "isDarkMode": False,
     }
 
-    def __init__(self, callback):
-        self.settings = self.load_settings()
+    def __init__(self, callback: Callback):
         self.callback = callback
+        self.settings = self.load_settings()
 
     def load_settings(self):
         """Load settings from the file, or create default settings if the file doesn't exist."""
-        file_path = os.path.join(getAbsPath(FOLDER_PATH_SETTINGS), FILE_NAME_SETTINGS)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        folder_path = getAbsPath(FOLDER_PATH_SETTINGS)
+        file_path = folder_path / FILE_NAME_SETTINGS
 
-        if not os.path.exists(file_path):
-            self.save_settings(self.DEFAULT_SETTINGS)
+        folder_path.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
+
+        if not file_path.exists():
+            self.set(self.DEFAULT_SETTINGS)
             self.callback.message.emit(
                 self.callback.Level.DEBUG, "Loading default settings"
             )
             return self.DEFAULT_SETTINGS
 
         # Checking for missing keys, or wrong types
-        with open(file_path, "r") as file:
+        with file_path.open("r") as file:
             settings = json.load(file)
             for key, value in self.DEFAULT_SETTINGS.items():
                 if not (key in settings and isinstance(settings[key], type(value))):
@@ -42,13 +45,13 @@ class SettingsModel:
         """Update and save settings.
         :param updates: A dictionary containing the updated settings
         """
-        self.settings.update(updates)
-        file_path = os.path.join(getAbsPath(FOLDER_PATH_SETTINGS), FILE_NAME_SETTINGS)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        self.callback.message.emit(self.callback.Level.DEBUG, "Saved Settings")
+        file_path = getAbsPath(FOLDER_PATH_SETTINGS) / FILE_NAME_SETTINGS
+        file_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure parent directory exists
 
-        with open(file_path, "w") as file:
-            json.dump(self.settings, file, indent=4)
+        with file_path.open("w") as file:
+            json.dump(updates, file, indent=4)
+
+        self.callback.message.emit(self.callback.Level.DEBUG, "Saved Settings")
 
     @staticmethod
     def clear_sessions():
