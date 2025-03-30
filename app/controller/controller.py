@@ -107,6 +107,7 @@ class Controller(QObject):
         self.gui.main_window.settings.clear_all_button.clicked.connect(
             self.settings_model.clear_sessions
         )
+        self.gui.main_window.settings.set_settings(self.settings_model.settings)
 
     def connect_recorder(self):
         self.start_recording_phase.connect(self.recorder.set_phase)
