@@ -18,5 +18,4 @@ THRESHOLD_UPPER = 7.47
 def getAbsPath(relative_path):
     bundle_dir = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
     parent_dir = bundle_dir.parent  # Move to the parent of the script directory
-    print(parent_dir/relative_path)
     return parent_dir / relative_path

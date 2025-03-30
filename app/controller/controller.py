@@ -20,7 +20,6 @@ class Controller(QObject):
         self.logger = Logger(
             Logger.Level.INFO
         )
-        print(type(self.logger))
 
         # Model
         self.settings_model = model.SettingsModel(self.logger)
@@ -104,17 +103,7 @@ class Controller(QObject):
         print(f"Error during page change: {e}")
 
     def connect_settings(self):
-        # TODO: Could someone look at this? Is this really the most elegant way to connect the settings?
-        self.gui.settings_action.triggered.connect(self.gui.main_window.toggle_settings)
-        self.gui.main_window.settings.set_settings(self.settings_model.settings)
         self.gui.main_window.settings.new_settings.connect(self.settings_model.set)
-        self.gui.main_window.settings.new_settings.connect(self.gui.apply_stylesheet)
-        self.gui.main_window.settings.new_settings.connect(
-            self.gui.main_window.toggle_settings
-        )
-        self.gui.main_window.settings.back_button.clicked.connect(
-            self.gui.main_window.toggle_settings
-        )
         self.gui.main_window.settings.clear_all_button.clicked.connect(
             self.settings_model.clear_sessions
         )

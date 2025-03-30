@@ -98,7 +98,7 @@ class MaxtestPage(Page):
         )
         controller.test_model.show_correct_button.connect(
             self.widget.show_correct_button
-        )  # TODO
+        )
         controller.test_model.generated_char.connect(self.widget.updateChar)  # TODO
 
     def start(self, controller):

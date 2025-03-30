@@ -26,10 +26,17 @@ class RootWindow(QMainWindow):
         self.resize(1200, 733)
         self.main_window = MainWidget()
         self.main_window.settings.new_settings.connect(self.apply_stylesheet)
+        self.main_window.settings.new_settings.connect(
+            self.main_window.toggle_settings
+        )
+        self.main_window.settings.back_button.clicked.connect(
+            self.main_window.toggle_settings
+        )
         self.setCentralWidget(self.main_window)
         self.apply_font()
         self.create_toolbar()
         self.show()
+        self.settings_action.triggered.connect(self.main_window.toggle_settings)
 
     def apply_stylesheet(self, settings):
         self.settings = settings
