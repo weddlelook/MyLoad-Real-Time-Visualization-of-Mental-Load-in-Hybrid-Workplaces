@@ -6,7 +6,7 @@ import os
 import app.model as model
 
 import app.view.pages as widget
-from app.util import Callback
+from app.util import Logger, getAbsPath, HDF5_FOLDER_PATH
 
 
 class Controller(QObject):
@@ -17,15 +17,15 @@ class Controller(QObject):
 
     def __init__(self):
         super().__init__()
-        self.call = Callback(
-            Callback.Level.DEBUG
-        )  # Set the callback level to DEBUG for detailed logging
-        print(type(self.call))
+        self.logger = Logger(
+            Logger.Level.INFO
+        )
+        print(type(self.logger))
 
         # Model
-        self.settings_model = model.SettingsModel(self.call)
-        self.test_model = model.NBackTest(self.call)
-        self.recorder = model.Recorder(self.call)
+        self.settings_model = model.SettingsModel(self.logger)
+        self.test_model = model.NBackTest(self.logger)
+        self.recorder = model.Recorder(self.logger)
 
         # View
         self.gui = RootWindow(self.settings_model.settings)
@@ -86,18 +86,6 @@ class Controller(QObject):
         self.jitsi_room_name = jitsi_room_name
         self.recorder.new_session(self.session_name)
 
-    def provide_char(self):
-        return self.test_model.provide_char()
-
-    def maxtest_correct_button_clicked(self):
-        self.test_model.correctButtonClicked(True)
-
-    def maxtest_incorrect_button_clicked(self):
-        self.test_model.skipButtonClicked(False)
-
-    def get_maxtest_result(self):
-        return self.test_model.calculateResults()
-
     def next_page(self, page_name: str, *args):
         if not isinstance(page_name, str):
             print(
@@ -147,11 +135,11 @@ class Controller(QObject):
         base_dir = os.path.dirname(
             os.path.abspath(__file__)
         )  # Ordner, in dem die Datei liegt
-        h5_directory = os.path.join(base_dir, "..", "..", "h5_session_files")
+        h5_directory = getAbsPath(HDF5_FOLDER_PATH)
 
         # Falls der Ordner nicht existiert, erstelle ihn
         if not os.path.exists(h5_directory):
-            os.makedirs(h5_directory)
+            return
 
         # h5_directory = "app/h5_session_files"
         files = [f for f in os.listdir(h5_directory) if f.endswith(".h5")]
@@ -159,4 +147,4 @@ class Controller(QObject):
         matching_files = [f for f in files if f.startswith(f"{num_files}_")]
         if matching_files:
             last_file = matching_files[0]
-            self.recorder.check_empty_session(h5_directory, last_file)
+            model.score.hdf5Util.hdf5File.check_empty_session(h5_directory, h5_directory / last_file, last_file)

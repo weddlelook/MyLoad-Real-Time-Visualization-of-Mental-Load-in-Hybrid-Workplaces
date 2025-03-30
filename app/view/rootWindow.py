@@ -18,22 +18,24 @@ class RootWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("MyLoad")
-        self.settings = settings
+        self.setting = settings
+        self.apply_stylesheet(settings)
         # Set minimum size for application window
         self.setMinimumSize(733, 733)
         # Set default window size
         self.resize(1200, 733)
         self.main_window = MainWidget()
+        self.main_window.settings.new_settings.connect(self.apply_stylesheet)
         self.setCentralWidget(self.main_window)
         self.apply_font()
         self.create_toolbar()
-        self.apply_stylesheet()
         self.show()
 
-    def apply_stylesheet(self):
-        if self.settings["isDarkMode"] == False:
+    def apply_stylesheet(self, settings):
+        self.settings = settings
+        if settings["isDarkMode"] == False:
             file_path = getAbsPath(FILE_PATH_CSS_LIGHTMODE)
-        elif self.settings["isDarkMode"] == True:
+        elif settings["isDarkMode"] == True:
             file_path = getAbsPath(FILE_PATH_CSS_DARKMODE)
         try:
             with open(file_path, "r") as f:
