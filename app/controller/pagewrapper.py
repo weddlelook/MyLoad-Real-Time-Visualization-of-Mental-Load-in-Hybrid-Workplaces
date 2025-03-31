@@ -60,10 +60,16 @@ class BaselineStartPage(Page):
         self.widget.monitor_baseline_button.clicked.connect(
             lambda: controller.next_page(next_page_baseline_button)
         )
-        self.widget.monitor_baseline_button.clicked.connect(self.widget.play_bip)
         self.widget.dialog.yes_button.clicked.connect(
             lambda: controller.next_page(next_page_skip_button)
         )
+        controller.recorder.phase_complete.connect(self.beep)
+
+    def beep(self, phase:int):
+        print(phase)
+        print(Phase.MIN.value)
+        if phase == Phase.MIN.value:
+            self.widget.beep()
 
 
 class SkipPage(Page):
@@ -99,7 +105,7 @@ class MaxtestPage(Page):
         controller.test_model.show_correct_button.connect(
             self.widget.show_correct_button
         )
-        controller.test_model.generated_char.connect(self.widget.updateChar)  # TODO
+        controller.test_model.generated_char.connect(self.widget.updateChar)
 
     def start(self, controller):
         controller.phase_change(Phase.MAX.value, 1000)
