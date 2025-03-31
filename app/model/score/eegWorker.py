@@ -7,7 +7,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from brainflow.data_filter import DataFilter, FilterTypes, WindowOperations
 from brainflow.exit_codes import BrainFlowError
 
-from PyQt6.QtCore import QThread, QObject, pyqtSignal
+from PyQt6.QtCore import QTimer, QThread, QObject, pyqtSignal
 
 from app.util import Logger, WINDOW_SIZE, THRESHOLD_UPPER, NUM_CHANNELS, find_usb_port
 
@@ -53,6 +53,8 @@ class EegWorker(QObject):
 
     def _start_session(self):
         self._connect_board()
+        if not self.board_shim:  # Ensure the board is connected before proceeding
+            return
         self.board_shim.start_stream()
         self.logger.message.emit(Logger.Level.DEBUG, "Started monitoring session")
         self.sliding_window = deque(maxlen=WINDOW_SIZE)
@@ -74,11 +76,11 @@ class EegWorker(QObject):
             self.board_shim = BoardShim(self.board_id, params)
             self.board_shim.prepare_session()
         except BrainFlowError as e:
+            self.board_shim = None
             self.error.emit(
-                f"An error has occurred while connecting the board: {e}, trying again in 3 seconds"
+                f"An error has occurred while connecting the board: {e}, trying again in 1 second"
             )
-            QThread.msleep(3000)
-            self._connect_board()
+            return
 
         # Set the sampling rate after the board is connected
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
@@ -103,6 +105,7 @@ class EegWorker(QObject):
         """
         if not self.session_active:
             self._start_session()
+            return
 
         try:
             new_data = self.board_shim.get_board_data()

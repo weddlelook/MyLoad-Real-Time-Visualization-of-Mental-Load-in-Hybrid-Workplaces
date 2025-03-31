@@ -3,7 +3,6 @@ import app.model as model
 from app.view.rootWindow import RootWindow
 from PyQt6.QtCore import pyqtSignal, QObject
 import os
-import app.model as model
 
 import app.view.pages as widget
 from app.util import Logger, getAbsPath, HDF5_FOLDER_PATH, LOGGER_LEVEL

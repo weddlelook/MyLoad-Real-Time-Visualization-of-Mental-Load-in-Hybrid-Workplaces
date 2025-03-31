@@ -27,7 +27,7 @@ DEFAULT_PORT = (
 # Path for model resources
 HDF5_FOLDER_PATH = Path("res") / "h5_session_files"
 FOLDER_PATH_SETTINGS = Path("res") / "setting_files"
-FILE_NAME_SETTINGS = Path("res") / "user_settings.json"
+FILE_NAME_SETTINGS = "user_settings.json"
 
 # Paths for view resources
 FILE_PATH_RES = Path("res")
