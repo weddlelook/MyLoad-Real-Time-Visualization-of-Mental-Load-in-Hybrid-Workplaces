@@ -49,6 +49,7 @@ poetry run python -m app
 ```
 
 This will start the application with synthetic data. 
+You can adjust parameters in `app/util/constants.py`, e.g. the Logging-Level
 
 ### Running with EEG-Headphones
 To use the application with EEG-Headphones, start it with the following arguments:

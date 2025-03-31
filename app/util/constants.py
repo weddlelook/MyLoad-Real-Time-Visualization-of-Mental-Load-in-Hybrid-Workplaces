@@ -5,7 +5,7 @@ from .logger import Logger
 import serial.tools.list_ports
 
 LOGGER_LEVEL = (
-    Logger.Level.DEBUG
+    Logger.Level.INFO
 )  # Level of console logging comments, available: INFO, DEBUG, ERROR
 
 N_BACKTEST = 4  # N for N backtest number
