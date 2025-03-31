@@ -221,7 +221,6 @@ class JitsiPage(QWidget):
         for attr in [
             QWebEngineSettings.WebAttribute.JavascriptEnabled,
             QWebEngineSettings.WebAttribute.LocalStorageEnabled,
-            QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture,
             QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls,
             QWebEngineSettings.WebAttribute.AllowRunningInsecureContent,
             QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls,
@@ -229,6 +228,8 @@ class JitsiPage(QWidget):
             QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins,
         ]:
             settings.setAttribute(attr, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
+
 
     class CustomWebEnginePage(QWebEnginePage):
         """Custom WebEnginePage to handle permissions (audio/mic)"""
