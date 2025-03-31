@@ -4,27 +4,32 @@ from pathlib import Path
 from .logger import Logger
 import serial.tools.list_ports
 
-
 LOGGER_LEVEL = (
-    Logger.Level.DEBUG
+    Logger.Level.INFO
 )  # Level of console logging comments, available: INFO, DEBUG, ERROR
 
-N_BACKTEST = 2  # N for N backtest number
+N_BACKTEST = 4  # N for N backtest number
 N_BACKTEST_PROPABILITY = [
     70,
     30,
 ]  # Probability of generating a new character vs the one from N back
-NUM_CHANNELS = 8
-WINDOW_SIZE = 15
-THRESHOLD_UPPER = 7.47
 
+# Attributes for recorder
+NUM_CHANNELS = 8
+WINDOW_SIZE = 15  # Size for the deque for calculating the moving average
+THRESHOLD_UPPER = 7.47  # Filter Threshold for CL_Index
+MAX_PHASE_LENGTH = 90000  # Time NBacktest in ms
+MIN_PHASE_LENGTH = 60000  # Time Baseline in ms
+DEFAULT_PORT = (
+    "COM3"  # Port that is chosen if none is found or specified through argparse
+)
+
+# Path for model resources
 HDF5_FOLDER_PATH = Path("res") / "h5_session_files"
 FOLDER_PATH_SETTINGS = Path("res") / "setting_files"
 FILE_NAME_SETTINGS = Path("res") / "user_settings.json"
 
-MAX_PHASE_LENGTH = 90000
-MIN_PHASE_LENGTH = 60000
-
+# Paths for view resources
 FILE_PATH_RES = Path("res")
 FILE_PATH_CSS_LIGHTMODE = FILE_PATH_RES / "styles" / "style_light.qss"
 FILE_PATH_CSS_DARKMODE = FILE_PATH_RES / "styles" / "style_dark.qss"
@@ -34,10 +39,11 @@ FILE_PATH_INFO_ICON = FILE_PATH_RES / "styles" / "images" / "info.png"
 FILE_PATH_JITSI_HTML = FILE_PATH_RES / "styles" / "jitsi.html"
 FILE_PATH_OPEN_EYE_ICON = FILE_PATH_RES / "styles" / "images" / "visual.png"
 FILE_PATH_CLOSED_EYE_ICON = FILE_PATH_RES / "styles" / "images" / "hidden_eye.png"
+
+# Infotexts
 MAXTEST_PAGE_INFO = f"""You will see a series of letters, one at a time. {os.linesep}
 Your task is to compare each letter with the one that appeared exactly {N_BACKTEST} steps earlier. {os.linesep}
 If the current letter matches the letter from {N_BACKTEST} steps ago, click Correct else Skip. {os.linesep}"""
-
 JITSI_PAGE_INFO = f"""The score displayed represents your Cognitive Load (CL) score. {os.linesep}
 It is calculated using various values recorded by the headphones {os.linesep}
 and processed through a formula to standardize it, allowing for {os.linesep}

@@ -169,10 +169,14 @@ class Recorder(QObject):
             )
 
     def _kill_timer(self):
+        print("timer")
         if self.monitor_timer and self.monitor_timer.isActive():
             self.monitor_timer.stop()
 
     def deleteLater(self):
+        self.thread.exit(0)
         self.thread.quit()
+        if self.thread.isRunning():
+            del self.thread
         self.thread.wait()
         super().deleteLater()
