@@ -39,7 +39,7 @@ Before you can run this code, you will need to install our dependency manager [P
    poetry install
    ```
 
-If this does not work for you, here is a link to the [offical tutorials](https://python-poetry.org/docs/#installing-with-the-official-installer)
+If this does not work for you, here is a link to the [offical tutorials](https://python-poetry.org/docs/)
 
 ## Run Application
 
@@ -82,4 +82,4 @@ Now, replace `<your_usb_port>` with the correct port and start the application.
 For demonstration, the current host is [meet.jit.si](https://meet.jit.si), which now has a 5-minute limit and is only recommended for testing purposes. 
 You can use **Jitsi as a Service (JAAS)** by signing up for a JAAS account at [Jitsi as a Service](https://jaas.8x8.vc/).
 Alternatively, to host your own Jitsi instance follow the official Jitsi self-hosting guide: [Self-Hosting Jitsi Meet](https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-start).
-If you are modifying the host, update the file: `references_and_loose_code_files/jitsi.html` accordingly.
+If you are modifying the host, update the file: `app/res/styles/jitsi.html` accordingly.
