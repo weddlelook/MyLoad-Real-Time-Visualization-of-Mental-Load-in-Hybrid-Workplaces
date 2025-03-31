@@ -7,8 +7,10 @@ Before you can run this code, you will need to install our dependency manager [P
 ### Installation
 
 #### Windows
-1. Download and install the official installer from [here](https://python-poetry.org/docs/#installation).
-2. Run the installer and follow the setup instructions.
+1. Run the following command in Powershell 
+   ```powershell
+   (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+   ```
 3. Close and reopen your terminal (PowerShell or Command Prompt) to ensure changes take effect.
 4. Verify the installation by running:
    ```sh
@@ -36,6 +38,8 @@ Before you can run this code, you will need to install our dependency manager [P
    ```sh
    poetry install
    ```
+
+If this does not work for you, here is a link to the [offical tutorials](https://python-poetry.org/docs/#installing-with-the-official-installer)
 
 ## Run Application
 
