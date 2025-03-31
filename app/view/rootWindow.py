@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QMessageBox,
 )
 from PyQt6.QtGui import QFontDatabase, QFont, QAction, QIcon
+from PyQt6.QtCore import QTimer
 from .mainWidget import MainWidget
 from .constants import *
 import os
@@ -41,6 +42,8 @@ class RootWindow(QMainWindow):
         self.active_errors = (
             set()
         )  # Set to track active error messages, ensuring no duplicates
+        self.error_timer = QTimer() # Timer to avoid a spam
+        self.error_timer.setSingleShot(True)  
 
     def apply_stylesheet(self, settings):
         self.settings = settings
@@ -76,7 +79,7 @@ class RootWindow(QMainWindow):
         Displays an error message in a message box.
         :param message: The error message to display.
         """
-        if message in self.active_errors:
+        if message in self.active_errors or self.error_timer.isActive():
             return  # Avoid showing the same error message multiple times
 
         self.active_errors.add(message)
@@ -90,6 +93,7 @@ class RootWindow(QMainWindow):
         msg_box.exec()
 
         self.active_errors.remove(message)
+        self.error_timer.start(5000)
 
     @staticmethod
     def apply_font():
