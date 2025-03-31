@@ -1,22 +1,17 @@
 stateDiagram
-    [*] --> Landing_Page
+    [*] --> StartPage
 
-    Landing_Page --> Baseline
-    Landing_Page --> Retrospektive/Alte_Sessions
+    StartPage --> Baseline
+    StartPage --> SkipPage
+    StartPage --> Retrospektive
 
-    Baseline --> Test
-    Baseline --> Auswahl_alte_Werte
+    Baseline --> NBackTest
 
-    Auswahl_alte_Werte --> Monitoring
+    SkipPage --> JitsiPage
 
-    Test --> Monitoring
+    NBackTest --> JitsiPage
 
-    Monitoring --> Pause
-    Monitoring --> Retrospektive/Alte_Sessions
+    JitsiPage --> Retrospektive
 
-    Pause --> Retrospektive/Alte_Sessions
-    Pause --> Monitoring
-
-
-    Retrospektive/Alte_Sessions --> [*]
-    Retrospektive/Alte_Sessions --> Landing_Page
+    Retrospektive --> [*]
+    Retrospektive --> StartPage
