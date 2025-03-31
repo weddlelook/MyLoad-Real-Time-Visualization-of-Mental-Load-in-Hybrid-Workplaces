@@ -31,7 +31,7 @@ class Recorder(QObject):
         self.hdf5_session = None
         self.score_calculator = None
 
-        self.eegWorker = EegWorker(logger, self.error)
+        self.eegWorker = None
         self.thread = QThread()
         self.moveToThread(self.thread)
         self.thread.started.connect(self._start)
@@ -68,7 +68,9 @@ class Recorder(QObject):
         def phase_complete(phase: int):
             self.set_phase(Phase.PAUSED.value, 0)
             if self.minimum and self.maximum:
-                self.score_calculator = ScoreCalculator(self.minimum, self.maximum, self.logger)
+                self.score_calculator = ScoreCalculator(
+                    self.minimum, self.maximum, self.logger
+                )
                 self.logger.message.emit(
                     Logger.Level.DEBUG,
                     f"Created score calculator with minimum {self.minimum} and maximum {self.maximum}",
@@ -94,6 +96,7 @@ class Recorder(QObject):
         self.monitor_timer = QTimer()
         self.monitor_timer.timeout.connect(self._monitor)
         self.monitor_timer.start(1000)
+        self.eegWorker = EegWorker(self.logger, self.error)
 
     def _max_phase(self, data):
         try:

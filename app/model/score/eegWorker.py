@@ -11,12 +11,13 @@ from PyQt6.QtCore import QThread, QObject, pyqtSignal
 
 from app.util import Logger, WINDOW_SIZE, THRESHOLD_UPPER, NUM_CHANNELS
 
+
 class EegWorker(QObject):
 
     def __init__(self, logger: Logger, error: pyqtSignal):
         super().__init__()
         self.session_active = False
-        self.sliding_window = None # deque for the moving average
+        self.sliding_window = None  # deque for the moving average
 
         parser = argparse.ArgumentParser(description="board parameters")
         parser.add_argument(
@@ -57,7 +58,6 @@ class EegWorker(QObject):
         buffer_length = 10 * self.sampling_rate
         self.data_buffer = np.zeros((NUM_CHANNELS, buffer_length))
         self.update_count = 0
-        QThread.msleep(1000)
         self.monitor_cognitive_load()
 
     def _connect_board(self):
@@ -71,7 +71,11 @@ class EegWorker(QObject):
             self.board_shim = BoardShim(self.board_id, params)
             self.board_shim.prepare_session()
         except BrainFlowError as e:
-            self.error.emit(f"An error has occurred while connecting the board: {e}")
+            self.error.emit(
+                f"An error has occurred while connecting the board: {e}, trying again in 3 seconds"
+            )
+            QThread.msleep(3000)
+            self._connect_board()
 
         # Set the sampling rate after the board is connected
         self.sampling_rate = BoardShim.get_sampling_rate(self.board_shim.board_id)
@@ -85,12 +89,12 @@ class EegWorker(QObject):
 
     def monitor_cognitive_load(self) -> dict:
         """Fetches data from the board, calculates the load_index
-        :returns: A dictionary containing the keys 
+        :returns: A dictionary containing the keys
             > timestamp: The unix epoch-second the load was calculated at
             > raw_cognitive_load: The calculated load, processed through a threshhold filter
             > cognitive_load: The moving average over the raw_cognitive_load
             with str values
-            IF an error occurs or the board produces unreliable data for an extended amount of time, 
+            IF an error occurs or the board produces unreliable data for an extended amount of time,
             the value of the last two keys will be None,
             The first update after starting a session will always return None instead of a dict
         """
@@ -107,7 +111,7 @@ class EegWorker(QObject):
                 )
 
             if self.update_count > 0:
-                transformed_data = new_data[: NUM_CHANNELS, :]
+                transformed_data = new_data[:NUM_CHANNELS, :]
 
                 self.data_buffer = np.hstack(
                     (self.data_buffer[:, new_data.shape[1] :], transformed_data)

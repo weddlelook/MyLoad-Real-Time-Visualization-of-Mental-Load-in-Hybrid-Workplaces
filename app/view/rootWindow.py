@@ -20,15 +20,15 @@ class RootWindow(QMainWindow):
         self.setWindowTitle("MyLoad")
         self.setting = settings
         self.apply_stylesheet(settings)
+
         # Set minimum size for application window
         self.setMinimumSize(733, 733)
         # Set default window size
         self.resize(1200, 733)
+
         self.main_window = MainWidget()
         self.main_window.settings.new_settings.connect(self.apply_stylesheet)
-        self.main_window.settings.new_settings.connect(
-            self.main_window.toggle_settings
-        )
+        self.main_window.settings.new_settings.connect(self.main_window.toggle_settings)
         self.main_window.settings.back_button.clicked.connect(
             self.main_window.toggle_settings
         )
@@ -37,6 +37,10 @@ class RootWindow(QMainWindow):
         self.create_toolbar()
         self.show()
         self.settings_action.triggered.connect(self.main_window.toggle_settings)
+
+        self.active_errors = (
+            set()
+        )  # Set to track active error messages, ensuring no duplicates
 
     def apply_stylesheet(self, settings):
         self.settings = settings
@@ -66,6 +70,26 @@ class RootWindow(QMainWindow):
             self.findChild(QToolBar).setVisible(True)
         elif not show:
             self.findChild(QToolBar).setVisible(False)
+
+    def display_error_message(self, message: str):
+        """
+        Displays an error message in a message box.
+        :param message: The error message to display.
+        """
+        if message in self.active_errors:
+            return  # Avoid showing the same error message multiple times
+
+        self.active_errors.add(message)
+
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Error")
+        msg_box.setText(message)
+        msg_box.setIcon(QMessageBox.Icon.Critical)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+
+        msg_box.exec()
+
+        self.active_errors.remove(message)
 
     @staticmethod
     def apply_font():

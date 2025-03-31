@@ -17,9 +17,7 @@ class Controller(QObject):
 
     def __init__(self):
         super().__init__()
-        self.logger = Logger(
-            Logger.Level.INFO
-        )
+        self.logger = Logger(Logger.Level.INFO)
 
         # Model
         self.settings_model = model.SettingsModel(self.logger)
@@ -86,11 +84,6 @@ class Controller(QObject):
         self.recorder.new_session(self.session_name)
 
     def next_page(self, page_name: str, *args):
-        if not isinstance(page_name, str):
-            print(
-                f"[ERROR] Invalid page_name: {page_name}. Expected a string."
-            )  # Debug-Ausgabe
-            return
         try:
             page = self.pages[page_name]
             self.gui.show_toolbar(page.toolbar_shown)
@@ -99,8 +92,10 @@ class Controller(QObject):
         except KeyError:
             raise  # Wirft den Fehler erneut, um das Programm zu stoppen
 
-    def handle_error(self, e):
-        print(f"Error during page change: {e}")
+    def handle_error(self, error_message: str):
+        self.gui.display_error_message(
+            error_message,
+        )
 
     def connect_settings(self):
         self.gui.main_window.settings.new_settings.connect(self.settings_model.set)
@@ -134,4 +129,6 @@ class Controller(QObject):
         matching_files = [f for f in files if f.startswith(f"{num_files}_")]
         if matching_files:
             last_file = matching_files[0]
-            model.score.hdf5Util.hdf5File.check_empty_session(h5_directory, h5_directory / last_file, last_file)
+            model.score.hdf5Util.hdf5File.check_empty_session(
+                h5_directory, h5_directory / last_file, last_file
+            )
