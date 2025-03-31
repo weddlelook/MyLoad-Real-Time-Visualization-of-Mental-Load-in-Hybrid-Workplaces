@@ -1,10 +1,6 @@
 from PyQt6.QtWidgets import (
-    QStackedLayout,
     QMainWindow,
-    QVBoxLayout,
-    QWidget,
     QToolBar,
-    QLineEdit,
     QMessageBox,
 )
 from PyQt6.QtGui import QFontDatabase, QFont, QAction, QIcon

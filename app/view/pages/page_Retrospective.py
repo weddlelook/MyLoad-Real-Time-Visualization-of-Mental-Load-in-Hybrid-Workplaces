@@ -10,16 +10,11 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QMessageBox,
 )
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtGui import QPixmap
 import os
-import h5py
-import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
-import matplotlib
-import time
 from datetime import datetime, timedelta
 
 from app.util import HDF5_FOLDER_PATH, FILE_PATH_INFO_ICON, getAbsPath
@@ -47,14 +42,13 @@ class RetrospectivePage(QWidget):
         self.page_explanation.setWordWrap(True)
         layout.addWidget(self.page_explanation)
 
-        # Liste der Sessions
         self.session_list = QListWidget()
         self.session_list.setSelectionMode(
             QListWidget.SelectionMode.MultiSelection
-        )  # Mehrfachauswahl aktivieren
+        )
         layout.addWidget(self.session_list)
 
-        # Button zum Plotten
+        # button for plotting
         self.plot_button = QPushButton("Plot Sessions")
         self.plot_button.clicked.connect(self._plot_sessions)
         h_layout = QHBoxLayout()
@@ -93,19 +87,18 @@ class RetrospectivePage(QWidget):
 
         layout.addLayout(h_layout)
 
-        # Matplotlib-Canvas für das Plotten
+        # Matplotlib-Canvas for plotting
         self.figure = Figure(facecolor="#F8F8FF", edgecolor="#444444")
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
 
-        # Lade die verfügbaren Sessions
         self.load_sessions()
 
         self.back_button = QPushButton("Back to Homepage")
         layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignRight)
 
     def load_sessions(self):
-        """Lade alle .h5-Dateien aus dem Session-Ordner."""
+        """Loads the h5 files"""
         self.session_list.clear()
         if os.path.exists(self.session_folder):
             files = [f for f in os.listdir(self.session_folder) if f.endswith(".h5")]
@@ -121,9 +114,9 @@ class RetrospectivePage(QWidget):
 
     def _plot_sessions(self):
         """
-        Plottet die ausgewählten Sessions. Wählt man nur eine Session aus, so sieht man auf der x -Achse den
-        zeitlichen Verlauf der Session mit Uhrzeiten.
-        Werden mehrere ausgewählt, so werden die Zeiten normalisiert und alle Verläufe fangen bei 0 an.
+        Plots the selected sessions. If you select only one session, you can see the session's time course with times
+        on the x-axis.
+        If you select multiple sessions, the times are normalized and all courses start at 0.
         """
         selected_files = [item.text() for item in self.session_list.selectedItems()]
         if not selected_files:
@@ -165,7 +158,7 @@ class RetrospectivePage(QWidget):
                         ],
                         y_marker,
                         color="red",
-                        label="Kommentare",
+                        label="comments",
                         marker="o",
                         s=50,
                     )
@@ -176,13 +169,13 @@ class RetrospectivePage(QWidget):
                         sel.annotation.set_text(descriptions[sel.index].decode())
                         sel.annotation.get_bbox_patch().set_facecolor(
                             "lightblue"
-                        )  # Hintergrundfarbe ändern
+                        )
                         sel.annotation.get_bbox_patch().set_edgecolor(
                             "black"
-                        )  # Randfarbe ändern
+                        )
 
                 else:
-                    # Setze die Zeitstempel relativ zum Startzeitpunkt
+                    # Normalize the timeline
                     timestamps_rel = modified_timestamps - modified_timestamps[0]
                     length = (
                         len(timestamps_rel) if len(timestamps_rel) > length else length
@@ -210,9 +203,8 @@ class RetrospectivePage(QWidget):
                 if len(selected_files) == 1
                 else "Session Duration (HH:MM:SS)"
             ),
-            fontsize=12,
+            fontsize=6,
             fontweight="bold",
-            labelpad=7.5,
         )
         ax.xaxis.set_major_locator(ticker.AutoLocator())
         ax.set_ylabel("Cognitive Load", fontsize=12, fontweight="bold", labelpad=15)
@@ -223,14 +215,14 @@ class RetrospectivePage(QWidget):
         self.canvas.draw()
 
     def _delete_sessions(self):
-        """Löscht die ausgewählten Sessions nach Bestätigung."""
+        """Delete a session when user confirmes"""
         selected_files = [item.text() for item in self.session_list.selectedItems()]
         if not selected_files:
             self.show_popup(
                 "No sessions selected", "Please select at least one session to delete."
             )
             return
-        # Zeige eine Bestätigungspopup
+        # Show confirmation popup
         confirmation = QMessageBox(self)
         confirmation.setIcon(QMessageBox.Icon.Warning)
         confirmation.setWindowTitle("Delete Confirmation")
@@ -244,7 +236,7 @@ class RetrospectivePage(QWidget):
         confirmation = confirmation.exec()
 
         if confirmation == QMessageBox.StandardButton.Yes:
-            # Lösche die ausgewählten Dateien
+            # Delete the selected sessions
             for file in selected_files:
                 file_path = os.path.join(self.session_folder, file)
                 try:
@@ -256,11 +248,11 @@ class RetrospectivePage(QWidget):
                 except Exception as e:
                     print(f"Error while deleting {file}: {e}")
 
-            # Nach dem Löschen die Liste neu laden
+            # Load the remaining sessions after deleting
             self.load_sessions()
 
     def show_popup(self, title, message):
-        """Zeigt ein Popup mit einer Warnmeldung an."""
+        """Warn pop up before deleting a session. User needs to confirm it."""
         popup = QMessageBox(self)
         popup.setWindowTitle(title)
         popup.setText(message)

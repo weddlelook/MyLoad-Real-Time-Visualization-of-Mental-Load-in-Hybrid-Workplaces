@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtCore import QObject
 import numpy as np
 from app.util import Logger
 

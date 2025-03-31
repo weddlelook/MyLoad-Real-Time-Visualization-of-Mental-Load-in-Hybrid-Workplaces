@@ -1,5 +1,4 @@
 from app.controller.pagewrapper import *
-import app.model as model
 from app.view.rootWindow import RootWindow
 from PyQt6.QtCore import pyqtSignal, QObject
 import os

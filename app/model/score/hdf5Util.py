@@ -3,7 +3,6 @@ import os
 import h5py
 from datetime import datetime
 import numpy as np
-import math
 
 
 class hdf5File:
@@ -19,7 +18,7 @@ class hdf5File:
             powers["load_score"],
         )
 
-        # Neue Daten hinzufügen
+        # Save incoming new data in h5 file
         with h5py.File(self.filename, "a") as h5_file:
             eeg_dataset = h5_file["EEG_data"]
             new_index = eeg_dataset.shape[0]

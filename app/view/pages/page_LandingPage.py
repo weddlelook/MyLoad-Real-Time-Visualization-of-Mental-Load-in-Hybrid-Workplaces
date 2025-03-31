@@ -1,19 +1,13 @@
-from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
-    QApplication,
     QWidget,
     QVBoxLayout,
     QPushButton,
-    QSizePolicy,
     QLabel,
     QLineEdit,
-    QGroupBox,
-    QFormLayout,
-    QHBoxLayout,
+    QFormLayout
 )
 
 from PyQt6.QtCore import Qt, pyqtSignal
-import sys
 
 
 class StartWidget(QWidget):

@@ -4,13 +4,10 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QPushButton,
-    QSizePolicy,
     QLabel,
     QDialog,
 )
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont, QIcon, QPixmap
-import sys
+from PyQt6.QtCore import Qt
 
 
 class SkipDialog(QDialog):

@@ -1,18 +1,12 @@
 from PyQt6.QtWidgets import (
     QWidget,
-    QGridLayout,
     QLabel,
-    QApplication,
     QPushButton,
-    QMessageBox,
     QVBoxLayout,
     QHBoxLayout,
-    QDialog,
     QListWidget,
 )
-from PyQt6.QtCore import Qt, QSize, QDir, pyqtSignal
-from PyQt6.QtGui import QFont, QIcon, QPixmap
-from setuptools.warnings import InformationOnly
+from PyQt6.QtCore import Qt, pyqtSignal
 from datetime import datetime, timedelta
 import os
 from app.util import HDF5_FOLDER_PATH, getAbsPath
@@ -65,7 +59,7 @@ class SkipPageWidget(QWidget):
             self.next_button.setEnabled(False)
 
     def load_sessions(self):
-        """Lade alle .h5-Dateien aus dem Session-Ordner."""
+        """Load the h5 session files"""
         self.session_list.clear()
         if os.path.exists(self.session_folder):
             files = [f for f in os.listdir(self.session_folder) if f.endswith(".h5")]

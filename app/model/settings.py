@@ -1,6 +1,5 @@
 import json
 import os
-from pathlib import Path
 from app.util import (
     FOLDER_PATH_SETTINGS,
     FILE_NAME_SETTINGS,

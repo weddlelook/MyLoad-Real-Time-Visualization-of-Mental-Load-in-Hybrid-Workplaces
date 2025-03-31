@@ -5,7 +5,7 @@ from app.model.score.calculateScore import ScoreCalculator
 from app.util import Logger
 
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtCore import QThread, QObject, QObject, QTimer
+from PyQt6.QtCore import QThread, QObject, QTimer
 
 
 import enum

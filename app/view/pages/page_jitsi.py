@@ -14,7 +14,6 @@ from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
 from PyQt6.QtCore import QUrl, QTimer, Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap
 
-from pathlib import Path
 from .widget_indicator import Indicator
 from app.util import (
     FILE_PATH_JITSI_HTML,

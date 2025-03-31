@@ -1,17 +1,11 @@
 from PyQt6.QtWidgets import (
     QWidget,
-    QGridLayout,
     QLabel,
-    QApplication,
     QPushButton,
-    QMessageBox,
     QVBoxLayout,
     QHBoxLayout,
-    QDialog,
 )
-from PyQt6.QtCore import Qt, QSize, QDir, pyqtSignal
-from setuptools.warnings import InformationOnly
-import os
+from PyQt6.QtCore import Qt
 from app.util import MAXTEST_PAGE_INFO
 
 
@@ -42,7 +36,7 @@ class StartMaxTestPage(QWidget):
         self.startMaxtestButton = QPushButton("Start")
         h_layout.addWidget(
             self.startMaxtestButton, alignment=Qt.AlignmentFlag.AlignCenter
-        )  # Button ausrichten und einfügen
+        )
         v_layout.addLayout(h_layout)
 
         self.setLayout(v_layout)

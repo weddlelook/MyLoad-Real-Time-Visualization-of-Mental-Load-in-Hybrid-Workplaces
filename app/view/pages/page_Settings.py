@@ -10,8 +10,7 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
 )
-from PyQt6.QtCore import pyqtSignal, Qt
-from app.model.settings import SettingsModel
+from PyQt6.QtCore import pyqtSignal
 
 
 class SettingsWidget(QWidget):
