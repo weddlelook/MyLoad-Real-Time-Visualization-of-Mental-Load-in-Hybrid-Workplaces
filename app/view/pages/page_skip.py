@@ -15,15 +15,15 @@ from PyQt6.QtGui import QFont, QIcon, QPixmap
 from setuptools.warnings import InformationOnly
 from datetime import datetime, timedelta
 import os
-from ..constants import *
+from app.util import HDF5_FOLDER_PATH, getAbsPath
 
 
 class SkipPageWidget(QWidget):
     sessionSelected = pyqtSignal(str)
 
-    def __init__(self, session_folder):
+    def __init__(self):
         super().__init__()
-        self.session_folder = session_folder
+        self.session_folder = getAbsPath(HDF5_FOLDER_PATH)
         self.initUI()
         self.selected_items = None
 

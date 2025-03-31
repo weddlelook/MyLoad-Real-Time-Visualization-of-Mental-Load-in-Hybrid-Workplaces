@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize, QDir, pyqtSignal
 from setuptools.warnings import InformationOnly
 import os
-from ..constants import *
+from app.util import MAXTEST_PAGE_INFO
 
 
 class StartMaxTestPage(QWidget):
@@ -27,11 +27,7 @@ class StartMaxTestPage(QWidget):
         self.title_label.setObjectName("title")
         v_layout.addWidget(self.title_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.explanation_label = QLabel(
-            "You will see a series of letters, one at a time. "
-            "Your task is to compare each letter with the one that appeared exactly 2 steps earlier. "
-            "If the current letter matches the letter from 2 steps ago, click Correct else Skip."
-        )
+        self.explanation_label = QLabel(MAXTEST_PAGE_INFO)
         self.explanation_label.setObjectName("text")
         self.explanation_label.setWordWrap(True)
         self.explanation_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

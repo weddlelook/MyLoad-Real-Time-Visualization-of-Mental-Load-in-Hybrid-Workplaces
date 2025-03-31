@@ -5,13 +5,16 @@ from app.util import Logger
 
 class ScoreCalculator(QObject):
 
-    def __init__(self, I_base, I_max, logger:Logger):
+    def __init__(self, I_base, I_max, logger: Logger):
         super().__init__()
         self.logger = logger
         self.I_base = I_base
         self.I_max = I_max
         self.k, self.I_0 = self._solve_parameters()
-        self.logger.message.emit(Logger.Level.DEBUG, f"Instantiated ScoreCalculator with parameter k = {self.k} and I_0 = {self.I_0}")
+        self.logger.message.emit(
+            Logger.Level.DEBUG,
+            f"Instantiated ScoreCalculator with parameter k = {self.k} and I_0 = {self.I_0}",
+        )
 
     def _solve_parameters(self):
         """Solves for logistic function parameters k and I_0."""
@@ -23,7 +26,7 @@ class ScoreCalculator(QObject):
         I_0 = self.I_base - logit_base / k
         return k, I_0
 
-    def calculate_score(self, load_index:float) -> int:
+    def calculate_score(self, load_index: float) -> int:
         """Calculates the CL-Score from the given index
         :param load_index: The load_index to calculate from
         :return: calculated score as an Integer"""

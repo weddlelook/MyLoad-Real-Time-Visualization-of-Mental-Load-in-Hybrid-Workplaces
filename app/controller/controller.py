@@ -27,7 +27,7 @@ class Controller(QObject):
         # View
         self.gui = RootWindow(self.settings_model.settings)
 
-        self._connect_settings() 
+        self._connect_settings()
         self._connect_recorder()
 
         self.pages = {
@@ -36,7 +36,7 @@ class Controller(QObject):
                 widget.StartBaselinePage(), self, "baseline", "skip"
             ),
             "skip": SkipPage(
-                widget.SkipPageWidget("app/h5_session_files"),
+                widget.SkipPageWidget(),
                 self,
                 "jitsi",
                 "baseline_start",
@@ -48,11 +48,13 @@ class Controller(QObject):
             "maxtest": MaxtestPage(widget.MaxtestPage(), self, "result"),
             "result": ResultPage(widget.ResultsPage(), self, "jitsi"),
             "jitsi": JitsiPage(widget.JitsiPage(), self, "retrospective"),
-            "retrospective": RetrospectivePage(
-                widget.RetrospectivePage("app/h5_session_files"), self
-            ),
+            "retrospective": RetrospectivePage(widget.RetrospectivePage(), self),
         }
-        for page_name in self.pages.keys(): # Registering the widgets wrapped in the page dict with the view
+        for (
+            page_name
+        ) in (
+            self.pages.keys()
+        ):  # Registering the widgets wrapped in the page dict with the view
             if self.pages[page_name] is not None:
                 self.gui.main_window.register_page(
                     self.pages[page_name].widget, page_name
@@ -64,7 +66,7 @@ class Controller(QObject):
     def new_session(self):
         """Resetting variables and view for a new session"""
         self.next_page("start")
-        for page_name in self.pages.keys(): # Resetting each page in pages
+        for page_name in self.pages.keys():  # Resetting each page in pages
             if self.pages[page_name] is not None:
                 self.pages[page_name].reset(self)
         self.session_name = None
@@ -89,7 +91,6 @@ class Controller(QObject):
         self.gui.show_toolbar(page.toolbar_shown)
         self.gui.main_window.set_page(page_name)
         page.start(self, *args)
-
 
     def handle_error(self, error_message: str):
         self.gui.display_error_message(
@@ -124,10 +125,14 @@ class Controller(QObject):
 
         # Nothing to check if the folder does not exist or session isn't started
         if not os.path.exists(getAbsPath(HDF5_FOLDER_PATH)) or not self.session_name:
-            self.logger.message.emit(Logger.Level.DEBUG, "Can't check session, no file exists")
+            self.logger.message.emit(
+                Logger.Level.DEBUG, "Can't check session, no file exists"
+            )
             return
 
-        full_path = self.recorder.check_empty_session() # Function will return the full path if min/max are unset
+        full_path = (
+            self.recorder.check_empty_session()
+        )  # Function will return the full path if min/max are unset
 
         if full_path:
             self.logger.message.emit(Logger.Level.INFO, f"Deleting file {full_path}")

@@ -16,7 +16,14 @@ from PyQt6.QtGui import QPixmap
 
 from pathlib import Path
 from .widget_indicator import Indicator
-from ..constants import *
+from app.util import (
+    FILE_PATH_JITSI_HTML,
+    FILE_PATH_CLOSED_EYE_ICON,
+    FILE_PATH_OPEN_EYE_ICON,
+    FILE_PATH_INFO_ICON,
+    JITSI_PAGE_INFO,
+    getAbsPath,
+)
 
 
 class JitsiPage(QWidget):
@@ -186,7 +193,7 @@ class JitsiPage(QWidget):
         """Helper function to create an icon label"""
         label = QLabel(self)
         label.setPixmap(
-            QPixmap(getAbsPath(file_path)).scaled(
+            QPixmap(str(getAbsPath(file_path))).scaled(
                 26,
                 26,
                 Qt.AspectRatioMode.KeepAspectRatio,
@@ -201,13 +208,13 @@ class JitsiPage(QWidget):
     def _load_icons(self):
         """Load and return open/closed eye icons"""
         return (
-            QPixmap(getAbsPath(FILE_PATH_OPEN_EYE_ICON)).scaled(
+            QPixmap(str(getAbsPath(FILE_PATH_OPEN_EYE_ICON))).scaled(
                 32,
                 32,
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             ),
-            QPixmap(getAbsPath(FILE_PATH_CLOSED_EYE_ICON)).scaled(
+            QPixmap(str(getAbsPath(FILE_PATH_CLOSED_EYE_ICON))).scaled(
                 32,
                 32,
                 Qt.AspectRatioMode.KeepAspectRatio,
@@ -228,8 +235,9 @@ class JitsiPage(QWidget):
             QWebEngineSettings.WebAttribute.AllowGeolocationOnInsecureOrigins,
         ]:
             settings.setAttribute(attr, True)
-        settings.setAttribute(QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False)
-
+        settings.setAttribute(
+            QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, False
+        )
 
     class CustomWebEnginePage(QWebEnginePage):
         """Custom WebEnginePage to handle permissions (audio/mic)"""

@@ -10,7 +10,13 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFontDatabase, QFont, QAction, QIcon
 from PyQt6.QtCore import QTimer
 from .mainWidget import MainWidget
-from .constants import *
+from app.util import (
+    FILE_PATH_CSS_LIGHTMODE,
+    FILE_PATH_CSS_DARKMODE,
+    FILE_PATH_FONT,
+    FILE_PATH_SETTINGS_ICON,
+    getAbsPath,
+)
 import os
 
 
@@ -40,13 +46,13 @@ class RootWindow(QMainWindow):
         self.settings_action.triggered.connect(self.main_window.toggle_settings)
         self.retrospective_action.triggered.connect(
             self.main_window.toggle_retrospective
-        ) # Connecting the Toolbar-Action to Retrospective
+        )  # Connecting the Toolbar-Action to Retrospective
 
         self.active_errors = (
             set()
         )  # Set to track active error messages, ensuring no duplicates
-        self.error_timer = QTimer() # Timer to avoid a spam
-        self.error_timer.setSingleShot(True)  
+        self.error_timer = QTimer()  # Timer to avoid a spam
+        self.error_timer.setSingleShot(True)
 
     def apply_stylesheet(self, settings):
         self.settings = settings
@@ -65,7 +71,7 @@ class RootWindow(QMainWindow):
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
         self.settings_action = QAction(
-            QIcon(getAbsPath(FILE_PATH_SETTINGS_ICON)), "Settings", self
+            QIcon(str(getAbsPath(FILE_PATH_SETTINGS_ICON))), "Settings", self
         )
         self.retrospective_action = QAction("Previous Sessions", self)
         toolbar.addAction(self.settings_action)
@@ -101,7 +107,7 @@ class RootWindow(QMainWindow):
     @staticmethod
     def apply_font():
         if os.path.exists(getAbsPath(FILE_PATH_FONT)):
-            font_id = QFontDatabase.addApplicationFont(getAbsPath(FILE_PATH_FONT))
+            font_id = QFontDatabase.addApplicationFont(str(getAbsPath(FILE_PATH_FONT)))
             if font_id != -1:
                 # Retrieve the family name of the loaded font
                 families = QFontDatabase.applicationFontFamilies(font_id)

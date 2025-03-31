@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QWidget
 
 from app.model import Phase
 from app.model.score.hdf5Util import hdf5File
+from app.util import MAX_PHASE_LENGTH, MIN_PHASE_LENGTH
 
 
 class Page(ABC):
@@ -65,9 +66,7 @@ class BaselineStartPage(Page):
         )
         controller.recorder.phase_complete.connect(self.beep)
 
-    def beep(self, phase:int):
-        print(phase)
-        print(Phase.MIN.value)
+    def beep(self, phase: int):
         if phase == Phase.MIN.value:
             self.widget.beep()
 
@@ -90,7 +89,7 @@ class BaselinePage(Page):
         super().__init__(widget, False)
 
     def start(self, controller):
-        controller.phase_change(Phase.MIN.value, 1000)
+        controller.phase_change(Phase.MIN.value, MIN_PHASE_LENGTH)
 
 
 class MaxtestPage(Page):
@@ -108,7 +107,7 @@ class MaxtestPage(Page):
         controller.test_model.generated_char.connect(self.widget.updateChar)
 
     def start(self, controller):
-        controller.phase_change(Phase.MAX.value, 1000)
+        controller.phase_change(Phase.MAX.value, MAX_PHASE_LENGTH)
         controller.test_model.start_test()
         self.widget.hide_correct_button()
 

@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont, QIcon, QPixmap
 import sys
-from ..constants import *
 
 
 class SkipDialog(QDialog):
@@ -90,4 +89,3 @@ class StartBaselinePage(QWidget):
     @staticmethod
     def beep():
         QApplication.beep()
-        

@@ -22,21 +22,15 @@ import matplotlib
 import time
 from datetime import datetime, timedelta
 
-from ..constants import *
+from app.util import HDF5_FOLDER_PATH, FILE_PATH_INFO_ICON, getAbsPath
 from app.model.score.hdf5Util import hdf5File
 import mplcursors
 
 
-"""
-FYI: Falls Ihr h5 sessions plottet achtet darauf dass diese auch tatsächlich CL Daten vom Monitoring haben. 
-     Dh nach dem Baseline messen kurz synthetische CL daten generiert wurden für die h5. Ansonsten ist der Plot leer. 
-"""
-
-
 class RetrospectivePage(QWidget):
-    def __init__(self, session_folder):
+    def __init__(self):
         super().__init__()
-        self.session_folder = session_folder
+        self.session_folder = getAbsPath(HDF5_FOLDER_PATH)
         self.init_ui()
 
     def init_ui(self):
@@ -80,7 +74,7 @@ class RetrospectivePage(QWidget):
         self.info_icon = QLabel(self)
         path_info_icon = getAbsPath(FILE_PATH_INFO_ICON)
         self.info_icon.setPixmap(
-            QPixmap(path_info_icon).scaled(
+            QPixmap(str(path_info_icon)).scaled(
                 32,
                 32,
                 Qt.AspectRatioMode.KeepAspectRatio,

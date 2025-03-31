@@ -163,7 +163,10 @@ class Recorder(QObject):
         if self.hdf5_session:
             return self.hdf5_session.check_empty_min_max()
         else:
-            self.logger.message.emit(Logger.Level.DEBUG, "Cannot check empty session when no hdf5-Session has been initialized")
+            self.logger.message.emit(
+                Logger.Level.DEBUG,
+                "Cannot check empty session when no hdf5-Session has been initialized",
+            )
 
     def _kill_timer(self):
         if self.monitor_timer and self.monitor_timer.isActive():
@@ -171,5 +174,5 @@ class Recorder(QObject):
 
     def deleteLater(self):
         self.thread.quit()
-        self.thread.wait() 
+        self.thread.wait()
         super().deleteLater()

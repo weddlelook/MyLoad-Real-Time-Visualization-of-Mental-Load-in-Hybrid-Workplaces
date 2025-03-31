@@ -1,7 +1,12 @@
 import json
 import os
 from pathlib import Path
-from app.util import FOLDER_PATH_SETTINGS, FILE_NAME_SETTINGS, HDF5_FOLDER_PATH, getAbsPath
+from app.util import (
+    FOLDER_PATH_SETTINGS,
+    FILE_NAME_SETTINGS,
+    HDF5_FOLDER_PATH,
+    getAbsPath,
+)
 from app.util import Logger
 
 
@@ -47,7 +52,9 @@ class SettingsModel:
         :param updates: A dictionary containing the updated settings
         """
         file_path = getAbsPath(FOLDER_PATH_SETTINGS) / FILE_NAME_SETTINGS
-        file_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure parent directory exists
+        file_path.parent.mkdir(
+            parents=True, exist_ok=True
+        )  # Ensure parent directory exists
 
         with file_path.open("w") as file:
             json.dump(updates, file, indent=4)

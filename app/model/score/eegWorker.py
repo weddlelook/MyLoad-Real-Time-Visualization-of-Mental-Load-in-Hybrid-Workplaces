@@ -9,7 +9,7 @@ from brainflow.exit_codes import BrainFlowError
 
 from PyQt6.QtCore import QThread, QObject, pyqtSignal
 
-from app.util import Logger, WINDOW_SIZE, THRESHOLD_UPPER, NUM_CHANNELS
+from app.util import Logger, WINDOW_SIZE, THRESHOLD_UPPER, NUM_CHANNELS, find_usb_port
 
 
 class EegWorker(QObject):
@@ -22,11 +22,12 @@ class EegWorker(QObject):
         self.sliding_window = None  # deque for the moving average
 
         parser = argparse.ArgumentParser(description="board parameters")
+        found_port = find_usb_port()
         parser.add_argument(
             "--port",
             type=str,
             help="Name of the bluetooth port the board receiver is connected to",
-            default="COM3",
+            default=found_port if found_port else "COM3",
         )
         parser.add_argument(
             "--board_id",

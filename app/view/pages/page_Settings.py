@@ -47,7 +47,9 @@ class SettingsWidget(QWidget):
         form_layout.addRow(mode_container)
 
         # Container for Display Name Input
-        display_name_container = QGroupBox("Enter the name that will be displayed in your Jitsi-Meeting")
+        display_name_container = QGroupBox(
+            "Enter the name that will be displayed in your Jitsi-Meeting"
+        )
         display_name_layout = QVBoxLayout()
         display_name_label = QLabel("Enter Display Name")
         display_name_label.setObjectName("text-settings")
