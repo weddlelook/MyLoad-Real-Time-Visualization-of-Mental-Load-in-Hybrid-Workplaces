@@ -13,6 +13,8 @@ from app.util import Logger, WINDOW_SIZE, THRESHOLD_UPPER, NUM_CHANNELS
 
 
 class EegWorker(QObject):
+    """Methods _preprocess_data, and _calculate_powers were provided by Chiara Pascale Chrisam.
+    Monitor_cognitive_load is also in part code provided by her"""
 
     def __init__(self, logger: Logger, error: pyqtSignal):
         super().__init__()

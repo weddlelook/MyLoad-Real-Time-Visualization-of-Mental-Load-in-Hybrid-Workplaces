@@ -88,6 +88,6 @@ class StartBaselinePage(QWidget):
         self.setWindowTitle("Start Baseline")
 
     @staticmethod
-    def play_bip():
-        delay_ms = 250
-        QTimer.singleShot(delay_ms, lambda: QApplication.beep())
+    def beep():
+        QApplication.beep()
+        
