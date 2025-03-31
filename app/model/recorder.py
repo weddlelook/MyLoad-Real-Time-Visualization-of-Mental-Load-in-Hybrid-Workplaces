@@ -35,6 +35,7 @@ class Recorder(QObject):
         self.thread = QThread()
         self.moveToThread(self.thread)
         self.thread.started.connect(self._start)
+        self.thread.finished.connect(self._kill_timer)
         self.thread.start()
 
         self.minimum = None
@@ -164,3 +165,11 @@ class Recorder(QObject):
         else:
             self.logger.message.emit(Logger.Level.DEBUG, "Cannot check empty session when no hdf5-Session has been initialized")
 
+    def _kill_timer(self):
+        if self.monitor_timer and self.monitor_timer.isActive():
+            self.monitor_timer.stop()
+
+    def deleteLater(self):
+        self.thread.quit()
+        self.thread.wait() 
+        super().deleteLater()

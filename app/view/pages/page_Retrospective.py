@@ -75,7 +75,6 @@ class RetrospectivePage(QWidget):
                 40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
             )
         )
-        layout.addLayout(h_layout)
 
         # Info Icon
         self.info_icon = QLabel(self)

@@ -136,4 +136,6 @@ class Controller(QObject):
     def deleteLater(self):
         self.logger.message.emit(Logger.Level.DEBUG, "Closing controller")
         self.check_last_session()
+        if self.recorder:
+            self.recorder.deleteLater()
         super().deleteLater()
