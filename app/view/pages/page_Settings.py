@@ -1,0 +1,107 @@
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QFormLayout,
+    QRadioButton,
+    QButtonGroup,
+    QGroupBox,
+    QHBoxLayout,
+)
+from PyQt6.QtCore import pyqtSignal
+
+
+class SettingsWidget(QWidget):
+    new_settings = pyqtSignal(dict)
+
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+        form_layout = QFormLayout()
+
+        # Container for Mode Settings
+        mode_container = QGroupBox("Mode Settings")
+        mode_layout = QVBoxLayout()
+        mode_label = QLabel("Change the mode")
+        mode_label.setObjectName("text-settings")
+
+        # Mode settings buttons
+        self.light_mode_option = QRadioButton("Light Mode")
+        self.dark_mode_option = QRadioButton("Dark Mode")
+        mode_layout.addWidget(mode_label)
+        mode_layout.addWidget(self.light_mode_option)
+        mode_layout.addWidget(self.dark_mode_option)
+
+        # Grouping buttons so only one can be checked at same time
+        self.mode_option = QButtonGroup(self)
+        self.mode_option.addButton(self.light_mode_option)
+        self.mode_option.addButton(self.dark_mode_option)
+
+        mode_container.setLayout(mode_layout)
+        form_layout.addRow(mode_container)
+
+        # Container for Display Name Input
+        display_name_container = QGroupBox(
+            "Enter the name that will be displayed in your Jitsi-Meeting"
+        )
+        display_name_layout = QVBoxLayout()
+        display_name_label = QLabel("Enter Display Name")
+        display_name_label.setObjectName("text-settings")
+
+        # Display name input field
+        self.display_name_input = QLineEdit()
+        display_name_layout.addWidget(display_name_label)
+        display_name_layout.addWidget(self.display_name_input)
+
+        display_name_container.setLayout(display_name_layout)
+        form_layout.addRow(display_name_container)
+
+        layout.addLayout(form_layout)
+
+        # Layout for buttons
+        horizontal_layout = QHBoxLayout()
+        # Back button
+        self.back_button = QPushButton("Back")
+        horizontal_layout.addWidget(self.back_button)
+
+        # Save button
+        self.save_button = QPushButton("Save Changes")
+        horizontal_layout.addWidget(self.save_button)
+
+        layout.addLayout(horizontal_layout)
+
+        self.back_button.clicked.connect(self.get_display_name)
+        self.save_button.clicked.connect(self.save_settings)
+        self.setLayout(layout)
+        self.setWindowTitle("Settings")
+
+    def save_settings(self):
+        dic = {}
+        if self.light_mode_option.isChecked():
+            dic["isDarkMode"] = False
+        elif self.dark_mode_option.isChecked():
+            dic["isDarkMode"] = True
+        # Adding the display name to the settings dictionary
+        dic["displayName"] = self.display_name_input.text()
+        self.new_settings.emit(dic)
+
+    def set_settings(self, settings):
+        self.settings = settings
+        if self.settings.get("isDarkMode") == False:
+            self.light_mode_option.setChecked(True)
+        elif self.settings.get("isDarkMode") == True:
+            self.dark_mode_option.setChecked(True)
+        # Set the display name field
+        if self.settings.get("displayName"):
+            self.display_name_input.setText(self.settings["displayName"])
+
+    def get_display_name(self):
+        if self.settings.get("displayName"):
+            self.display_name_input.setText(self.settings["displayName"])
+        else:
+            self.display_name_input.clear()

@@ -1,0 +1,11 @@
+from .page_Baseline import BaselineWidget
+from .page_LandingPage import StartWidget
+from .page_Maxtest import MaxtestPage
+from .page_Results import ResultsPage
+from .page_Retrospective import RetrospectivePage
+from .page_Startbaseline import StartBaselinePage
+from .page_StartMaxtest import StartMaxTestPage
+from .page_Settings import SettingsWidget
+
+from .page_jitsi import JitsiPage
+from .page_skip import SkipPageWidget

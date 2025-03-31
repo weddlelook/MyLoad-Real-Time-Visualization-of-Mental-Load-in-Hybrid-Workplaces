@@ -1,0 +1,17 @@
+stateDiagram
+    [*] --> StartPage
+
+    StartPage --> Baseline
+    StartPage --> SkipPage
+    StartPage --> Retrospektive
+
+    Baseline --> NBackTest
+
+    SkipPage --> JitsiPage
+
+    NBackTest --> JitsiPage
+
+    JitsiPage --> Retrospektive
+
+    Retrospektive --> [*]
+    Retrospektive --> StartPage
