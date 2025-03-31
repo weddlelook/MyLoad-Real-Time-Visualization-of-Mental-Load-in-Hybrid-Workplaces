@@ -9,8 +9,8 @@ import math
 class hdf5File:
 
     def __init__(self, users_session_name: str, logger: Logger):
-        self.filename = self._create_h5_file(users_session_name)
         self.logger = logger
+        self.filename = self._create_h5_file(users_session_name)
 
     def save_eeg_data_as_hdf5(self, powers):
         timestamp, cognitive_load, load_score = (
@@ -41,9 +41,9 @@ class hdf5File:
             markers.resize((markers.shape[0] + 1,))
             markers[-1] = new_marker[0]
             # Print all markers directly
-            print("Alle Marker in der .h5-Datei:")
+            self.logger.message.emit(Logger.Level.DEBUG,"All markers in file")
             for marker in markers:
-                print(f"Zeitstempel: {marker[0]}, Beschreibung: {marker[1].decode()}")
+                self.logger.message.emit(Logger.Level.DEBUG, f"time: {marker[0]}, descriptions: {marker[1].decode()}")
 
     def set_min(self, min_value: float):
         with h5py.File(self.filename, "a") as h5_file:
@@ -57,21 +57,21 @@ class hdf5File:
         if not fileName.endswith(".h5"):
             fileName += ".h5"
 
-        # Lese den Standard-Ordnerpfad aus den Konstanten
+
         folder_path = getAbsPath(HDF5_FOLDER_PATH)
 
-        # Überprüfe, ob der Ordner existiert
+        # Check if directory exists
         if not os.path.exists(folder_path):
-            print(f"Ordner {folder_path} existiert nicht.")
+            self.logger.message.emit(Logger.Level.ERROR, f"Directory {folder_path} does not exist.")
             return None
 
-        # Durchsuche den Ordner nach der Datei
+        # Directory missing
         for file in os.listdir(folder_path):
             if file == fileName:
                 return os.path.join(folder_path, file)
 
-        # Datei nicht gefunden
-        print(f"Datei {fileName} nicht gefunden in {folder_path}.")
+        # File not found
+        self.logger.message.emit(Logger.Level.ERROR, f"File {fileName} could not be found in directory {folder_path}.")
         return None
 
     def _create_h5_file(self, users_session_name: str):
@@ -123,7 +123,7 @@ class hdf5File:
                     "markers", shape=(0,), maxshape=(None,), dtype=marker_dtype
                 )
 
-                print(f"HDF5 file created successfully: {HDF5_FILENAME}")
+                self.logger.message.emit(Logger.Level.INFO, f"HDF5 file created successfully: {HDF5_FILENAME}")
         return HDF5_FILENAME
 
     @staticmethod
@@ -140,7 +140,6 @@ class hdf5File:
         try:
             with h5py.File(file_path, "r") as h5_file:
                 max_value = h5_file.attrs.get("max", None)
-                print(max_value)
                 return max_value
         except FileNotFoundError:
             return None
@@ -214,6 +213,21 @@ class hdf5File:
                 descriptions,
             )
 
-    @staticmethod
-    def check_empty_session(self, file_path, file_name):
-        pass
+    def check_empty_min_max(self) -> str:
+        """
+        Checks whether the current HDF5 file has empty (unset) min and max attributes.
+        Returns file_name if either is empty (None or NaN), None otherwise.
+        """
+        try:
+            with h5py.File(self.filename, "r") as h5_file:
+                min_value = h5_file.attrs.get("min", None)
+                max_value = h5_file.attrs.get("max", None)
+
+                # Check for unset attributes (None) or NaN values.
+                if min_value is None or max_value is None:
+                    return self.filename
+                if np.isnan(min_value) or np.isnan(max_value):
+                    return self.filename
+                return None
+        except Exception as e:
+            return self.filename # If an error occurs, treat as empty
