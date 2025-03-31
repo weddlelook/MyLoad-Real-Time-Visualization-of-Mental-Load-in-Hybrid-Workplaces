@@ -89,7 +89,9 @@ class Recorder(QObject):
             case Phase.PAUSED.value:
                 pass
             case _:
-                self.error.emit("Invalid phase flag")
+                self.logger.message.emit(
+                    Logger.Level.ERROR, "Invalid phase value provided."
+                )
 
     def _start(self):
         """Called when the tread is started"""
@@ -103,16 +105,20 @@ class Recorder(QObject):
             if not self.maximum or data["raw_cognitive_load"] > self.maximum:
                 self.maximum = data["raw_cognitive_load"]
                 self.hdf5_session.set_max(self.maximum)
-        except TypeError as e:  # TODO: specify exception
-            self.error.emit(str(e))
+        except TypeError as e:
+            self.error.emit(
+                "No value set yet. Check if your Headphones are set up correctly."
+            )
 
     def _min_phase(self, data):
         try:
             if not self.minimum or data["raw_cognitive_load"] < self.minimum:
                 self.minimum = data["raw_cognitive_load"]
                 self.hdf5_session.set_min(self.minimum)
-        except TypeError as e:  # TODO: specify exception
-            self.error.emit(str(e))
+        except TypeError as e:
+            self.error.emit(
+                "No value set yet. Check if your Headphones are set up correctly."
+            )
 
     def _monitoring_phase(self, data):
         try:

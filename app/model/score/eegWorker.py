@@ -211,4 +211,15 @@ class EegWorker(QObject):
 
     def _moving_average(self):
         valid_values = [v for v in self.sliding_window if v is not None]
-        return np.mean(valid_values) if valid_values else None
+        if valid_values:
+            return np.mean(valid_values)
+        else:
+            if self.update_count > WINDOW_SIZE:
+                self.error.emit(
+                    "Your headphones have been producing unreliable data for an extended amount of time"
+                )
+            self.logger.message.emit(
+                Logger.Level.DEBUG,
+                "Sliding window empty",
+            )
+            return None
