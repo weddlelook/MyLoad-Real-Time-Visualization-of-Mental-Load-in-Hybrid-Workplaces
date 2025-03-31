@@ -6,7 +6,7 @@ import os
 import app.model as model
 
 import app.view.pages as widget
-from app.util import Logger, getAbsPath, HDF5_FOLDER_PATH
+from app.util import Logger, getAbsPath, HDF5_FOLDER_PATH, LOGGER_LEVEL
 
 
 class Controller(QObject):
@@ -17,7 +17,7 @@ class Controller(QObject):
 
     def __init__(self):
         super().__init__()
-        self.logger = Logger(Logger.Level.INFO)
+        self.logger = Logger(LOGGER_LEVEL)
 
         # Model
         self.settings_model = model.SettingsModel(self.logger)
@@ -26,12 +26,9 @@ class Controller(QObject):
 
         # View
         self.gui = RootWindow(self.settings_model.settings)
-        self.gui.retrospective_action.triggered.connect(
-            self.gui.main_window.toggle_retrospective
-        )
 
-        self.connect_settings()
-        self.connect_recorder()
+        self._connect_settings() 
+        self._connect_recorder()
 
         self.pages = {
             "start": StartPage(widget.StartWidget(), self, "baseline_start"),
@@ -55,17 +52,19 @@ class Controller(QObject):
                 widget.RetrospectivePage("app/h5_session_files"), self
             ),
         }
-        for page_name in self.pages.keys():
+        for page_name in self.pages.keys(): # Registering the widgets wrapped in the page dict with the view
             if self.pages[page_name] is not None:
                 self.gui.main_window.register_page(
                     self.pages[page_name].widget, page_name
                 )
 
-        self.check_last_session()
+        self.session_name = None
+        self.jitsi_room_name = None
 
     def new_session(self):
+        """Resetting variables and view for a new session"""
         self.next_page("start")
-        for page_name in self.pages.keys():
+        for page_name in self.pages.keys(): # Resetting each page in pages
             if self.pages[page_name] is not None:
                 self.pages[page_name].reset(self)
         self.session_name = None
@@ -79,18 +78,18 @@ class Controller(QObject):
         self.start_recording_phase.emit(phase, time)
 
     def set_session_variables(self, session_name: str, jitsi_room_name: str):
+        """Set the session and jitsi_room_name so a new recorder session can be started"""
         self.session_name = session_name
         self.jitsi_room_name = jitsi_room_name
         self.recorder.new_session(self.session_name)
 
     def next_page(self, page_name: str, *args):
-        try:
-            page = self.pages[page_name]
-            self.gui.show_toolbar(page.toolbar_shown)
-            self.gui.main_window.set_page(page_name)
-            page.start(self, *args)
-        except KeyError:
-            raise  # Wirft den Fehler erneut, um das Programm zu stoppen
+        """Moving the view to the page specified"""
+        page = self.pages[page_name]
+        self.gui.show_toolbar(page.toolbar_shown)
+        self.gui.main_window.set_page(page_name)
+        page.start(self, *args)
+
 
     def handle_error(self, error_message: str):
         self.gui.display_error_message(
@@ -105,11 +104,11 @@ class Controller(QObject):
             self.pages["maxtest"].reset(self)
             self.phase_change(Phase.PAUSED.value, 0)
 
-    def connect_settings(self):
+    def _connect_settings(self):
         self.gui.main_window.settings.new_settings.connect(self.settings_model.set)
         self.gui.main_window.settings.set_settings(self.settings_model.settings)
 
-    def connect_recorder(self):
+    def _connect_recorder(self):
         self.start_recording_phase.connect(self.recorder.set_phase)
         self.recorder.phase_complete.connect(self._phase_complete)
         self.recorder.error.connect(self.handle_error)
@@ -122,21 +121,19 @@ class Controller(QObject):
             self.next_page("result")
 
     def check_last_session(self):
-        base_dir = os.path.dirname(
-            os.path.abspath(__file__)
-        )  # Ordner, in dem die Datei liegt
-        h5_directory = getAbsPath(HDF5_FOLDER_PATH)
 
-        # Falls der Ordner nicht existiert, erstelle ihn
-        if not os.path.exists(h5_directory):
+        # Nothing to check if the folder does not exist or session isn't started
+        if not os.path.exists(getAbsPath(HDF5_FOLDER_PATH)) or not self.session_name:
+            self.logger.message.emit(Logger.Level.DEBUG, "Can't check session, no file exists")
             return
 
-        # h5_directory = "app/h5_session_files"
-        files = [f for f in os.listdir(h5_directory) if f.endswith(".h5")]
-        num_files = len(files)
-        matching_files = [f for f in files if f.startswith(f"{num_files}_")]
-        if matching_files:
-            last_file = matching_files[0]
-            model.score.hdf5Util.hdf5File.check_empty_session(
-                h5_directory, h5_directory / last_file, last_file
-            )
+        full_path = self.recorder.check_empty_session() # Function will return the full path if min/max are unset
+
+        if full_path:
+            self.logger.message.emit(Logger.Level.INFO, f"Deleting file {full_path}")
+            os.remove(full_path)
+
+    def deleteLater(self):
+        self.logger.message.emit(Logger.Level.DEBUG, "Closing controller")
+        self.check_last_session()
+        super().deleteLater()

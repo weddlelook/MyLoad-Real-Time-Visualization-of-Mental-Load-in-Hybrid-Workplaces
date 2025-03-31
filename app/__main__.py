@@ -8,6 +8,7 @@ def main():
     controller = Controller()
     controller.next_page("start")
     app.exec()
+    controller.deleteLater()
     app.deleteLater()
 
 

@@ -156,3 +156,11 @@ class Recorder(QObject):
         self.hdf5_session.set_min(self.minimum)
         self.hdf5_session.set_max(self.maximum)
         self.score_calculator = ScoreCalculator(self.minimum, self.maximum, self.logger)
+
+    def check_empty_session(self):
+        """Check the current hdf5File for missing min and max values"""
+        if self.hdf5_session:
+            return self.hdf5_session.check_empty_min_max()
+        else:
+            self.logger.message.emit(Logger.Level.DEBUG, "Cannot check empty session when no hdf5-Session has been initialized")
+

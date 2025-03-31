@@ -1,6 +1,9 @@
 import os
 import sys
 from pathlib import Path
+from .logger import Logger
+
+LOGGER_LEVEL = Logger.Level.DEBUG # Level of console logging comments, available: INFO, DEBUG, ERROR
 
 HDF5_FOLDER_PATH = folder_path = "h5_session_files"
 FOLDER_PATH_SETTINGS = "setting_files"

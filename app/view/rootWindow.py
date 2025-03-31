@@ -38,6 +38,9 @@ class RootWindow(QMainWindow):
         self.create_toolbar()
         self.show()
         self.settings_action.triggered.connect(self.main_window.toggle_settings)
+        self.retrospective_action.triggered.connect(
+            self.main_window.toggle_retrospective
+        ) # Connecting the Toolbar-Action to Retrospective
 
         self.active_errors = (
             set()
