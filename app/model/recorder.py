@@ -31,7 +31,7 @@ class Recorder(QObject):
         self.hdf5_session = None
         self.score_calculator = None
 
-        self.eegWorker = EegWorker(logger, self.error)
+        self.eegWorker = None
         self.thread = QThread()
         self.moveToThread(self.thread)
         self.thread.started.connect(self._start)
@@ -67,8 +67,22 @@ class Recorder(QObject):
 
         def phase_complete(phase: int):
             self.set_phase(Phase.PAUSED.value, 0)
+            if phase == Phase.MIN.value:
+                self.logger.message.emit(Logger.Level.INFO, "Minimum phase completed.")
+                if not self.minimum:
+                    self.error.emit(
+                        "No value set yet. Check if your Headphones are set up correctly."
+                    )
+            if phase == Phase.MAX.value:
+                self.logger.message.emit(Logger.Level.INFO, "Maximum phase completed.")
+                if not self.maximum:
+                    self.error.emit(
+                        "No value set yet. Check if your Headphones are set up correctly."
+                    )
             if self.minimum and self.maximum:
-                self.score_calculator = ScoreCalculator(self.minimum, self.maximum, self.logger)
+                self.score_calculator = ScoreCalculator(
+                    self.minimum, self.maximum, self.logger
+                )
                 self.logger.message.emit(
                     Logger.Level.DEBUG,
                     f"Created score calculator with minimum {self.minimum} and maximum {self.maximum}",
@@ -87,29 +101,38 @@ class Recorder(QObject):
             case Phase.PAUSED.value:
                 pass
             case _:
-                self.error.emit("Invalid phase flag")
+                self.logger.message.emit(
+                    Logger.Level.ERROR, "Invalid phase value provided."
+                )
 
     def _start(self):
         """Called when the tread is started"""
         self.monitor_timer = QTimer()
         self.monitor_timer.timeout.connect(self._monitor)
         self.monitor_timer.start(1000)
+        self.eegWorker = EegWorker(self.logger, self.error)
 
     def _max_phase(self, data):
         try:
             if not self.maximum or data["raw_cognitive_load"] > self.maximum:
                 self.maximum = data["raw_cognitive_load"]
                 self.hdf5_session.set_max(self.maximum)
-        except TypeError as e:  # TODO: specify exception
-            self.error.emit(str(e))
+        except TypeError as e:
+            self.logger.message.emit(
+                Logger.Level.DEBUG,
+                "None value recorded.",
+            )
 
     def _min_phase(self, data):
         try:
             if not self.minimum or data["raw_cognitive_load"] < self.minimum:
                 self.minimum = data["raw_cognitive_load"]
                 self.hdf5_session.set_min(self.minimum)
-        except TypeError as e:  # TODO: specify exception
-            self.error.emit(str(e))
+        except TypeError as e:
+            self.logger.message.emit(
+                Logger.Level.DEBUG,
+                "None value recorded.",
+            )
 
     def _monitoring_phase(self, data):
         try:

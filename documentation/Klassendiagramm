@@ -1,48 +1,97 @@
-classDiagram
-    namespace view {
-        class RootWindow {
-            + MainWidget main_window
-            %% Base layer der App 
-        }
-        class MainWidget {
-            + Dict pages 
-            %% Alle registrierten Widgets sind hier gespeichert, zum einfacheren Zugang
-            + QStackedLayout layout 
-            %% Ein Stack mit Funktionen (Qt eigene Klasse) der alle Widgets enthält.
-            %% Es wird immer das Widget angezeigt dessen Index der currentIndex ist
-        }
-        class PlotWidget {
-            %% vorläufig
-            %% wird zu einer Monitoring Page
-            %% Die unter anderem aber nicht ausschließlich die Visualisierung des CL enthält
-            + update_visualization(dict)
-            %% Soll Daten entgegennehmen und die Visualisierung entsprechend anpassen
-            %% Enthält auch Pause
-        }
-        class StartWidget {
-            %% vorläufig 
-            %% wird zur Landing Page
-            %% Soll Infos enthalten
-        }
-        class BaselineWidget {
-            %% trivial
-        }
-        class Test {
-            %% n-Back mit zwei BUttons "stimmt überein" und "stimmt nicht überein" 
-        }
-        class Skip {
-            %% Zeigt Liste alter Sessions aus denen eine gewählt werden kann
-            %% deren MaxWert genommen wird
-            %% und Info zu "Wann geskipped werden kann"
-        }
-        class Retro {
-            %% trivial
-        }
-    }
-    namespace controller {
-        class Controller
-    }
-    namespace model {
-        class EEGMonitoring
-        class KeyboardListener
-    }
+@startuml
+' Define direction
+left to right direction
+class controller.controller {
+  +start_recording_phase : pyqtSignal
+  +new_session()
+  +phase_change(phase: int, time: int)
+  +set_session_variables(session_name: str, jitsi_room_name: str)
+  +next_page(page_name: str, *args)
+}
+package controller.pagewrapper {
+top to bottom direction
+  class Page {
+    +start(controller)
+    +reset(controller)
+  }
+
+  class StartPage {
+
+  }
+
+  class BaselineStartPage {
+
+  }
+
+  class SkipPage {
+
+  }
+
+  class BaselinePage {
+  }
+
+  class MaxtestPage {
+  }
+
+  class MaxtestStartPage {
+  }
+
+  class ResultPage {
+  }
+
+  class JitsiPage {
+  }
+
+  class RetrospectivePage {
+  }
+}
+
+Page <|-down- StartPage
+Page <|-down- BaselineStartPage
+Page <|-down- SkipPage
+Page <|-down- BaselinePage
+Page <|-down- MaxtestPage
+Page <|-down- MaxtestStartPage
+Page <|-down- ResultPage
+Page <|-down- JitsiPage
+Page <|-down- RetrospectivePage
+
+StartPage <-- view.pages.StartWidget
+SkipPage <-- view.pages.SkipPageWidget
+BaselinePage <-- view.pages.BaselineWidget
+MaxtestPage <-- view.pages.MaxtestPage
+MaxtestStartPage <-- view.pages.StartMaxTestPage
+ResultPage <-- view.pages.ResultsPage
+JitsiPage <-- view.pages.JitsiPage
+RetrospectivePage <-- view.pages.RetrospectivePage
+BaselineStartPage <-- view.pages.StartBaseLinePage
+view.pages.SettingsWidget --> view.MainWidget
+
+view.RootWindow --* controller.controller
+view.MainWidget -up-* view.RootWindow
+
+pagewrapper -right-> controller.controller: page : dict
+
+package model {
+  class Recorder
+
+  class SettingsModel
+  class NBackTest
+}
+
+package model.score {
+top to bottom direction
+  class ScoreCalculator
+  class EegWorker
+  class hdf5File
+}
+
+model.score.ScoreCalculator -up-* model.Recorder
+model.score.EegWorker -up-* model.Recorder
+model.score.hdf5File -up-* model.Recorder
+
+model.Recorder -left-> controller.controller
+model.SettingsModel -left-> controller.controller
+model.NBackTest -left-> controller.controller
+
+@enduml
