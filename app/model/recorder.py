@@ -140,7 +140,7 @@ class Recorder(QObject):
                 data["cognitive_load"]
             )
             self.logger.message.emit(
-                Logger.Level.INFO, f"Calculated score: {data["load_score"]}"
+                Logger.Level.DEBUG, f"Calculated score: {data["load_score"]}"
             )
             self.hdf5_session.save_eeg_data_as_hdf5(data)
             self.powers.emit(data)
