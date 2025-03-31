@@ -100,7 +100,7 @@ class Controller(QObject):
             Logger.Level.ERROR, f"Error in Recorder: {error_message}"
         )
         if error_message.startswith("No value set yet"):
-            self.nextPage("baseline_start")
+            self.next_page("baseline_start")
             self.pages["baseline"].reset(self)
             self.pages["maxtest"].reset(self)
             self.phase_change(Phase.PAUSED.value, 0)
