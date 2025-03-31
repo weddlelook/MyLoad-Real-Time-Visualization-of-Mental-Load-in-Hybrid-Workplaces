@@ -37,9 +37,9 @@ a = Analysis(
     binaries=binaries,  # Include BrainFlow shared libraries dynamically
     datas=[
         (str(project_root / 'app'), 'app'),
-        ('app/view/styles', 'styles'),
-        ('app/setting_files', 'setting_files'),
-        ('app/h5_session_files', 'h5_session_files'),
+        ('app/res/styles', 'styles'),
+        ('app/res/setting_files', 'setting_files'),
+        ('app/res/h5_session_files', 'h5_session_files'),
     ],
     hiddenimports=['PyQt6', 'numpy', 'matplotlib', 'pyqtgraph', 'brainflow'],
     hookspath=[],
