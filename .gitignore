@@ -178,3 +178,4 @@ cython_debug/
 app/h5_session_files/
 .idea
 app/Settings Files/
+app/res/setting_files/user_settings.json
