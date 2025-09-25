@@ -1,5 +1,8 @@
 # TES_MyLoad
 
+> Team project originally developed at Karlsruher Institut für Technologie/Wirtschaftsinformatik.  
+> This GitHub mirror preserves the full commit history and contributors.
+
 ## Requirements
 
 Before you can run this code, you will need to install our dependency manager [Poetry](https://python-poetry.org/docs/).
